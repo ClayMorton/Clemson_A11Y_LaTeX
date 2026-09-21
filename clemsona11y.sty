@@ -1,0 +1,391 @@
+% clemsona11y.sty -- accessible (tagged, PDF/UA-2) LaTeX in one package.
+% Clemson University, CCIT Internal Operations, ADA Compliance Team (A11Y).
+% Class-independent; tested with article, report, book and ClemsonThesis.
+% Requires LuaLaTeX and LaTeX 2026-06-01+; the guards below enforce both.
+%
+% Recipe:
+%   1. Above \documentclass (a package is read too late to set these):
+%        \DocumentMetadata{lang=en-US, pdfversion=2.0, pdfstandard=ua-2,
+%          pdfstandard=a-4f, tagging=on, check-tagging-status}
+%   2. \usepackage{clemsona11y} as the LAST preamble line; it loads hyperref,
+%      which asks to come after everything else. Give hyperref, amsmath, float
+%      or graphicx your own options with \PassOptionsToPackage before it.
+%   3. \includegraphics[alt={...}] on every informative image ([artifact] on a
+%      decorative one) and \tagpdfsetup{table/header-rows={1}} inside each
+%      table environment. Build with LuaLaTeX, check with verapdf -f ua2.
+%
+% Options -- \usepackage[key=value]{clemsona11y}; * = default. An unknown
+% value stops the build, because a mistyped option is otherwise silent.
+%   fonts      termes* | lm | false   text+math font via fontspec/unicode-math
+%   floats     here*   | free         [H] as the default float placement
+%   headings   word*   | kernel       title=H1, chapter=H2 ... or kernel Title
+%   title      h1*     | none         tag the kernel \maketitle title as H1
+%   links      keep*   | hidden       dark-blue underlined links, or hidelinks
+%   pagination plain*  | typed        untyped artifact, or /Type /Pagination
+%   math       full*   | af           MathML structure elements + attached
+%                                     file, or the attached file only
+%
+% Details: README.md; LaTeX_A11Y.md, Standards checklist.
+% Meets: ISO 14289-2:2024 (PDF/UA-2); ISO 32000-2:2020 14.8 (tagged PDF).
+\newcommand{\clemsonaDate}{2026/09/21}
+\newcommand{\clemsonaVersion}{1.0}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{clemsona11y}[\clemsonaDate\space v\clemsonaVersion\space
+  Accessible (tagged, PDF/UA-2) LaTeX in one package -- Clemson University A11Y]
+
+
+
+% A11Y: TOOLCHAIN GUARDS
+% Four checks that refuse to build when the toolchain cannot tag; each failure
+% otherwise yields a normal-looking untagged PDF that goes unnoticed until an
+% ADA review. (1) LuaLaTeX: only it runs luamml for MathML and OpenType fonts
+% with a ToUnicode map, so pdfLaTeX and XeLaTeX are rejected.
+% Meets: ISO 32000-2:2020 14.8.1 (MarkInfo /Marked true).
+\RequirePackage{iftex}
+\ifLuaTeX\else
+    \PackageError{clemsona11y}%
+        {This document must be compiled with LuaLaTeX}%
+        {An accessible (tagged) PDF requires the LuaLaTeX engine.^^J%
+         Command line: run 'latexmk -lualatex yourfile.tex' (or 'make', if the
+         project has a Makefile).^^J%
+         Overleaf: Menu > Settings > Compiler > LuaLaTeX.^^J%
+         TeXShop / TeXworks / VS Code: choose the LuaLaTeX typesetting engine.^^J%
+         Tip: the two "magic comment" lines '!TEX program = lualatex' and^^J%
+         '!TEX TS-program = lualatex' (each one written after a percent sign)^^J%
+         on the first two lines of your .tex file make most editors do it for
+         you.}
+\fi
+\RequireLuaTeX
+
+% (2) Format floor, never a pin: 2026-06-01 is the first release that tags [H]
+% floats in place. Newer releases are expected to work and to improve on it.
+\IfFormatAtLeastTF{2026-06-01}{}{%
+    \PackageError{clemsona11y}%
+        {Your LaTeX is too old to make an accessible (tagged) PDF}%
+        {This package needs the LaTeX release of 2026-06-01 or newer.^^J%
+         Install TeX Live 2026 / MacTeX 2026 (https://tug.org/texlive/),^^J%
+         or update what you have: run 'tlmgr update --self --all'.^^J%
+         Overleaf: Menu > Settings > TeX Live version > 2026 (and Compiler >
+         LuaLaTeX).}%
+}
+
+% (3) \DocumentMetadata must precede \documentclass, or tagging is off.
+\NeedsDocumentMetadata
+
+% (4) Tagging must still be active when the body starts: \tag_if_active:TF is
+% the kernel's own test, so ask it once at \begin{document}.
+\newcommand{\clemsonaTaggingError}{%
+    \PackageError{clemsona11y}%
+        {PDF tagging is not active -- this PDF would NOT be accessible}%
+        {Tagging must be switched on for this document.^^J%
+         Check that the first thing in your .tex file is the
+         \string\DocumentMetadata block^^J%
+         and that it contains 'tagging = on'.^^J%
+         Do not put \string\tagpdfsetup{activate=off} or \string\SuspendTagging
+         in the preamble.}%
+}
+\ExplSyntaxOn
+\AtBeginDocument
+  {
+    \cs_if_exist:NTF \tag_if_active:TF
+      { \tag_if_active:TF { } { \clemsonaTaggingError } }
+      { \clemsonaTaggingError }
+  }
+\ExplSyntaxOff
+
+
+% Options: store each value here, act on it in the block that owns it. Acting
+% at once would let a default load a font package before fonts=false arrived.
+% \clemsona@if{\stored}{wanted}{then}{else} is the \ifx test those blocks use.
+\newcommand*{\clemsona@fonts}{termes}
+\newcommand*{\clemsona@floats}{here}
+\newcommand*{\clemsona@headings}{word}
+\newcommand*{\clemsona@title}{h1}
+\newcommand*{\clemsona@links}{keep}
+\newcommand*{\clemsona@pagination}{plain}
+\newcommand*{\clemsona@math}{full}
+\newcommand*{\clemsona@tmp}{}
+\newcommand{\clemsona@if}[4]{%
+    \def\clemsona@tmp{#2}\ifx#1\clemsona@tmp#3\else#4\fi}
+\DeclareKeys[clemsona11y]{
+  fonts    .store = \clemsona@fonts,
+  fonts    .usage = load,
+  floats   .store = \clemsona@floats,
+  floats   .usage = load,
+  headings .store = \clemsona@headings,
+  headings .usage = load,
+  title    .store = \clemsona@title,
+  title    .usage = load,
+  links    .store = \clemsona@links,
+  links    .usage = load,
+  pagination .store = \clemsona@pagination,
+  pagination .usage = load,
+  math       .store = \clemsona@math,
+  math       .usage = load,
+}
+\ProcessKeyOptions[clemsona11y]
+
+% Option validation: \clemsona@check walks the legal list with the same \ifx
+% the blocks below use and errors naming the values. Without it a typo such as
+% headings=Word is accepted in silence and the setting it controls never
+% happens. Adding a value: extend this list, the table above and its block.
+\newif\ifclemsona@known
+\newcommand*{\clemsona@check}[2]{%
+    \clemsona@knownfalse
+    \expandafter\let\expandafter\clemsona@value\csname clemsona@#1\endcsname
+    \@for\clemsona@tmp:=#2\do{%
+        \ifx\clemsona@value\clemsona@tmp \clemsona@knowntrue\fi}%
+    \ifclemsona@known\else
+        \PackageError{clemsona11y}%
+            {Unknown value '\clemsona@value' for option '#1' --
+             use one of: #2}%
+            {The option #1 of package clemsona11y accepts only these values:^^J%
+             #1 = #2.^^J%
+             You wrote \string\usepackage[#1=\clemsona@value]{clemsona11y}.^^J%
+             Values are lower case and spelled exactly as in the option table
+             at the top of clemsona11y.sty, which also says what each one
+             does.^^J%
+             Correct the spelling -- or delete the option to use the default --
+             and compile again.}%
+    \fi}
+\clemsona@check{fonts}{termes,lm,false}
+\clemsona@check{floats}{here,free}
+\clemsona@check{headings}{word,kernel}
+\clemsona@check{title}{h1,none}
+\clemsona@check{links}{hidden,keep}
+\clemsona@check{pagination}{plain,typed}
+\clemsona@check{math}{af,full}
+
+
+% A11Y: FONTS
+% fontspec and unicode-math give every glyph a ToUnicode entry, so the text is
+% searchable, copyable and pronounceable, and luamml gets the glyph data it
+% needs to write correct MathML. termes is metric-compatible with Times New
+% Roman. amsmath is named first so \PassOptionsToPackage can still reach it.
+% Meets: ISO 32000-2:2020 14.8.2.6.1; ISO 14289-2:2024 8.4.5.8 (ToUnicode).
+\RequirePackage{amsmath}
+\clemsona@if{\clemsona@fonts}{false}{%
+    \PackageWarningNoLine{clemsona11y}{%
+        Option fonts=false: no font package is loaded.^^J%
+        Load fontspec and unicode-math yourself, or the MathML written for
+        your^^J%
+        equations may contain the wrong characters and the PDF may fail
+        veraPDF^^J%
+        check 8.4.5.8 (fonts must map every character code to Unicode)}%
+}{%
+    % Do not add amssymb or bm on top of unicode-math: amssymb aborts on
+    % symbols unicode-math already defines, bm silently prints non-bold maths.
+    % Use \symbf for bold maths.
+    \RequirePackage{fontspec}%    OpenType text fonts + Unicode text encoding
+    \RequirePackage{unicode-math}% OpenType maths fonts; what luamml needs
+    \clemsona@if{\clemsona@fonts}{lm}{%
+        % fontspec already defaults the text font to Latin Modern Roman.
+        \setmathfont{Latin Modern Math}%
+    }{%
+        % Times-like default, as the Graduate School format requires.
+        \setmainfont{TeX Gyre Termes}%      body + headings: Times New Roman clone
+        \setmathfont{TeX Gyre Termes Math}% matching maths, full Unicode coverage
+    }%
+    % A11Y: \strong
+    % Map fontspec's \strong to a Strong element through the kernel's inline
+    % tagging socket. \textbf is only a font switch and leaves no trace in the
+    % tag tree, so bold used as meaning is lost on a screen reader. Keep
+    % \textbf in table header cells, which are announced as headers already.
+    % Meets: ISO 32000-2:2020 14.8.4.7.2 Table 368 (Strong).
+    \AddToHook{cmd/strong/before}{\leavevmode\UseTaggingSocket{inline/begin}{tag=Strong}}%
+    \AddToHook{cmd/strong/after}{\UseTaggingSocket{inline/end}}%
+}
+
+
+% A11Y: GRAPHICS
+% Load graphicx so \includegraphics and its alt= and [artifact] keys exist:
+% step 3 of the recipe promises that interface, and a document that loads
+% nothing else stops with "Undefined control sequence" without it. Loading it
+% twice is harmless; pass your own options with \PassOptionsToPackage first.
+% Meets: ISO 32000-2:2020 14.8.4.8.5 (Figure Alt); Tagged PDF BPG 1.0.1 5.5.2.
+\RequirePackage{graphicx}
+
+
+% A11Y: FLOATS
+% Tag every float where it stands in the source. With tagging on the kernel
+% otherwise defers floats into figures/tables bins at the end of the tree, so
+% a screen reader meets every table after the bibliography. floats=here also
+% prints them there ([H]); float/here fixes the tags for floats=free too.
+% Meets: ISO 32000-2:2020 14.8.2.5.1 (page order = logical content order).
+\RequirePackage{float}
+\clemsona@if{\clemsona@floats}{here}{%
+    \floatplacement{figure}{H}%  a plain \begin{figure} means \begin{figure}[H]
+    \floatplacement{table}{H}%   a plain \begin{table}  means \begin{table}[H]
+}{}
+\tagpdfsetup{float/here}%        tags go where the float is written, not at the end
+% DO NOT "FIX" THE Aside TAG: float containers are named Aside, the PDF 2.0
+% tag the kernel maps them to anyway. Acrobat is a PDF 1.7 tool and shows
+% Aside as "Note". Do not remap to Div: Div is transparent, so the Caption is
+% judged against the enclosing Sect and fails the first/last-child rule.
+% Meets: ISO 32000-2:2020 14.8.4.4 Table 365; ISO 14289-2:2024 8.2.5.27.
+\AssignStructureRole{float/figure}{Aside}
+\AssignStructureRole{float/table}{Aside}
+% A11Y WORKAROUND: \par ends the paragraph the float interrupts, then
+% paragraph tagging goes off for the float body, so Figure/Table is a direct
+% child of the Aside instead of sitting inside an empty P.
+% REMOVE WHEN: the tagging project offers that nesting with paragraph tagging
+% left on -- https://github.com/latex3/tagging-project/issues
+% Meets: Tagged PDF BPG 1.0.1 4.3.1 (Figure and Caption under the container).
+\AddToHook{env/figure/begin}{\par\tagpdfsetup{para/tagging=false}}
+% Price of the line above -- RULE 1: inside a float use only \centering,
+% \includegraphics, tabular, \caption, \label, \tagpdfsetup; center, quote,
+% lists and \[ \] abort with "text para hooks differ". RULE 2: blank line
+% before \begin{figure}/\begin{table}. Loose text in a float becomes an
+% artifact: put a source note in the \caption or in a paragraph after it.
+% Meets: ISO 32000-2:2020 14.8.2.2.2 (artifact marking).
+\AddToHook{env/table/begin}{\par\tagpdfsetup{para/tagging=false}}
+
+
+% A11Y: TAG THE CAPTION NUMBER
+% "Figure 1.1" is tagged Span, not Lbl. Acrobat's PDF/UA-1 rule "Lbl and
+% LBody" flags every Lbl outside a list item, so the default Lbl reports every
+% caption in the document. Both tags are valid; PDF/UA-2 requires neither.
+% Restore with \AssignStructureRole{float/figure/label}{Lbl} in your preamble.
+% Meets: Tagged PDF BPG 1.0.1 4.2.4 (caption label); 4.2.7 (Span).
+\AssignStructureRole{float/figure/label}{Span}  % "Figure 1.1" -> Span, not Lbl
+\AssignStructureRole{float/table/label}{Span}   % "Table 2.3"  -> Span, not Lbl
+
+
+% A11Y: MATHEMATICS
+% Every formula is a Formula with Alt text, MathML structure elements and the
+% MathML attached as a file: what the PDF Association's Math BPG (2026) asks
+% for. Acrobat and PAC, PDF/UA-1 tools, list MathML spacing as empty tags;
+% math=af drops the structure elements for a clean Acrobat tree (UA-1 only).
+% Meets: ISO 32000-2:2020 14.8.6.3 (MathML); PDF Association BPG Math in PDF 1.0.
+\clemsona@if{\clemsona@math}{full}{%
+    \tagpdfsetup{math/setup={mathml-SE,mathml-AF}}%
+}{%
+    \tagpdfsetup{math/setup={mathml-AF}}%
+}
+\tagpdfsetup{math/alt/use}% Alt on every Formula; its text is set just below
+
+% A11Y WORKAROUND: FORMULA ALT TEXT. latex-lab-math's Alt is an internal
+% template ("LaTeX formula starts ... ends") with no user interface yet
+% (latex-lab-math.pdf 5.7; tagging-project discussion 717). This math/content
+% plug uses the text of \mathalt{...} written right before a formula, else the
+% bare LaTeX source. REMOVE WHEN: the kernel offers a formula alt-text key.
+% Meets: ISO 14289-2:2024 8.2.5.29; ISO 14289-1:2014 7.7 (Alt on Formula).
+\ExplSyntaxOn
+\tl_new:N \g__cly_mathalt_tl
+\NewDocumentCommand \mathalt { m } { \tl_gset:Nn \g__cly_mathalt_tl {#1} }
+\tl_if_exist:NT \l__math_content_template_tl
+  {
+    \tl_set:Nn \l__math_content_template_tl { \exp_not:V \g__math_grabbed_math_tl }
+    \NewTaggingSocketPlug {math/content} {clemsonally}
+      {
+        \tl_if_empty:NTF \g__cly_mathalt_tl
+          { \tl_set:Ne \l__math_content_alt_tl { \l__math_content_template_tl } }
+          {
+            \tl_set_eq:NN \l__math_content_alt_tl \g__cly_mathalt_tl
+            \tl_gclear:N \g__cly_mathalt_tl
+          }
+        \tl_set:Ne \l__math_content_AF_source_tl { \l__math_texsource_template_tl }
+        \tl_set:Nn \l__math_content_AF_mathml_tl {}
+        \tl_set:Nn \l__math_content_actual_tl {}
+      }
+    \AssignTaggingSocketPlug {math/content} {clemsonally}
+  }
+\ExplSyntaxOff
+
+
+% A11Y: THE HEADING MAP
+% headings=word moves every sectioning level down one rung so the document
+% title is the only H1: chapter H2, section H3, subsection H4, subsubsection
+% H5, paragraph H6, one rung less in article. That is the Graduate School's
+% Word ladder, and a screen reader needs a ladder with no missing rungs.
+% Meets: ISO 32000-2:2020 14.8.4.5 Table 366; Tagged PDF BPG 1.0.1 4.2.2.
+\clemsona@if{\clemsona@headings}{word}{%
+    \ifdefined\chapter
+        % book, report, ClemsonThesis: level 0 is \chapter.
+        \AssignStructureRole{sec/0/title}{H2}% \chapter, \chapter* -> "Heading 2"
+        \AssignStructureRole{sec/1/title}{H3}% \section            -> "Heading 3"
+        \AssignStructureRole{sec/2/title}{H4}% \subsection         -> "Heading 4"
+        \AssignStructureRole{sec/3/title}{H5}% \subsubsection      -> "Heading 5"
+        \AssignStructureRole{sec/4/title}{H6}% \paragraph -- rarely used, but set
+    \else
+        % article: no \chapter, so \section is the top heading. \part is left
+        % alone; a document that uses one decides its own top heading.
+        \AssignStructureRole{sec/1/title}{H2}% \section            -> "Heading 2"
+        \AssignStructureRole{sec/2/title}{H3}% \subsection         -> "Heading 3"
+        \AssignStructureRole{sec/3/title}{H4}% \subsubsection      -> "Heading 4"
+        \AssignStructureRole{sec/4/title}{H5}% \paragraph -- rarely used, but set
+    \fi
+}{}
+% THE ALTERNATIVE, IF A REVIEWER EVER INSISTS ON THE PDF 2.0 Title TAG:
+% headings=kernel. Title plug (title=h1 with headings=word): the socket plug
+% below makes the title printed by the kernel's \maketitle an H1. A class with
+% its own title page passes title=none and tags the title line itself with
+% \AssignStructureRole{para/textblock}{H1}.
+% Meets: ISO 32000-2:2020 14.8.4.5 Table 366; BPG 1.0.1 Annex B A.3.2.1.
+\def\clemsona@tmp{h1}
+\ifx\clemsona@title\clemsona@tmp
+    \def\clemsona@tmp{word}
+    \ifx\clemsona@headings\clemsona@tmp
+        \NewTaggingSocketPlug{title}{h1}{\AssignStructureRole{para/textblock}{H1}#2}
+        \AssignTaggingSocketPlug{title}{h1}
+    \fi
+\fi
+
+
+% A11Y: LINKS AND THE BOOKMARK PANEL
+% hyperref is loaded last in this file, as its own manual asks, through
+% \PassOptionsToPackage so a class's hyperref options survive. The bookmark
+% panel is how a screen-reader user navigates a long document, so it reaches
+% subsections (bookmarksdepth=3) even when the printed ToC stops earlier.
+% Meets: Tagged PDF BPG 1.0.1 7.2 (outlines); 3.3 (title displayed, not file).
+\PassOptionsToPackage{%
+    bookmarksnumbered,%       outline reads "1 Introduction"
+    bookmarksopen,%           chapters already expanded
+    bookmarksdepth=3,%        outline goes down to \subsubsection
+    pdfdisplaydoctitle=true,% window title = document title, not thesis.pdf
+    linktoc=all%              contents entries: title AND page number are links
+  }{hyperref}
+% links=hidden adds hidelinks: no colour, no border, no underline (a class or
+% journal that forbids link styling). Either value leaves a tagged Link.
+\clemsona@if{\clemsona@links}{hidden}{%
+    \PassOptionsToPackage{hidelinks}{hyperref}%
+}{}
+\RequirePackage{hyperref}
+% A11Y: LINK APPEARANCE (links=keep). Dark-blue text (contrast 7:1 on white)
+% and an underline the viewer draws from the annotation's border style, so a
+% link is never marked by colour alone; the underline is not printed. A class
+% may override the colours with \hypersetup after loading this package.
+% Meets: Clemson links concept ("underline links"); WCAG 2.1 1.4.1, 1.4.3.
+\clemsona@if{\clemsona@links}{keep}{%
+    \hypersetup{colorlinks=true, allcolors=[rgb]{0,0.2,0.6},
+                allbordercolors=[rgb]{0,0.2,0.6}, pdfborderstyle={/S/U/W 1}}%
+}{}
+
+% A11Y: LINK ANNOTATION /Contents
+% Give every link annotation a generic type description through the documented
+% l3pdfannot interface. PDF/UA-1 requires an annotation to carry one and the
+% Acrobat and PAC checkers apply that rule; PDF/UA-2 dropped it. A screen
+% reader reads the link text from the Link element; these are a fallback.
+% Meets: ISO 14289-1:2014 7.18.5; Tagged PDF BPG 1.0.1 4.2.12.2.
+\ExplSyntaxOn
+\pdfannot_dict_put:nnn {link/GoTo}  {Contents} {(Internal~link)}
+\pdfannot_dict_put:nnn {link/URI}   {Contents} {(Web~link)}
+\pdfannot_dict_put:nnn {link/GoToR} {Contents} {(Link~to~another~file)}
+\pdfannot_dict_put:nnn {link/Named} {Contents} {(Link)}
+\ExplSyntaxOff
+
+
+% A11Y: PAGE FURNITURE
+% The kernel wraps header and footer material in /Artifact BMC already, so no
+% page number reaches the reading order. pagination=typed writes /Artifact
+% <</Type /Pagination>> BDC instead for PDF/UA-1 checkers, at the cost of two
+% empty Artifact elements per page ("Private" in Acrobat); plain is default.
+% Meets: ISO 14289-1:2014 7.8; Tagged PDF BPG 1.0.1 3.7.2.
+\clemsona@if{\clemsona@pagination}{typed}{%
+    \tagpdfsetup{page/exclude-header-footer=pagination}%
+}{}
+% page/exclude-header-footer is tagpdf's own documented key (manual 3.2.6),
+% marked experimental; do not patch tagpdf internals for the same effect.
+
+\endinput
+% End of clemsona11y.sty

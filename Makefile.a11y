@@ -1,0 +1,42 @@
+# Makefile.a11y -- build and check an accessible PDF.   make -f Makefile.a11y [target]
+# Targets: all (default), requirements, check, open, clean, cleanall.  TARGET=main
+TARGET  ?= main
+LATEXMK  = latexmk -lualatex -interaction=nonstopmode -halt-on-error
+
+all: $(TARGET).pdf
+
+$(TARGET).pdf: $(TARGET).tex
+	$(LATEXMK) $(TARGET).tex
+
+# requirements: LuaLaTeX, latexmk and a LaTeX format of 2026-06-01 or newer.
+requirements:
+	@command -v lualatex >/dev/null || { echo "FAIL: lualatex not found. Install TeX Live 2026 (MacTeX 2026)."; exit 1; }
+	@command -v latexmk  >/dev/null || { echo "FAIL: latexmk not found."; exit 1; }
+	@printf '\\documentclass{article}\\begin{document}\\IfFormatAtLeastTF{2026-06-01}{\\typeout{FORMATOK}}{\\typeout{FORMATOLD}}x\\end{document}' > a11y-fmt-check.tex
+	@lualatex -interaction=batchmode a11y-fmt-check.tex >/dev/null 2>&1; rm -f a11y-fmt-check.tex a11y-fmt-check.aux a11y-fmt-check.pdf
+	@grep -q FORMATOK a11y-fmt-check.log && echo "OK: LaTeX 2026-06-01 or newer" || { echo "FAIL: LaTeX too old. Run 'sudo tlmgr update --self --all' or install TeX Live 2026."; exit 1; }
+	@rm -f a11y-fmt-check.log
+
+# check: errors, alt text and tagging warnings from the log, the package status
+#        report, veraPDF (PDF/UA-2) if installed, then the Acrobat step.
+check: $(TARGET).pdf
+	@if grep -q '^!' $(TARGET).log; then echo "FAIL: LaTeX errors in $(TARGET).log"; exit 1; fi
+	@if grep -q 'Alternative text for graphic is missing' $(TARGET).log; then echo "FAIL: a picture has no alt text (see $(TARGET).log)"; exit 1; else echo "OK: every picture has alt text"; fi
+	@if grep -qE 'Package tag(pdf)? Warning|latex-lab[^:]*Warning' $(TARGET).log; then echo "FAIL: tagging warnings in $(TARGET).log:"; grep -hE 'Package tag(pdf)? Warning|latex-lab[^:]*Warning' $(TARGET).log | sort -u; exit 1; else echo "OK: no tagging warning"; fi
+	@echo "-- package status (sections 1-3 of the report in $(TARGET).log; float.sty here is a known false alarm) --"
+	@sed -n '/Status report of the tagging support/,$$p' $(TARGET).log | sed -n '/1\. Unsupported/,/4\. Compatible/p' | grep -v '^ *$$' | grep -v '4\. Compatible' || true
+	@if command -v verapdf >/dev/null; then echo "-- veraPDF PDF/UA-2 --"; verapdf --flavour ua2 --format text $(TARGET).pdf | tail -2; else echo "veraPDF not installed: https://verapdf.org/software/ (needed for the PDF/UA-2 check)"; fi
+	@echo "Last step: Acrobat > All tools > Prepare for accessibility > Check for accessibility"
+	@echo "  https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/"
+
+open: $(TARGET).pdf
+	@open $(TARGET).pdf 2>/dev/null || xdg-open $(TARGET).pdf
+
+clean:
+	@latexmk -c $(TARGET).tex >/dev/null 2>&1 || true
+	@rm -f $(TARGET)-luamml-mathml.html $(TARGET).bbl $(TARGET).run.xml $(TARGET).xmpi
+
+cleanall: clean
+	@rm -f $(TARGET).pdf
+
+.PHONY: all requirements check open clean cleanall

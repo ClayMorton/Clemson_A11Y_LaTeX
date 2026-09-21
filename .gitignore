@@ -1,0 +1,17 @@
+# build products
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.lof
+*.lot
+*.out
+*.toc
+*.synctex.gz
+*.xmpi
+*-luamml-mathml.html
+main.pdf
+a11y-fmt-check.*
+.DS_Store
