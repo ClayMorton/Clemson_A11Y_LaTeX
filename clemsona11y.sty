@@ -382,6 +382,27 @@
     \AddToHook{cmd/listoftables/before}{\hypersetup{pdfborderstyle={}}}%
     \AddToHook{cmd/listoftables/after}{\hypersetup{pdfborderstyle={/S/U/W 1}}}%
 }{}
+% A11Y WORKAROUND: FOOTNOTE MARK LINK BOX. hyperref's fnmark/link plug wraps
+% the whole mark box, so the link box is the line's and the underline lands
+% under the baseline, far from the raised number. This plug runs hyperref's
+% plug inside the raised box (kernel-style marks) or in its own box, so the
+% underline sits under the numeral. Calls the plug by its ltsockets csname.
+% REMOVE WHEN: latex-lab-footnotes sizes the link to the mark. Meets: WCAG 2.4.4.
+\ExplSyntaxOn
+\NewSocketPlug{fnmark/link}{clemsonally}
+  {
+    \str_set:Ne \l_tmpa_str { \cs_meaning:N \@makefnmark }
+    \str_if_in:NnTF \l_tmpa_str { @textsuperscript }
+      { \hbox{\@textsuperscript{\normalfont \use:c{__socket_fnmark/link_plug_link:w}{\@thefnmark}}} }
+      { \hbox{ \use:c{__socket_fnmark/link_plug_link:w}{#1} } }
+  }
+\ExplSyntaxOff
+\clemsona@if{\clemsona@links}{keep}{%
+    \AddToHook{begindocument/end}{%
+        \ifcsname __socket_fnmark/link_plug_link:w\endcsname
+            \AssignSocketPlug{fnmark/link}{clemsonally}%
+        \fi}%
+}{}
 
 % A11Y: LINK TEXT. \autoref{label} links the whole phrase ("Section 3",
 % "Figure 1", "Appendix A"), which is what a screen reader announces, where
