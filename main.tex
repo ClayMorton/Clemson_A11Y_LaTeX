@@ -193,6 +193,7 @@ with its own alt text, and \verb|\eqref| links to the number.
     a &= b            \label{eq:group-a} \\
     c &= d \quad \text{for all } d \label{eq:group-b}
 \end{align}\end{subequations}
+Equations~\eqref{eq:group-a} and~\eqref{eq:group-b} are the two members of the group.
 \mathalt{x equals one; y equals two}%
 \begin{gather} x = 1 \\ y = 2 \end{gather}
 % multline splits one formula that is too long for a line: the first part sits
@@ -207,7 +208,6 @@ the left margin and the rest at the right:
   a_1 + a_2 + a_3 + a_4 + a_5 + a_6 + a_7 + a_8 + a_9 + a_{10} \\
   + b_1 + b_2 + b_3 + b_4 + b_5 + b_6 + b_7 + b_8 + b_9 + b_{10} = s
 \end{multline*}
-Equations~\eqref{eq:group-a} and~\eqref{eq:group-b} are the two members of the group.
 \subsection{Chemistry, units and other notation}
 \label{sec:notation}
 Write chemistry with \verb|\ce| from \texttt{mhchem}, numbers and units with \verb|\qty| and
