@@ -88,7 +88,11 @@
   counter-format=roman}
 % The package goes last: it loads hyperref.
 \RequirePackage{clemsona11y}
-% Link colour and underline come from the package (links=keep): dark blue text
-% and a viewer-drawn underline. A later \hypersetup{colorlinks=...} here would
-% clear that underline, so the class sets nothing more. links=hidden hides all.
+% Link styling comes from the package (links=keep): black text, viewer-drawn
+% underline in running text, none in the contents. A \hypersetup{colorlinks=...}
+% here would clear that underline, so the class sets nothing more about links.
+% \email: an address as a mailto link whose visible text is the address itself,
+% the form Clemson's links guidance asks for; a screen reader hears the address.
+% Meets: Clemson links concept (email links); Tagged PDF BPG 1.0.1 4.2.12.1.
+\providecommand{\email}[1]{\href{mailto:#1}{#1}}
 \endinput

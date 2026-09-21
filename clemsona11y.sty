@@ -352,13 +352,20 @@
 }{}
 \RequirePackage{hyperref}
 % A11Y: LINK APPEARANCE (links=keep). Text stays one colour (black, contrast
-% 21:1) and every link, contents entries included, gets an underline that the
-% viewer draws from the annotation's border style; nothing is marked by colour
-% alone and no coloured boxes are printed. Override with \hypersetup if needed.
+% 21:1). A link in running text, a caption or a reference entry gets an
+% underline the viewer draws from the annotation's border style, so nothing is
+% marked by colour alone; the contents and the lists of figures and tables
+% stay plain (every line there is a link, so an underline would say nothing).
 % Meets: Clemson links concept ("underline links"); WCAG 2.1 1.4.1, 1.4.3.
 \clemsona@if{\clemsona@links}{keep}{%
     \hypersetup{colorlinks=true, allcolors=black, allbordercolors=black,
                 pdfborderstyle={/S/U/W 1}}%
+    \AddToHook{cmd/tableofcontents/before}{\hypersetup{pdfborderstyle={}}}%
+    \AddToHook{cmd/tableofcontents/after}{\hypersetup{pdfborderstyle={/S/U/W 1}}}%
+    \AddToHook{cmd/listoffigures/before}{\hypersetup{pdfborderstyle={}}}%
+    \AddToHook{cmd/listoffigures/after}{\hypersetup{pdfborderstyle={/S/U/W 1}}}%
+    \AddToHook{cmd/listoftables/before}{\hypersetup{pdfborderstyle={}}}%
+    \AddToHook{cmd/listoftables/after}{\hypersetup{pdfborderstyle={/S/U/W 1}}}%
 }{}
 
 % A11Y: LINK ANNOTATION /Contents
