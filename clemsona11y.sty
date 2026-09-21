@@ -20,7 +20,7 @@
 %   floats     here*   | free         [H] as the default float placement
 %   headings   word*   | kernel       title=H1, chapter=H2 ... or kernel Title
 %   title      h1*     | none         tag the kernel \maketitle title as H1
-%   links      keep*   | hidden       dark-blue underlined links, or hidelinks
+%   links      keep*   | hidden       black underlined links, or hidelinks
 %   pagination plain*  | typed        untyped artifact, or /Type /Pagination
 %   math       full*   | af           MathML structure elements + attached
 %                                     file, or the attached file only
@@ -351,14 +351,14 @@
     \PassOptionsToPackage{hidelinks}{hyperref}%
 }{}
 \RequirePackage{hyperref}
-% A11Y: LINK APPEARANCE (links=keep). Dark-blue text (contrast 7:1 on white)
-% and an underline the viewer draws from the annotation's border style, so a
-% link is never marked by colour alone; the underline is not printed. A class
-% may override the colours with \hypersetup after loading this package.
+% A11Y: LINK APPEARANCE (links=keep). Text stays one colour (black, contrast
+% 21:1) and every link, contents entries included, gets an underline that the
+% viewer draws from the annotation's border style; nothing is marked by colour
+% alone and no coloured boxes are printed. Override with \hypersetup if needed.
 % Meets: Clemson links concept ("underline links"); WCAG 2.1 1.4.1, 1.4.3.
 \clemsona@if{\clemsona@links}{keep}{%
-    \hypersetup{colorlinks=true, allcolors=[rgb]{0,0.2,0.6},
-                allbordercolors=[rgb]{0,0.2,0.6}, pdfborderstyle={/S/U/W 1}}%
+    \hypersetup{colorlinks=true, allcolors=black, allbordercolors=black,
+                pdfborderstyle={/S/U/W 1}}%
 }{}
 
 % A11Y: LINK ANNOTATION /Contents
@@ -372,6 +372,352 @@
 \pdfannot_dict_put:nnn {link/URI}   {Contents} {(Web~link)}
 \pdfannot_dict_put:nnn {link/GoToR} {Contents} {(Link~to~another~file)}
 \pdfannot_dict_put:nnn {link/Named} {Contents} {(Link)}
+\ExplSyntaxOff
+
+
+% A11Y WORKAROUND: TABLE CELL ATTRIBUTES AND HEADER IDS. latex-lab-table
+% writes Scope, ColSpan and RowSpan only as attribute classes (/C) and no
+% /Headers, so Acrobat's Table Editor and PAC show no cell properties. At the
+% end of each tabular this block writes them again as direct /A attributes and
+% adds /Headers with the /ID of every header cell above or left of a cell.
+% Meets: ISO 32000-2:2020 14.8.4.8.3 (Headers, Scope, spans); Clemson tables.
+\ExplSyntaxOn
+% Reads testphase internals (\g__tbl_struct_cells_seq, \g__tbl_untagged_
+% cells_prop, \g__tbl_table_cols_tl, the C entry of g__tag_struct_<n>_prop,
+% \__tag_struct_get_id:n, the csname of the Table plug); \socket_set_plug:nnn
+% and \tag_struct_gput:nnn are documented. longtable is not covered. If an
+% internal is gone the guard logs one line and the block does nothing.
+% REMOVE WHEN: latex-lab-table writes Headers and direct attributes itself.
+\bool_new:N \l__hdrs_ok_bool
+\bool_set:Nn \l__hdrs_ok_bool
+  {
+    \seq_if_exist_p:N \g__tbl_struct_cells_seq &&
+    \prop_if_exist_p:N \g__tbl_untagged_cells_prop &&
+    \tl_if_exist_p:N \g__tbl_table_cols_tl &&
+    \cs_if_exist_p:N \__tag_struct_get_id:n &&
+    \cs_if_exist_p:N \tag_struct_gput:nnn &&
+    \cs_if_exist_p:c { __socket_tagsupport/tbl/finalize_plug_Table:w }
+  }
+\bool_if:NF \l__hdrs_ok_bool
+  {
+    \iow_log:n
+      { Package~headers:~latex-lab-table~internals~not~found,~doing~nothing. }
+  }
+\bool_if:NT \l__hdrs_ok_bool
+{
+
+% State for one table. The grid maps "row,col" to a cell structure number, so a
+% cell that spans appears once per slot it covers. minr/maxr/minc/maxc give the
+% anchor and the spans; scope holds Column, Row or Both for header cells only.
+% order keeps the cells in the sequence they were tagged in.
+\prop_new:N  \l__hdrs_grid_prop
+\prop_new:N  \l__hdrs_minr_prop
+\prop_new:N  \l__hdrs_maxr_prop
+\prop_new:N  \l__hdrs_minc_prop
+\prop_new:N  \l__hdrs_maxc_prop
+\prop_new:N  \l__hdrs_scope_prop
+\prop_new:N  \l__hdrs_untagged_prop
+\seq_new:N   \l__hdrs_order_seq
+\seq_new:N   \l__hdrs_cells_seq
+\clist_new:N \l__hdrs_row_clist
+\clist_new:N \l__hdrs_list_clist
+\clist_new:N \l__hdrs_block_clist
+\tl_new:N    \l__hdrs_cell_tl
+\tl_new:N    \l__hdrs_test_tl
+\tl_new:N    \l__hdrs_scope_tl
+\tl_new:N    \l__hdrs_dict_tl
+\str_new:N   \l__hdrs_class_str
+\int_new:N   \l__hdrs_rows_int
+\int_new:N   \l__hdrs_cols_int
+\int_new:N   \l__hdrs_idx_int
+\int_new:N   \l__hdrs_r_int
+\int_new:N   \l__hdrs_c_int
+\int_new:N   \l__hdrs_anchor_row_int
+\int_new:N   \l__hdrs_anchor_col_int
+\bool_new:N  \l__hdrs_go_bool
+\bool_new:N  \l__hdrs_hit_bool
+
+\cs_generate_variant:Nn \prop_item:Nn  { Ne }
+\cs_generate_variant:Nn \prop_put:Nnn  { Nee }
+
+% Grid and scope lookups, expandable so they can be used inside \tl_set:Ne.
+\cs_new:Npn \__hdrs_at:nn #1 #2
+  { \prop_item:Ne \l__hdrs_grid_prop { #1,#2 } }
+\cs_new:Npn \__hdrs_scope:n #1
+  { \prop_item:Ne \l__hdrs_scope_prop { #1 } }
+
+% Store one grid slot. The first slot a cell occupies fixes its anchor row and
+% column; later slots widen the span. Cells are numbered by structure number,
+% so the same number arriving again is the same cell, not a new one.
+\cs_new_protected:Npn \__hdrs_record:nnn #1 #2 #3 % row, column, structure number
+  {
+    \prop_put:Nee \l__hdrs_grid_prop { #1,#2 } { #3 }
+    \prop_if_in:NnTF \l__hdrs_minr_prop { #3 }
+      {
+        \prop_put:Nee \l__hdrs_maxr_prop { #3 }
+          { \int_max:nn { \prop_item:Nn \l__hdrs_maxr_prop { #3 } } { #1 } }
+        \prop_put:Nee \l__hdrs_maxc_prop { #3 }
+          { \int_max:nn { \prop_item:Nn \l__hdrs_maxc_prop { #3 } } { #2 } }
+        \prop_put:Nee \l__hdrs_minc_prop { #3 }
+          { \int_min:nn { \prop_item:Nn \l__hdrs_minc_prop { #3 } } { #2 } }
+      }
+      {
+        \prop_put:Nee \l__hdrs_minr_prop { #3 } { #1 }
+        \prop_put:Nee \l__hdrs_maxr_prop { #3 } { #1 }
+        \prop_put:Nee \l__hdrs_minc_prop { #3 } { #2 }
+        \prop_put:Nee \l__hdrs_maxc_prop { #3 } { #2 }
+        \seq_put_right:Nn \l__hdrs_order_seq { #3 }
+      }
+  }
+\cs_generate_variant:Nn \__hdrs_record:nnn { nne }
+
+% One grid slot per column. A slot listed in the untagged property is covered by
+% a cell that started in an earlier row (table/multirow), so it repeats the cell
+% above and consumes nothing from the row list. Every other slot takes the next
+% entry from the row list; a negative entry is a column a colspan covers.
+\cs_new_protected:Npn \__hdrs_cell:nn #1 #2 % row, column
+  {
+    \prop_if_in:NnTF \l__hdrs_untagged_prop { #1,#2 }
+      {
+        \tl_set:Ne \l__hdrs_cell_tl
+          { \__hdrs_at:nn { \int_eval:n { #1 - 1 } } { #2 } }
+      }
+      {
+        \int_incr:N \l__hdrs_idx_int
+        \tl_set:Ne \l__hdrs_cell_tl
+          { \clist_item:Nn \l__hdrs_row_clist { \l__hdrs_idx_int } }
+        \tl_if_empty:NF \l__hdrs_cell_tl
+          { \tl_set:Ne \l__hdrs_cell_tl { \int_abs:n { \l__hdrs_cell_tl } } }
+      }
+    \tl_if_empty:NF \l__hdrs_cell_tl
+      { \__hdrs_record:nne { #1 } { #2 } { \l__hdrs_cell_tl } }
+  }
+
+\cs_new_protected:Npn \__hdrs_row:n #1 % row
+  {
+    \clist_set:Ne \l__hdrs_row_clist { \seq_item:Nn \l__hdrs_cells_seq { #1 } }
+    \int_zero:N \l__hdrs_idx_int
+    \int_step_inline:nn { \l__hdrs_cols_int } { \__hdrs_cell:nn { #1 } { ##1 } }
+  }
+
+% Header cells are recognised by the attribute classes latex-lab-table gave
+% them: TH-col heads a column, TH-row heads a row, TH-both heads both. Reading
+% the classes rather than the header-row and header-column lists keeps this
+% package on the same decision the table code already made.
+\cs_new_protected:Npn \__hdrs_read_scopes:
+  {
+    \seq_map_inline:Nn \l__hdrs_order_seq
+      {
+        \prop_if_exist:cT { g__tag_struct_ ##1 _prop }
+          {
+            \prop_get:cnNT { g__tag_struct_ ##1 _prop } { C } \l__hdrs_test_tl
+              {
+                \str_set:Ne \l__hdrs_class_str { \l__hdrs_test_tl }
+                \str_if_in:NnTF \l__hdrs_class_str { /TH-both }
+                  { \prop_put:Nnn \l__hdrs_scope_prop { ##1 } { Both } }
+                  {
+                    \str_if_in:NnTF \l__hdrs_class_str { /TH-col }
+                      { \prop_put:Nnn \l__hdrs_scope_prop { ##1 } { Column } }
+                      {
+                        \str_if_in:NnT \l__hdrs_class_str { /TH-row }
+                          { \prop_put:Nnn \l__hdrs_scope_prop { ##1 } { Row } }
+                      }
+                  }
+              }
+          }
+      }
+  }
+
+\cs_new_protected:Npn \__hdrs_build_grid:
+  {
+    \prop_clear:N \l__hdrs_grid_prop
+    \prop_clear:N \l__hdrs_minr_prop
+    \prop_clear:N \l__hdrs_maxr_prop
+    \prop_clear:N \l__hdrs_minc_prop
+    \prop_clear:N \l__hdrs_maxc_prop
+    \prop_clear:N \l__hdrs_scope_prop
+    \seq_clear:N  \l__hdrs_order_seq
+    \int_step_inline:nn { \l__hdrs_rows_int } { \__hdrs_row:n { ##1 } }
+    \__hdrs_read_scopes:
+  }
+
+% True when the slot holds a header cell of the wanted scope and is not the cell
+% being worked on. Both counts for either direction, which is what the corner
+% cell of a table with a header row and a header column carries.
+\cs_new_protected:Npn \__hdrs_test_head:nnnn #1 #2 #3 #4 % row, col, self, scope
+  {
+    \bool_set_false:N \l__hdrs_hit_bool
+    \tl_set:Ne \l__hdrs_test_tl { \__hdrs_at:nn { #1 } { #2 } }
+    \tl_if_empty:NF \l__hdrs_test_tl
+      {
+        \str_if_eq:eeF { \l__hdrs_test_tl } { #3 }
+          {
+            \tl_set:Ne \l__hdrs_scope_tl { \__hdrs_scope:n { \l__hdrs_test_tl } }
+            \bool_lazy_or:nnT
+              { \str_if_eq_p:ee { \l__hdrs_scope_tl } { #4 } }
+              { \str_if_eq_p:ee { \l__hdrs_scope_tl } { Both } }
+              { \bool_set_true:N \l__hdrs_hit_bool }
+          }
+      }
+  }
+
+% Header cells above a cell, column by column. Two blocks are kept: the block of
+% header rows at the top of the table, and the nearest block of header rows just
+% above the cell. A table with group headers in the middle then gives a data
+% cell its column heading and its own group heading, not every group heading.
+\cs_new_protected:Npn \__hdrs_collect_col:nn #1 #2 % structure number, column
+  {
+    \int_set:Nn \l__hdrs_r_int { 1 }
+    \bool_set_true:N \l__hdrs_go_bool
+    \bool_while_do:nn
+      { \l__hdrs_go_bool && \int_compare_p:n { \l__hdrs_r_int < \l__hdrs_anchor_row_int } }
+      {
+        \__hdrs_test_head:nnnn { \int_use:N \l__hdrs_r_int } { #2 } { #1 } { Column }
+        \bool_if:NTF \l__hdrs_hit_bool
+          {
+            \clist_put_right:NV \l__hdrs_list_clist \l__hdrs_test_tl
+            \int_incr:N \l__hdrs_r_int
+          }
+          { \bool_set_false:N \l__hdrs_go_bool }
+      }
+    \clist_clear:N \l__hdrs_block_clist
+    \int_set:Nn \l__hdrs_r_int { \l__hdrs_anchor_row_int - 1 }
+    \bool_set_true:N \l__hdrs_go_bool
+    \bool_while_do:nn
+      { \l__hdrs_go_bool && \int_compare_p:n { \l__hdrs_r_int > 0 } }
+      {
+        \__hdrs_test_head:nnnn { \int_use:N \l__hdrs_r_int } { #2 } { #1 } { Column }
+        \bool_if:NTF \l__hdrs_hit_bool
+          {
+            \clist_put_left:NV \l__hdrs_block_clist \l__hdrs_test_tl
+            \int_decr:N \l__hdrs_r_int
+          }
+          { \bool_set_false:N \l__hdrs_go_bool }
+      }
+    \clist_concat:NNN \l__hdrs_list_clist \l__hdrs_list_clist \l__hdrs_block_clist
+  }
+
+% Header cells left of a cell, row by row: the block of header columns at the
+% left edge and the nearest block of header columns before the cell.
+\cs_new_protected:Npn \__hdrs_collect_row:nn #1 #2 % structure number, row
+  {
+    \int_set:Nn \l__hdrs_c_int { 1 }
+    \bool_set_true:N \l__hdrs_go_bool
+    \bool_while_do:nn
+      { \l__hdrs_go_bool && \int_compare_p:n { \l__hdrs_c_int < \l__hdrs_anchor_col_int } }
+      {
+        \__hdrs_test_head:nnnn { #2 } { \int_use:N \l__hdrs_c_int } { #1 } { Row }
+        \bool_if:NTF \l__hdrs_hit_bool
+          {
+            \clist_put_right:NV \l__hdrs_list_clist \l__hdrs_test_tl
+            \int_incr:N \l__hdrs_c_int
+          }
+          { \bool_set_false:N \l__hdrs_go_bool }
+      }
+    \clist_clear:N \l__hdrs_block_clist
+    \int_set:Nn \l__hdrs_c_int { \l__hdrs_anchor_col_int - 1 }
+    \bool_set_true:N \l__hdrs_go_bool
+    \bool_while_do:nn
+      { \l__hdrs_go_bool && \int_compare_p:n { \l__hdrs_c_int > 0 } }
+      {
+        \__hdrs_test_head:nnnn { #2 } { \int_use:N \l__hdrs_c_int } { #1 } { Row }
+        \bool_if:NTF \l__hdrs_hit_bool
+          {
+            \clist_put_left:NV \l__hdrs_block_clist \l__hdrs_test_tl
+            \int_decr:N \l__hdrs_c_int
+          }
+          { \bool_set_false:N \l__hdrs_go_bool }
+      }
+    \clist_concat:NNN \l__hdrs_list_clist \l__hdrs_list_clist \l__hdrs_block_clist
+  }
+
+% One cell: build its attribute dictionary and hand it to tagpdf. Column headers
+% come first, then row headers, both in reading order. \tag_struct_gput:nnn with
+% the documented attribute key writes the dictionary as its own object and
+% appends it to /A, so the existing /C classes are left untouched.
+\cs_new_protected:Npn \__hdrs_do_cell:n #1 % structure number
+  {
+    \tl_clear:N \l__hdrs_dict_tl
+    \int_set:Nn \l__hdrs_anchor_row_int { \prop_item:Nn \l__hdrs_minr_prop { #1 } }
+    \int_set:Nn \l__hdrs_anchor_col_int { \prop_item:Nn \l__hdrs_minc_prop { #1 } }
+    \tl_set:Ne \l__hdrs_scope_tl { \__hdrs_scope:n { #1 } }
+    \tl_if_empty:NF \l__hdrs_scope_tl
+      { \tl_put_right:Ne \l__hdrs_dict_tl { ~/Scope~/ \l__hdrs_scope_tl } }
+    \int_compare:nNnT
+      { \prop_item:Nn \l__hdrs_maxc_prop { #1 } } > { \l__hdrs_anchor_col_int }
+      {
+        \tl_put_right:Ne \l__hdrs_dict_tl
+          { ~/ColSpan~
+            \int_eval:n
+              { \prop_item:Nn \l__hdrs_maxc_prop { #1 } - \l__hdrs_anchor_col_int + 1 } }
+      }
+    \int_compare:nNnT
+      { \prop_item:Nn \l__hdrs_maxr_prop { #1 } } > { \l__hdrs_anchor_row_int }
+      {
+        \tl_put_right:Ne \l__hdrs_dict_tl
+          { ~/RowSpan~
+            \int_eval:n
+              { \prop_item:Nn \l__hdrs_maxr_prop { #1 } - \l__hdrs_anchor_row_int + 1 } }
+      }
+    \clist_clear:N \l__hdrs_list_clist
+    \int_step_inline:nnn
+      { \l__hdrs_anchor_col_int } { \prop_item:Nn \l__hdrs_maxc_prop { #1 } }
+      { \__hdrs_collect_col:nn { #1 } { ##1 } }
+    \int_step_inline:nnn
+      { \l__hdrs_anchor_row_int } { \prop_item:Nn \l__hdrs_maxr_prop { #1 } }
+      { \__hdrs_collect_row:nn { #1 } { ##1 } }
+    \clist_remove_duplicates:N \l__hdrs_list_clist
+    \clist_if_empty:NF \l__hdrs_list_clist
+      {
+        \tl_put_right:Nn \l__hdrs_dict_tl { ~/Headers~[ }
+        \clist_map_inline:Nn \l__hdrs_list_clist
+          {
+            \tl_put_right:Ne \l__hdrs_dict_tl
+              { \__tag_struct_get_id:n { ##1 } ~ }
+          }
+        \tl_put_right:Nn \l__hdrs_dict_tl { ] }
+      }
+    \tl_if_empty:NF \l__hdrs_dict_tl
+      { \tag_struct_gput:nne { #1 } { attribute } { /O~/Table \l__hdrs_dict_tl } }
+  }
+
+% The finalize plug of a table is the last point at which the row and cell
+% structure numbers still exist: the original body restores the enclosing
+% table's data and throws them away. So copy them first, run the original body
+% (it turns header rows into TH and sets their classes), then read the copies.
+\cs_new_protected:Npn \__hdrs_save:
+  {
+    \seq_set_eq:NN \l__hdrs_cells_seq \g__tbl_struct_cells_seq
+    \prop_set_eq:NN \l__hdrs_untagged_prop \g__tbl_untagged_cells_prop
+    \int_set:Nn \l__hdrs_rows_int { \seq_count:N \l__hdrs_cells_seq }
+    \int_set:Nn \l__hdrs_cols_int { \g__tbl_table_cols_tl }
+  }
+\cs_new_protected:Npn \__hdrs_apply:
+  {
+    \bool_lazy_and:nnT
+      { \int_compare_p:n { \l__hdrs_rows_int > 0 } }
+      { \int_compare_p:n { \l__hdrs_cols_int > 0 } }
+      {
+        \__hdrs_build_grid:
+        \seq_map_inline:Nn \l__hdrs_order_seq { \__hdrs_do_cell:n { ##1 } }
+      }
+  }
+
+% The socket plug keeps its name, Table, because \tagpdfsetup{table/tagging=...}
+% re-assigns that name and would otherwise drop a plug of any other name. The
+% original body is saved first and called in the middle, so nothing the table
+% code does is lost. \socket_set_plug:nnn is the documented way to replace it;
+% the csname of the saved body is an ltsockets internal.
+\cs_new_eq:Nc \__hdrs_orig_finalize:
+  { __socket_tagsupport/tbl/finalize_plug_Table:w }
+\socket_set_plug:nnn { tagsupport/tbl/finalize } { Table }
+  {
+    \__hdrs_save:
+    \__hdrs_orig_finalize:
+    \__hdrs_apply:
+  }
+
+}
 \ExplSyntaxOff
 
 
