@@ -1,11 +1,14 @@
 # Makefile.a11y -- build and check an accessible PDF.   make -f Makefile.a11y [target]
-# Targets: all (default), requirements, check, open, clean, cleanall.  TARGET=main
+# Targets: all (default), build, requirements, check, open, clean, cleanall.  TARGET=main
 TARGET  ?= main
 LATEXMK  = latexmk -lualatex -interaction=nonstopmode -halt-on-error
 
-all: $(TARGET).pdf
+all: build
 
-$(TARGET).pdf: $(TARGET).tex
+# build: latexmk runs every time and decides for itself. Its own record
+# (.fdb_latexmk) tells it when nothing changed, and then it returns at once;
+# make alone would trust a stale log next to a pdf that an editor pass left.
+build:
 	$(LATEXMK) $(TARGET).tex
 
 # requirements: LuaLaTeX, latexmk and a LaTeX format of 2026-06-01 or newer.
@@ -19,7 +22,7 @@ requirements:
 
 # check: errors, alt text and tagging warnings from the log, the package status
 #        report, veraPDF (PDF/UA-2) if installed, then the Acrobat step.
-check: $(TARGET).pdf
+check: build
 	@if grep -q '^!' $(TARGET).log; then echo "FAIL: LaTeX errors in $(TARGET).log"; exit 1; fi
 	@if grep -q 'Alternative text for graphic is missing' $(TARGET).log; then echo "FAIL: a picture has no alt text (see $(TARGET).log)"; exit 1; else echo "OK: every picture has alt text"; fi
 	@if grep -qE 'Package tag(pdf)? Warning|latex-lab[^:]*Warning' $(TARGET).log; then echo "FAIL: tagging warnings in $(TARGET).log:"; grep -hE 'Package tag(pdf)? Warning|latex-lab[^:]*Warning' $(TARGET).log | sort -u; exit 1; else echo "OK: no tagging warning"; fi
@@ -29,7 +32,7 @@ check: $(TARGET).pdf
 	@echo "Last step: Acrobat > All tools > Prepare for accessibility > Check for accessibility"
 	@echo "  https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/"
 
-open: $(TARGET).pdf
+open: build
 	@open $(TARGET).pdf 2>/dev/null || xdg-open $(TARGET).pdf
 
 clean:
@@ -39,4 +42,4 @@ clean:
 cleanall: clean
 	@rm -f $(TARGET).pdf
 
-.PHONY: all requirements check open clean cleanall
+.PHONY: all build requirements check open clean cleanall
