@@ -273,6 +273,17 @@
 \ExplSyntaxOn
 \tl_new:N \g__cly_mathalt_tl
 \NewDocumentCommand \mathalt { m } { \tl_gset:Nn \g__cly_mathalt_tl {#1} }
+% A \mathalt with no formula after it would otherwise still be waiting when the
+% next formula is tagged, anywhere later in the document, and give that formula
+% the wrong alt text. The paragraph the text was written in is the end of its
+% reach. Meets: ISO 14289-2:2024 8.2.5.29 (Alt describes its own content).
+\AddToHook { para/after } { \tl_gclear:N \g__cly_mathalt_tl }
+\tl_if_exist:NF \l__math_content_template_tl
+  {
+    \PackageWarningNoLine{clemsona11y}{%
+        latex-lab-math~internals~not~found:~\string\mathalt~text~is~ignored~and^^J%
+        every~formula~keeps~the~kernel's~default~alt~text}
+  }
 \tl_if_exist:NT \l__math_content_template_tl
   {
     \tl_set:Nn \l__math_content_template_tl { \exp_not:V \g__math_grabbed_math_tl }
@@ -281,7 +292,8 @@
         \tl_if_empty:NTF \g__cly_mathalt_tl
           { \tl_set:Ne \l__math_content_alt_tl { \l__math_content_template_tl } }
           {
-            \tl_set_eq:NN \l__math_content_alt_tl \g__cly_mathalt_tl
+            \tl_set:Ne \l__math_content_alt_tl
+              { \text_purify:V \g__cly_mathalt_tl }
             \tl_gclear:N \g__cly_mathalt_tl
           }
         \tl_set:Ne \l__math_content_AF_source_tl { \l__math_texsource_template_tl }
@@ -348,7 +360,7 @@
 % links=hidden adds hidelinks: no colour, no border, no underline (a class or
 % journal that forbids link styling). Either value leaves a tagged Link.
 \clemsona@if{\clemsona@links}{hidden}{%
-    \PassOptionsToPackage{hidelinks}{hyperref}%
+    \PassOptionsToPackage{hidelinks,pdfborder={0 0 0}}{hyperref}%
 }{}
 \RequirePackage{hyperref}
 % A11Y: LINK APPEARANCE (links=keep). Text stays one colour (black, contrast
@@ -401,14 +413,17 @@
     \seq_if_exist_p:N \g__tbl_struct_cells_seq &&
     \prop_if_exist_p:N \g__tbl_untagged_cells_prop &&
     \tl_if_exist_p:N \g__tbl_table_cols_tl &&
+    \tl_if_exist_p:N \g__tbl_struct_table_tl &&
     \cs_if_exist_p:N \__tag_struct_get_id:n &&
     \cs_if_exist_p:N \tag_struct_gput:nnn &&
     \cs_if_exist_p:c { __socket_tagsupport/tbl/finalize_plug_Table:w }
   }
 \bool_if:NF \l__hdrs_ok_bool
   {
-    \iow_log:n
-      { Package~headers:~latex-lab-table~internals~not~found,~doing~nothing. }
+    \PackageWarningNoLine{clemsona11y}{%
+        latex-lab-table~internals~not~found:~no~/Headers~and~no~direct~cell^^J%
+        attributes~are~written.~The~PDF~still~passes~veraPDF,~so~check~the^^J%
+        cell~properties~in~Acrobat's~Table~Editor~before~shipping~it}
   }
 \bool_if:NT \l__hdrs_ok_bool
 {
@@ -429,6 +444,7 @@
 \clist_new:N \l__hdrs_row_clist
 \clist_new:N \l__hdrs_list_clist
 \clist_new:N \l__hdrs_block_clist
+\tl_new:N    \l__hdrs_table_tl
 \tl_new:N    \l__hdrs_cell_tl
 \tl_new:N    \l__hdrs_test_tl
 \tl_new:N    \l__hdrs_scope_tl
@@ -443,6 +459,7 @@
 \int_new:N   \l__hdrs_anchor_col_int
 \bool_new:N  \l__hdrs_go_bool
 \bool_new:N  \l__hdrs_hit_bool
+\bool_new:N  \l__hdrs_pres_bool
 
 \cs_generate_variant:Nn \prop_item:Nn  { Ne }
 \cs_generate_variant:Nn \prop_put:Nnn  { Nee }
@@ -698,15 +715,35 @@
     \prop_set_eq:NN \l__hdrs_untagged_prop \g__tbl_untagged_cells_prop
     \int_set:Nn \l__hdrs_rows_int { \seq_count:N \l__hdrs_cells_seq }
     \int_set:Nn \l__hdrs_cols_int { \g__tbl_table_cols_tl }
+    \tl_set_eq:NN \l__hdrs_table_tl \g__tbl_struct_table_tl
+  }
+% A table marked role=presentation carries no cell semantics, so Scope and
+% Headers on its cells would contradict the role: leave it alone. A stray
+% table/tagging=presentation outside a group reaches every later table.
+% Meets: ISO 32000-2:2020 14.8.4.8.3 (Headers); WAI-ARIA 1.1 role=presentation.
+\cs_new_protected:Npn \__hdrs_set_presentation:
+  {
+    \bool_set_false:N \l__hdrs_pres_bool
+    \prop_get:cnNT { g__tag_struct_ \l__hdrs_table_tl _prop } { C }
+      \l__hdrs_test_tl
+      {
+        \str_set:Ne \l__hdrs_class_str { \l__hdrs_test_tl }
+        \str_if_in:NnT \l__hdrs_class_str { /ARIA-role-presentation }
+          { \bool_set_true:N \l__hdrs_pres_bool }
+      }
   }
 \cs_new_protected:Npn \__hdrs_apply:
   {
-    \bool_lazy_and:nnT
-      { \int_compare_p:n { \l__hdrs_rows_int > 0 } }
-      { \int_compare_p:n { \l__hdrs_cols_int > 0 } }
+    \__hdrs_set_presentation:
+    \bool_if:NF \l__hdrs_pres_bool
       {
-        \__hdrs_build_grid:
-        \seq_map_inline:Nn \l__hdrs_order_seq { \__hdrs_do_cell:n { ##1 } }
+        \bool_lazy_and:nnT
+          { \int_compare_p:n { \l__hdrs_rows_int > 0 } }
+          { \int_compare_p:n { \l__hdrs_cols_int > 0 } }
+          {
+            \__hdrs_build_grid:
+            \seq_map_inline:Nn \l__hdrs_order_seq { \__hdrs_do_cell:n { ##1 } }
+          }
       }
   }
 
