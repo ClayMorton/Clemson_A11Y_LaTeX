@@ -357,21 +357,24 @@
     pdfdisplaydoctitle=true,% window title = document title, not thesis.pdf
     linktoc=all%              contents entries: title AND page number are links
   }{hyperref}
-% links=hidden adds hidelinks: no colour, no border, no underline (a class or
+% links=hidden adds hidelinks: no color, no border, no underline (a class or
 % journal that forbids link styling). Either value leaves a tagged Link.
 \clemsona@if{\clemsona@links}{hidden}{%
     \PassOptionsToPackage{hidelinks,pdfborder={0 0 0}}{hyperref}%
 }{}
 \RequirePackage{hyperref}
-% A11Y: LINK APPEARANCE (links=keep). Text stays one colour (black, contrast
+% A11Y: LINK APPEARANCE (links=keep). Text stays one color (black, contrast
 % 21:1). A link in running text, a caption or a reference entry gets an
 % underline the viewer draws from the annotation's border style, so nothing is
-% marked by colour alone; the contents and the lists of figures and tables
+% marked by color alone; the contents and the lists of figures and tables
 % stay plain (every line there is a link, so an underline would say nothing).
 % Meets: Clemson links concept ("underline links"); WCAG 2.1 1.4.1, 1.4.3.
 \clemsona@if{\clemsona@links}{keep}{%
     \hypersetup{colorlinks=true, allcolors=black, allbordercolors=black,
                 pdfborderstyle={/S/U/W 1}}%
+    % The link box is the line's box, so its bottom edge, where the viewer
+    % draws the underline, can touch the glyphs; LuaTeX's link margin pads it.
+    \pdfvariable linkmargin=1.5pt%
     \AddToHook{cmd/tableofcontents/before}{\hypersetup{pdfborderstyle={}}}%
     \AddToHook{cmd/tableofcontents/after}{\hypersetup{pdfborderstyle={/S/U/W 1}}}%
     \AddToHook{cmd/listoffigures/before}{\hypersetup{pdfborderstyle={}}}%
@@ -379,6 +382,20 @@
     \AddToHook{cmd/listoftables/before}{\hypersetup{pdfborderstyle={}}}%
     \AddToHook{cmd/listoftables/after}{\hypersetup{pdfborderstyle={/S/U/W 1}}}%
 }{}
+
+% A11Y: LINK TEXT. \autoref{label} links the whole phrase ("Section 3",
+% "Figure 1", "Appendix A"), which is what a screen reader announces, where
+% \ref links the bare number. hyperref's names are set here in title case;
+% shared theorem counters need \hyperref[label]{Lemma~\ref*{label}} instead.
+% Meets: Clemson links concept (descriptive link text); WCAG 2.1 2.4.4.
+\AtBeginDocument{%
+    \def\sectionautorefname{Section}\def\subsectionautorefname{Section}%
+    \def\subsubsectionautorefname{Section}\def\chapterautorefname{Chapter}%
+    \def\figureautorefname{Figure}\def\tableautorefname{Table}%
+    \def\equationautorefname{Equation}\def\appendixautorefname{Appendix}%
+    \providecommand{\algorithmautorefname}{Algorithm}%
+    \def\footnoteautorefname{footnote}\def\itemautorefname{item}%
+}
 
 % A11Y: LINK ANNOTATION /Contents
 % Give every link annotation a generic type description through the documented
@@ -524,7 +541,7 @@
     \int_step_inline:nn { \l__hdrs_cols_int } { \__hdrs_cell:nn { #1 } { ##1 } }
   }
 
-% Header cells are recognised by the attribute classes latex-lab-table gave
+% Header cells are recognized by the attribute classes latex-lab-table gave
 % them: TH-col heads a column, TH-row heads a row, TH-both heads both. Reading
 % the classes rather than the header-row and header-column lists keeps this
 % package on the same decision the table code already made.
