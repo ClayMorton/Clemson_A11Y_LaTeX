@@ -30,7 +30,7 @@ is a tagged PDF 2.0 that conforms to PDF/UA-2. `main.tex` is a worked example; b
 Front matter: a table of contents, a list of figures and a list of tables, all tagged and linked,
 with short caption titles that keep the lists readable. Text: `\emph`, `\strong`, a footnote, an
 endnote, links (`\href`, `\url`, a document link ending "(PDF)", `\email`), citations and
-cross-references (`\ref`, `\pageref`, `\eqref`, `\cite[p.~3]{key}`); bulleted, numbered, lettered
+cross-references (`\autoref` for whole-phrase links, `\pageref`, `\eqref`, `\hyperref[label]{...}` for theorem-like blocks, `\cite[p.~3]{key}`); bulleted, numbered, lettered
 (`[label=(\alph*)]`), description and nested lists; a block quotation; reserved characters, dashes,
 `\textsuperscript`, `\texttt`, `\textsc`; verbatim code, `\verb`. Mathematics: inline and display
 math, `align`, `subequations`, `gather`, `multline*`, matrices and cases, all as MathML with

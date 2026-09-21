@@ -148,7 +148,7 @@
 % avoid justified text, so align=ragged is the default. \raggedright is the
 % kernel's para instance: it writes TextAlign/Start into the paragraph's layout
 % attribute, which ragged2e's \RaggedRight does not. The indent is put back so
-% one paragraph is still told from the next. Captions and headings stay centred.
+% one paragraph is still told from the next. Captions and headings stay centered.
 % Meets: Clemson text concept; WCAG 2.1 1.4.8 (AAA, advisory).
 \def\clemsonacls@tmp{ragged}
 \ifx\clemsonacls@align\clemsonacls@tmp

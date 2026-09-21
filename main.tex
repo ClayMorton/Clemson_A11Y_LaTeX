@@ -84,7 +84,7 @@ of the document, after the appendices and before the works cited.}
 \subsection{Links}
 A link carries its own text, so name the destination rather than writing ``click here'' or
 ``more''. Link text stays black here and the PDF viewer draws the underline from the
-annotation's border style, so no link is marked by colour alone. \verb|\href| prints words
+annotation's border style, so no link is marked by color alone. \verb|\href| prints words
 instead of an address: \href{https://latex3.github.io/tagging-project/}{the LaTeX tagging
 project}. \verb|\url| prints the address itself, \url{https://www.clemson.edu/accessibility/};
 avoid a raw address as the only link text, because a screen reader may announce each
@@ -94,12 +94,15 @@ manual (PDF)}, and write an email address as its own link with the class command
 \verb|\email|: \email{first.last@clemson.edu}. Citations are links
 too~\cite{knuth1984,lamport1994}.
 \subsection{Cross-references}
-Write \verb|Section~\ref{sec:math}| rather than ``the section above'': the reference becomes a
-link, and it stays correct when the text moves. Label anything to point at, and point at it
-by name and number: see Section~\ref{sec:math} on page~\pageref{sec:math},
-Section~\ref{sec:notation}, Figure~\ref{fig:lab} on page~\pageref{fig:lab},
-Table~\ref{tab:headerrow}, Equation~\eqref{eq:gauss}, Algorithm~\ref{alg:max},
-Appendix~\ref{app:example}, and a citation with a page number~\cite[p.~3]{knuth1984lp}.
+Write \verb|\autoref{sec:math}| rather than ``the section above'': the whole phrase becomes
+one link, so a screen reader announces ``Section 3'' and not a bare ``3'', and it stays
+correct when the text moves. Label anything to point at: see \autoref{sec:math} on
+page~\pageref{sec:math}, \autoref{sec:notation}, \autoref{fig:lab} on page~\pageref{fig:lab},
+\autoref{tab:headerrow}, Equation~\eqref{eq:gauss}, \autoref{alg:max}, \autoref{app:example},
+and a citation with a page number~\cite[p.~3]{knuth1984lp}. Theorem-like blocks share one
+counter, so point at them with \verb|\hyperref[lem:title]{Lemma~\ref*{lem:title}}|:
+\hyperref[lem:title]{Lemma~\ref*{lem:title}}. Equations keep \verb|\eqref| for the
+parentheses; \verb|\pageref| links the page number alone.
 \subsection{Lists}
 Bulleted, numbered and description lists are tagged as lists, with a label and a body
 for every item. Keep nesting shallow; two levels is usually enough.
@@ -135,9 +138,9 @@ Type the characters LaTeX reserves with a backslash: 100\%, R\&D, \#1. Write an 
 numbers (pages 10--20), an em dash for a break in a sentence---like this one---and quotation
 marks as ``paired'' quotes. A tie, \verb|Figure~1|, keeps a number with its word. The
 ``th'' in ``the 4\textsuperscript{th} of May'' is tagged with TextPosition Sup,
-\texttt{typewriter text} marks a file name and \textsc{small caps} an initialism. Colour
-carries no meaning here: the text is black throughout, the chart uses one shade of grey, and
-coloured ink would still need a contrast of 4.5:1 for text and 3:1 for a graphic.
+\texttt{typewriter text} marks a file name and \textsc{small caps} an initialism. Color
+carries no meaning here: the text is black throughout, the chart uses one shade of gray, and
+colored ink would still need a contrast of 4.5:1 for text and 3:1 for a graphic.
 \subsection{Code}
 A command inside a sentence goes in \verb|\verb|, as it does throughout this
 file. A block of code goes in \texttt{verbatim}, which is tagged as code:
@@ -182,7 +185,7 @@ over k squared is at most pi squared over six}%
 \end{equation}
 \subsection{Groups of equations}
 \texttt{subequations} numbers a group with a letter after the number, as in
-\eqref{eq:group-a} and~\eqref{eq:group-b} below; \texttt{gather} centres lines that do
+\eqref{eq:group-a} and~\eqref{eq:group-b} below; \texttt{gather} centers lines that do
 not align; \verb|\text{}| puts words inside a formula. Every one of them is a Formula
 with its own alt text, and \verb|\eqref| links to the number.
 \mathalt{Equation group: a equals b, and c equals d for all d}%
@@ -192,12 +195,18 @@ with its own alt text, and \verb|\eqref| links to the number.
 \end{align}\end{subequations}
 \mathalt{x equals one; y equals two}%
 \begin{gather} x = 1 \\ y = 2 \end{gather}
-% multline splits one long formula over lines. The numbered form makes tagpdf
-% report "structure with label 0 is unknown rerun" on every run, so the starred
+% multline splits one formula that is too long for a line: the first part sits
+% at the left margin and the continuation at the right. The numbered form makes
+% tagpdf warn "structure with label 0 is unknown" on every run, so the starred
 % form is used here and the equation is not referenced by number.
 % Meets: ISO 32000-2:2020 14.8.6.3 (Formula, MathML); WCAG 2.1 1.1.1.
-\mathalt{p plus q plus r plus s equals t}%
-\begin{multline*} p + q + r \\ + s = t \end{multline*}
+A formula too long for one line goes in \texttt{multline}, which sets its first part at
+the left margin and the rest at the right:
+\mathalt{the sum of a 1 through a 10 plus the sum of b 1 through b 10 equals s}%
+\begin{multline*}
+  a_1 + a_2 + a_3 + a_4 + a_5 + a_6 + a_7 + a_8 + a_9 + a_{10} \\
+  + b_1 + b_2 + b_3 + b_4 + b_5 + b_6 + b_7 + b_8 + b_9 + b_{10} = s
+\end{multline*}
 Equations~\eqref{eq:group-a} and~\eqref{eq:group-b} are the two members of the group.
 \subsection{Chemistry, units and other notation}
 \label{sec:notation}
@@ -222,7 +231,7 @@ is $\ket{0}$ and an inner product is $\braket{\psi|\phi}$. Write a range as two 
 The class defines theorem, lemma, proposition, corollary, definition, example, remark
 and algorithm, so \verb|\newtheorem| is not needed:
 \begin{theorem}\label{thm:one} Every accessible PDF has exactly one H1. \end{theorem}
-\begin{lemma} The document title is that H1, so no section may claim it. \end{lemma}
+\begin{lemma}\label{lem:title} The document title is that H1, so no section may claim it. \end{lemma}
 \begin{corollary} A document with two title lines has to tag one of them as something else. \end{corollary}
 \begin{proof} Sections start at H2, which leaves the title alone at H1. \end{proof}
 \begin{definition} A \emph{header cell} names the row or the column it belongs to. \end{definition}
@@ -258,7 +267,7 @@ reader in Cooper Library''; no picture in this kit shows people, so the pattern 
 % picture shows people, so Clemson's people pattern is given in the prose above.
 % Meets: ISO 32000-2:2020 14.8.4.8.5 (Figure Alt); Tagged PDF BPG 1.0.1 5.5.2.
 \begin{figure}\centering
-  \includegraphics[width=0.5\linewidth,alt={Coiled grey network cables with blue connectors, hung in even rows on a beige pegboard wall.}]{example}
+  \includegraphics[width=0.5\linewidth,alt={Coiled gray network cables with blue connectors, hung in even rows on a beige pegboard wall.}]{example}
   \caption{An informative picture with alt text}\label{fig:lab}
 \end{figure}
 
@@ -297,7 +306,7 @@ A diagram drawn in the document is a picture too. \texttt{tikz} takes the same
 % alt key directly; pgfplots does not tag, so export a plot as an image instead.
 % Meets: ISO 32000-2:2020 14.8.4.8.5 (Figure Alt); WCAG 2.1 1.1.1.
 \begin{figure}\centering
-  \begin{tikzpicture}[alt={Flow diagram: a box labelled LaTeX source, an arrow to the right, and a box labelled tagged PDF.}]
+  \begin{tikzpicture}[alt={Flow diagram: a box labeled LaTeX source, an arrow to the right, and a box labeled tagged PDF.}]
     \draw (0,0) rectangle (3,1) node[midway]{LaTeX source};
     \draw[->] (3.1,0.5) -- (4.6,0.5);
     \draw (4.7,0) rectangle (7.7,1) node[midway]{tagged PDF};
@@ -312,7 +321,7 @@ picture that carries no information at all gets \verb|artifact|, and is skipped.
 
 % actualtext={...} gives a picture of words the words themselves; artifact marks
 % a picture that carries nothing, so it is skipped. The artifact sits in its own
-% centred line with paragraph tagging off: a paragraph holding only an artifact
+% centered line with paragraph tagging off: a paragraph holding only an artifact
 % would be an empty tag. Meets: ISO 32000-2:2020 14.9.4 (ActualText), 14.8.2.2.
 {\centering\vspace{1ex}\includegraphics[height=0.8cm,actualtext={Clemson University}]{text-image}\par}
 \begingroup\tagpdfsetup{para/tagging=false}%
@@ -396,8 +405,8 @@ Four small things that come up in any paper; the first two need a command, shown
   \item[An abbreviation] Write it out the first time it appears: Institutional Review Board
     (IRB). PDF has an \verb|/E| attribute for an expansion, but it is not needed once the
     expansion is in the text, where every reader gets it.
-  \item[Colour] Colour is never the only signal. Figure~\ref{fig:chart} draws every bar in one
-    shade and names each bar on the axis, so nothing depends on telling colours apart.
+  \item[Color] Color is never the only signal. Figure~\ref{fig:chart} draws every bar in one
+    shade and names each bar on the axis, so nothing depends on telling colors apart.
 \end{description}
 
 \noindent The commands behind the first two items, copied from the source of this file:
@@ -535,7 +544,7 @@ rather than announcing rows and columns. Better still, lay such text out without
 % arranges things (an author block), tag it as presentation so no TH/TD is read.
 % Keep table/tagging=presentation inside a group: it is a local switch and, left
 % open, it would demote every later table. Paragraph tagging is off around it
-% so the centring leaves no empty paragraph.
+% so the centering leaves no empty paragraph.
 % Meets: ISO 32000-2:2020 14.8.4.8 (Table); WAI-ARIA 1.1 role=presentation.
 \begingroup\tagpdfsetup{para/tagging=false}%
 {\centering
@@ -597,7 +606,7 @@ This appendix holds the descriptions that are too long to sit beside their figur
 Begin every entry with the figure it describes, so that the caption and the description
 link to each other in both directions.
 
-\strong{Figure~\ref{fig:wall}:} A colour photograph of a storage wall in a network room. Grey
+\strong{Figure~\ref{fig:wall}:} A color photograph of a storage wall in a network room. Gray
 patch cables are wound into loops about twenty centimetres across and hung on a beige
 pegboard in six rows of eight. A blue plastic clip holds each coil near the top, and the blue
 connectors at the ends of each cable hang below the coil. The rows are evenly spaced and the
