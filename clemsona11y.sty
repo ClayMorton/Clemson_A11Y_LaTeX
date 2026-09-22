@@ -267,15 +267,14 @@
 % Meets: Tagged PDF BPG 1.0.1 4.2.4 (caption label); 4.2.7 (Span).
 \clemsona@role{float/figure/label}{Span}  % "Figure 1.1" -> Span, not Lbl
 \clemsona@role{float/table/label}{Span}   % "Table 2.3"  -> Span, not Lbl
-% The same rule hits the section number in a contents entry and the raised mark
-% in the text; both become Span (valid there, and the mark keeps its two-way Ref
-% to the note). Restore Lbl the same way. The number in front of a footnote's
-% text stays Lbl: the Tagged PDF BPG shows a note as Lbl + text and pairs a note
-% with its reference by matching the two labels, so Span would break the pair.
-% Meets: Tagged PDF BPG 1.0.1 4.2.8.1 (Note = Lbl + content), 4.2.9.3.
+% The same rule hits the section number in a contents entry, the raised mark
+% in the text and the number before a footnote's text; all become Span. The
+% mark and the note stay paired by their two-way Ref, which PDF/UA-2 requires;
+% the BPG's optional Lbl-matching is given up so Acrobat stays clean.
+% Meets: ISO 14289-2:2024 8.2.5.14 (note Ref pair); BPG 4.2.8 (Lbl optional).
 \clemsona@role{toc/item/label}{Span}      % "2.1" in the contents -> Span
 \clemsona@role{fnote/mark}{Span}          % the raised mark in the text
-\clemsona@role{fnote/note/label}{Lbl}     % "1" before a footnote -> Lbl
+\clemsona@role{fnote/note/label}{Span}    % "1" before a footnote -> Span
 
 
 % A11Y: MATHEMATICS. Every formula is a Formula with Alt text and its MathML

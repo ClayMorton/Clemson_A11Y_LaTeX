@@ -3,7 +3,7 @@
 %          \documentclass[options]{clemsona11y}
 % Options: article (default) | report | book;  theorems=false;
 %          align=ragged (default) | justified;  package options
-%          fonts=lm|termes|false, floats=here|free, headings=word|kernel,
+%          fonts=termes|lm|false, floats=here|free, headings=word|kernel,
 %          title=h1|none, links=keep|hidden, pagination=plain|typed,
 %          math=af|full;  anything else (10pt, a4paper, ...) goes to the base class.
 % Defines: \email{addr} (a mailto link whose text is the address) and, with
@@ -30,12 +30,12 @@
 \DeclareOption{twocolumn}{\ClassError{clemsona11y}{twocolumn is not supported}
   {Use one column. Two-column layout breaks the reading order in PDF/UA-1 tools.}}
 % Package options are forwarded to clemsona11y.sty. The class defaults are
-% fonts=lm and links=keep (the package keeps links black and underlines them).
-% pagination stays plain: typed writes /Type /Pagination on the folio, which
-% the Tagged PDF BPG asks for, but tagpdf implements it with an empty Artifact
-% structure element per header and footer, and two of them land inside a list
-% item. Meets: ISO 32000-2:2020 14.8.2.2 (artifacts are outside the tree).
-\PassOptionsToPackage{fonts=lm,links=keep}{clemsona11y}
+% fonts=termes (Times clone; Acrobat reports a spurious font error on the
+% Latin Modern 17 pt title face) and links=keep (black text, underlined
+% links). pagination stays plain: typed writes /Type /Pagination on the folio
+% as the BPG asks, but tagpdf adds an empty Artifact element per header and
+% footer, some inside list items. Meets: ISO 32000-2:2020 14.8.2.2 (artifacts).
+\PassOptionsToPackage{fonts=termes,links=keep}{clemsona11y}
 \DeclareOption{fonts=lm}{\PassOptionsToPackage{fonts=lm}{clemsona11y}}
 \DeclareOption{fonts=termes}{\PassOptionsToPackage{fonts=termes}{clemsona11y}}
 \DeclareOption{fonts=false}{\PassOptionsToPackage{fonts=false}{clemsona11y}}
