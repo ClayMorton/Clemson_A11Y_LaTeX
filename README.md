@@ -1,7 +1,11 @@
 # clemsona11y kit: LaTeX to accessible PDF
 
 Drop this folder into a project. `clemsona11y.cls` and `clemsona11y.sty` do the work; the output
-is a tagged PDF 2.0 that conforms to PDF/UA-2. `main.tex` is a worked example; build it first.
+is a tagged PDF 2.0 that conforms to PDF/UA-2 and PDF/A-4f. `main.tex` is a worked example; build
+it first. Read Clemson's
+[accessibility concepts](https://www.clemson.edu/accessibility/digital/concepts/) before you
+start: the university states them as a prerequisite for its PDF guides, and they are what the
+comments in `main.tex` cite.
 
 ## Requirements
 
@@ -12,18 +16,25 @@ is a tagged PDF 2.0 that conforms to PDF/UA-2. `main.tex` is a worked example; b
 ## Steps
 
 1. Edit `main.tex`. Keep its first `\DocumentMetadata{...}` block; it must stay before
-   `\documentclass`. Replace title, authors and content.
+   `\documentclass`. Replace title, authors and content. The block's two `pdfstandard` keys give
+   PDF/UA-2 and PDF/A-4f; drop `a-4f` if archiving is not wanted.
 2. Give every picture alt text: `\includegraphics[alt={what it shows}]{file}`. Declare the header
    cells of every table before its `\begin{tabular}`: `\tagpdfsetup{table/header-rows={1}}` for a
    header row, `table/header-columns={1}` for a header column, both keys for both. Write
-   `\mathalt{spoken text}` right before a formula to set what a screen reader says (without it the
-   alt text is the raw LaTeX source), and an email address as `\email{first.last@clemson.edu}`.
+   `\mathalt{spoken text}` right before every formula, inline ones included, to set what a screen
+   reader says (without it the alt text is the raw LaTeX source), and an email address as
+   `\email{first.last@clemson.edu}`. Put `\caption` above the image or the table, not below: the
+   tag tree always holds the caption first, so a caption printed below contradicts the page.
 3. Build: `make -f Makefile.a11y` (or `latexmk -lualatex main.tex`), not one editor pass: a single
    LuaLaTeX run prints `??` for references and leaves their links empty; the `% !BIB` lines at the
    top of `main.tex` make TeXShop and VS Code run the full cycle.
-4. Check: `make -f Makefile.a11y check`, then run Acrobat's checker (All tools > Prepare for
-   accessibility > Check for accessibility) and read the Tags panel top to bottom. `make -f
-   Makefile.a11y requirements` checks the TeX install first; `TARGET=paper` builds paper.tex.
+4. Check: `make -f Makefile.a11y check`, then Acrobat (All tools > Prepare for accessibility >
+   Check for accessibility) and the Tags panel top to bottom. No tool can finish the job, so do
+   Clemson's [six manual
+   checks](https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/manual-checks.html)
+   by hand: use of color, descriptive link text, tags, reading order, tab order and form order,
+   and alternative text. `make -f Makefile.a11y requirements` checks the TeX install first;
+   `TARGET=paper` builds paper.tex.
 
 ## What main.tex shows
 
@@ -100,10 +111,11 @@ Full status list: https://latex3.github.io/tagging-project/tagging-status/
 
 ## Workarounds, and what a LaTeX update does to them
 
-The package works around four gaps in the LaTeX tagging code, each marked `A11Y WORKAROUND` with a
-`REMOVE WHEN` line: header-cell IDs and direct cell attributes on tables, spoken alt text for formulas
-(`\mathalt`), the footnote-mark link box, and the role mappings that keep Acrobat's list rule quiet
-(caption numbers, contents numbers, footnote marks and labels as `Span`). Every one of them checks
+The package works around five gaps in the LaTeX tagging code, each marked `A11Y WORKAROUND` with a
+`REMOVE WHEN` line: the paragraph a float interrupts, spoken alt text for formulas (`\mathalt`), the
+footnote-mark link box, the `NoteType` attribute on footnotes, and header-cell IDs and direct cell
+attributes on tables. Separate from those, three role mappings keep Acrobat's list rule quiet by
+tagging caption numbers, contents numbers and footnote marks `Span`. Every workaround checks
 that the kernel piece it relies on still exists and otherwise does nothing and writes a
 `Package clemsona11y Warning` to the log; `make -f Makefile.a11y check` then fails and names it.
 After `tlmgr update`, build the kit's `main.tex` once: a clean `check` means every workaround still
@@ -113,12 +125,33 @@ works or is no longer needed. Everything else in the package uses documented int
 ## What the checker will still say
 
 Acrobat checks PDF/UA-1. On this PDF/UA-2 output it may show figure containers as "Note" (the PDF
-1.7 fallback for `Aside`) and MathML it cannot read. In every float latex-lab puts the `Caption`
-before the `Figure` in the tag tree although the caption is printed below the image; that order is
-set by latex-lab, not by `main.tex`. Note text is 9 pt and raised marks 7 pt. Two kernel choices
+1.7 fallback for `Aside`) and MathML it cannot read.
+
+The Tags panel shows LaTeX tag names, not the PDF names Clemson's manual check tells you to look
+for: `text` = `P`, `text-unit` = `Part`, `itemize`/`enumerate`/`description`/`list` = `L`, `item` =
+`LI`, `itemlabel` = `Lbl`, `itembody` = `LBody`, `quote` = `BlockQuote`, `verbatim` = `Code`,
+`footnote` = `FENote`, `section-number` = `Span`. The role map makes these conformant, which is why
+veraPDF passes; do not rename them by hand in Acrobat.
+
+Known gaps, all of them outside `main.tex`. The Tagged PDF BPG marks `BBox` required on `Figure`,
+`Formula` and `Table`; latex-lab writes it on figures only, so the 24 formulas and 10 tables have
+none. Links are underlined by the annotation's border style, which Acrobat draws and Preview on
+macOS does not; the link text names its destination in every viewer, and no link is marked by color.
+`pagination=typed` would write `/Type /Pagination` on the folio as the BPG asks, but tagpdf
+implements it with an empty `Artifact` element per header and footer, two of which land inside a
+list item, so the kit keeps `plain`. PDF/A-4 allows only `ModDate` in the document information
+dictionary, so the title travels in XMP and `/ViewerPreferences /DisplayDocTitle`.
+
+Acrobat says "Cannot extract the embedded font 'LMRoman17-Regular'" when it opens the file. The
+subset is valid — fontTools parses it, its outlines match the installed face, veraPDF passes, and a
+bare `\documentclass{article}` with `\maketitle` produces the same subset — so nothing is broken
+and printing and reading are unaffected. `\documentclass[fonts=termes]{clemsona11y}` uses TeX Gyre
+Termes instead and the message stops.
+
+Note text is 9 pt (8.97 pt as a PDF tool measures it) and raised marks 7 pt. Three kernel choices
 PDF/UA-2 allows: `\ref`, `\pageref` and `\eqref` give a bare `Link` and only `\cite` adds
 `Reference`; the steps of an `algorithmic` block (a generic `list` without `\usecounter`) are tagged
 as an unordered list although the labels are line numbers; a nested list sits inside its parent item's
 body (`LBody` > `Part` > `P`, `L`), the form ISO 32000-2 allows but calls "not part of the hierarchy",
 rather than as a child of the parent `L`; the kernel's paragraph grouping (`Part`) is why. veraPDF
-`--flavour ua2` is authoritative.
+`--flavour ua2` and `--flavour 4f` are authoritative.

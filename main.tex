@@ -5,14 +5,22 @@
 % First block of every accessible document, above \documentclass. lang sets
 % /Lang; pdfstandard=ua-2 gives PDF 2.0 + the PDF/UA-2 flag; check-tagging-status
 % appends a package report to the .log that `make -f Makefile.a11y check` reads.
-% Meets: ISO 14289-2:2024 8.11 (metadata); ISO 32000-2:2020 14.9.2 (Lang).
+% pdfstandard=a-4f adds archiving: an embedded sRGB output intent and the Print
+% flag on every link annotation, so the underline survives printing. It empties
+% the document information dictionary, so the title travels in XMP alone.
+% Meets: ISO 14289-2:2024 8.11 (metadata); ISO 19005-4:2020 (PDF/A-4f).
 \DocumentMetadata{
   lang        = en-US,
   pdfstandard = ua-2,
+  pdfstandard = a-4f,
   tagging     = on,
   check-tagging-status,
 }
 \documentclass{clemsona11y}
+
+
+% The packages below are all compatible with tagging. --------------------------
+
 \usepackage{booktabs}   % rules for the tables below; optional
 % The packages for the examples below. None appears in section 1 (unsupported) or
 % 2 (incompatible) of the tagging status report, and each produces Formula, list
@@ -25,6 +33,9 @@
 % A long \verb string or URL cannot be hyphenated and can end up in the margin;
 % \emergencystretch lets TeX loosen such a line instead (typography, not tagging).
 \setlength{\emergencystretch}{2em}
+
+% ------------------------------------------------------------------------------
+
 % pdftitle: doubled braces keep commas in one title. pdfauthor: commas between names.
 \title[pdftitle={{Accessible LaTeX, quickly}}]{Accessible LaTeX, quickly}
 \author[pdfauthor={First Author, Second Author}]{First Author and Second Author}
@@ -58,10 +69,12 @@ Copy the whole kit folder to start a document, then work through five steps.
     PDF headings H2, H3 and H4, and the document title into the single H1.
   \item Give every picture alt text: \verb|\includegraphics[alt={...}]{file}|.
   \item Declare the header cells of every table before its \verb|\begin{tabular}|.
-    Section~\ref{sec:tables} shows the eight layouts, the one caveat and the
+    \autoref{sec:tables} shows the eight layouts, the one caveat and the
     \verb|\tagpdfsetup| keys each layout needs.
   \item Build and check with \verb|make -f Makefile.a11y check|, then finish in Acrobat:
-    All tools, Prepare for accessibility, Check for accessibility.
+    All tools, Prepare for accessibility, Check for accessibility. A checker cannot judge
+    color, link text, tag names, reading order, tab order or the accuracy of alt text, so
+    do Clemson's six manual checks by hand afterwards; \texttt{README.md} links them.
 \end{enumerate}
 
 Text is set ragged right, as Clemson's text guidance asks; pass \verb|align=justified| to
@@ -83,8 +96,9 @@ an endnote instead.\endnote{An endnote is collected and printed with the others 
 of the document, after the appendices and before the works cited.}
 \subsection{Links}
 A link carries its own text, so name the destination rather than writing ``click here'' or
-``more''. Link text stays black here and the PDF viewer draws the underline from the
-annotation's border style, so no link is marked by color alone. \verb|\href| prints words
+``more''. Link text stays black here, and the underline comes from the link annotation's
+border style, which Acrobat draws and Preview on macOS does not; no link is marked by color
+alone, and the link text says where it goes in every viewer. \verb|\href| prints words
 instead of an address: \href{https://latex3.github.io/tagging-project/}{the LaTeX tagging
 project}. \verb|\url| prints the address itself, \url{https://www.clemson.edu/accessibility/};
 avoid a raw address as the only link text, because a screen reader may announce each
@@ -213,17 +227,24 @@ Write chemistry with \verb|\ce| from \texttt{mhchem}, numbers and units with \ve
 \verb|\num| from \texttt{siunitx}, and quantum states with \verb|\braket| and \verb|\ket| from
 \texttt{braket}. Each one becomes a Formula with alt text and MathML, exactly like ordinary
 mathematics: a MathML reader hears a value and its unit as structure, and the alt text is
-the LaTeX source unless \verb|\mathalt| precedes it, as it does for the first quantity below.
-% mhchem: $\ce{^{14}C}$, the isotope form, makes tagpdf report "structure with
-% label 36 has already been used", so it is not used here; write the mass number
-% in words or as text. Everything else in \ce tags cleanly.
-% Meets: ISO 32000-2:2020 14.8.6.3 (Formula, MathML); WCAG 2.1 1.1.1.
-Water is $\ce{H2O}$ and the sulfate ion is $\ce{SO4^2-}$; carbon-14 is written out in words.
-\mathalt{9.81 metres per second squared}%
-Standard gravity is \qty{9.81}{\metre\per\second\squared}, room temperature is
-\qty{25}{\celsius}, and \num{12345.678} is grouped by \verb|\num| rather than by hand. A state
-is $\ket{0}$ and an inner product is $\braket{\psi|\phi}$. Write a range as two quantities,
-\qty{10}{\celsius} to \qty{20}{\celsius}: \verb|\qtyrange| loses its numbers in the alt text.
+what everyone else hears, so \verb|\mathalt| goes before inline notation too, as below.
+% Inline notation needs \mathalt as much as a display equation does: without it
+% the alt text is the LaTeX source, and a reader hears "backslash ce H 2 O".
+% Every formula in this file carries a spoken form written right before it.
+% $\ce{^{14}C}$, the isotope form, makes tagpdf report "structure with label 36
+% has already been used", so carbon-14 is written out in words instead.
+% Meets: ISO 32000-2:2020 14.8.6.3 (Formula Alt, MathML); WCAG 2.1 1.1.1.
+Water is \mathalt{water, H 2 O}$\ce{H2O}$ and the sulfate ion is
+\mathalt{the sulfate ion, S O 4 two minus}$\ce{SO4^2-}$; carbon-14 is written out in words.
+Standard gravity is \mathalt{9.81 metres per second
+squared}\qty{9.81}{\metre\per\second\squared}, room temperature is
+\mathalt{25 degrees Celsius}\qty{25}{\celsius}, and \mathalt{twelve thousand three hundred
+forty-five point six seven eight}\num{12345.678} is grouped by \verb|\num| rather than by
+hand. A state is \mathalt{the ket zero}$\ket{0}$ and an inner product is
+\mathalt{the inner product of psi and phi}$\braket{\psi|\phi}$. Write a range as two
+quantities, \mathalt{10 degrees Celsius}\qty{10}{\celsius} to
+\mathalt{20 degrees Celsius}\qty{20}{\celsius}: \verb|\qtyrange| loses its numbers in the
+alt text.
 \mathalt{Methane plus two O 2 gives C O 2 plus two H 2 O}%
 \begin{equation}\label{eq:burn} \ce{CH4 + 2O2 -> CO2 + 2H2O} \end{equation}
 \subsection{Theorems, proofs and algorithms}
@@ -239,21 +260,23 @@ and algorithm, so \verb|\newtheorem| is not needed:
 announce. To end proofs with the word QED instead, uncomment the \verb|\qedsymbol| line
 in the theorem block of \texttt{clemsona11y.cls}. \end{remark}
 % An algorithm is a theorem-like block, not a float: the algorithm package is
-% listed "Currently incompatible" and tags its caption as plain text, and an
-% algorithmic body inside a figure aborts the build. This form gives a tagged
-% Caption, a label that \ref reaches, and the steps as a real list.
-% Meets: ISO 32000-2:2020 14.8.4.6 (Caption), 14.8.4.9 (L); WCAG 2.1 1.3.1.
+% listed "Currently incompatible" and an algorithmic body inside a figure
+% aborts the build. This gives a tagged Caption, a label \ref reaches and the
+% steps as a list -- an unordered one, because algpseudocode prints the step
+% numbers itself instead of using a list counter; the labels are still Lbl.
+% Meets: ISO 32000-2:2020 14.8.4.6 (Caption), 14.8.4.9 (L); Clemson lists.
 \begin{algorithm}[Find the largest value]\label{alg:max}
-Input: the values $a_1,\dots,a_n$. Output: the largest of them.
+Input: the values \mathalt{a 1 through a n}$a_1,\dots,a_n$. Output: the largest of them.
 \begin{algorithmic}[1]
-  \State $m \gets a_1$
-  \For{$i \gets 2$ to $n$} \If{$a_i > m$} \State $m \gets a_i$ \EndIf \EndFor
+  \State \mathalt{m gets a 1}$m \gets a_1$
+  \For{\mathalt{i gets 2}$i \gets 2$ to $n$} \If{\mathalt{a sub i is greater than
+    m}$a_i > m$} \State \mathalt{m gets a sub i}$m \gets a_i$ \EndIf \EndFor
   \State \Return $m$
 \end{algorithmic}\end{algorithm}
 \section{Figures and images}
 Four cases cover almost every picture in a document: a picture that carries
 information, a picture made of several panels, a picture of words, and decoration.
-Complex pictures follow in Section~\ref{sec:longdesc}.
+Complex pictures follow in \autoref{sec:longdesc}.
 
 Every informative picture needs \verb|alt={...}|. Write what the picture shows and why it is
 in the document, in one or two sentences, as if describing it to a friend. Do not write the
@@ -263,39 +286,41 @@ reader in Cooper Library''; no picture in this kit shows people, so the pattern 
 
 % Every informative picture needs alt={...}: what it shows and why it is here,
 % in one or two sentences, not the file name and not the caption again. No kit
-% picture shows people, so Clemson's people pattern is given in the prose above.
-% Meets: ISO 32000-2:2020 14.8.4.8.5 (Figure Alt); Tagged PDF BPG 1.0.1 5.5.2.
+% picture shows people, so Clemson's people pattern is in the prose above.
+% \caption goes above the image in every float: latex-lab always writes the
+% Caption first, so a caption printed below would contradict the tag order.
+% Meets: ISO 32000-2:2020 14.8.4.8.5 (Figure Alt); Clemson tags (tag order).
 \begin{figure}\centering
-  \includegraphics[width=0.5\linewidth,alt={Coiled gray network cables with blue connectors, hung in even rows on a beige pegboard wall.}]{example}
   \caption{An informative picture with alt text}\label{fig:lab}
+  \includegraphics[width=0.5\linewidth,alt={Coiled gray network cables with blue connectors, hung in even rows on a beige pegboard wall.}]{example}
 \end{figure}
 
 A figure can hold several pictures. Give each one its own \verb|\includegraphics| and its own
 alt text, and write one caption that names the panels. \texttt{subcaption} and \texttt{subfig}
 are not compatible with tagging, so lay the panels out with \verb|\hfill|, as here.
-Figure~\ref{fig:panels} uses \verb|trim| and \verb|clip| to show two halves of the picture above.
+\autoref{fig:panels} uses \verb|trim| and \verb|clip| to show two halves of the picture above.
 
 % Two panels in one figure: one \includegraphics per panel, each with its own
 % alt text, one caption that names the panels. subcaption/subfig are incompatible.
 % Meets: Tagged PDF BPG 1.0.1 5.5.3.1 (per-panel alternative text).
 \begin{figure}\centering
+  \caption{Two panels: (a) the left half and (b) the right half of the wall}\label{fig:panels}
   \includegraphics[width=0.33\linewidth,trim=0 0 160 0,clip,alt={Panel (a): the left half of the cable wall, four columns of coils.}]{example}
   \hfill
   \includegraphics[width=0.33\linewidth,trim=160 0 0 0,clip,alt={Panel (b): the right half of the same wall, four more columns of coils.}]{example}
-  \caption{Two panels: (a) the left half and (b) the right half of the wall}\label{fig:panels}
 \end{figure}
 
 A caption that runs to three lines would fill the List of Figures. Give \verb|\caption| a short
-title in brackets: the long form is printed under the figure, and the short form goes into the list.
+title in brackets: the long form is printed with the figure, and the short form goes into the list.
 
-% \caption[short]{long}: the long form goes under the figure, the short into the
-% list. Meets: Tagged PDF BPG 1.0.1 4.2.6 (Caption); ISO 32000-2:2020 14.8.4.6.
+% \caption[short]{long}: the long form is printed here, the short one goes into
+% the list. Meets: Tagged PDF BPG 1.0.1 4.2.6 (Caption); ISO 32000-2:2020 14.8.4.6.
 \begin{figure}\centering
-  \includegraphics[width=0.35\linewidth,alt={The cable wall again, printed smaller.}]{example}
   \caption[A short title for the List of Figures]{A caption long enough to be
     worth shortening: the same cable wall printed at a smaller size, with the
     short title in brackets standing in for this caption in the List of
     Figures}\label{fig:short}
+  \includegraphics[width=0.35\linewidth,alt={Coiled gray network cables in even rows on a beige pegboard wall, the same photograph as above at a smaller size.}]{example}
 \end{figure}
 
 A diagram drawn in the document is a picture too. \texttt{tikz} takes the same
@@ -305,23 +330,27 @@ A diagram drawn in the document is a picture too. \texttt{tikz} takes the same
 % alt key directly; pgfplots does not tag, so export a plot as an image instead.
 % Meets: ISO 32000-2:2020 14.8.4.8.5 (Figure Alt); WCAG 2.1 1.1.1.
 \begin{figure}\centering
+  \caption{A diagram drawn in the document with \texttt{tikz}}\label{fig:tikz}
   \begin{tikzpicture}[alt={Flow diagram: a box labeled LaTeX source, an arrow to the right, and a box labeled tagged PDF.}]
     \draw (0,0) rectangle (3,1) node[midway]{LaTeX source};
     \draw[->] (3.1,0.5) -- (4.6,0.5);
     \draw (4.7,0) rectangle (7.7,1) node[midway]{tagged PDF};
   \end{tikzpicture}
-  \caption{A diagram drawn in the document with \texttt{tikz}}\label{fig:tikz}
 \end{figure}
 
 A picture of words is not the same case. Real text is always better, so set words as text
-wherever the picture can be redrawn; a logo is the usual exception. When the picture has to
-stay, give it \verb|actualtext={...}|, the words themselves, and a reader hears the words. A
-picture that carries no information at all gets \verb|artifact|, and is skipped.
+wherever the picture can be redrawn. WCAG allows an image of text only where the presentation
+is essential, which in practice means a logo or a scanned original; the picture below stands
+in for one. When the picture has to stay, give it \verb|actualtext={...}|, the words
+themselves, and a reader hears the words. A picture that carries no information at all gets
+\verb|artifact|, and is skipped.
 
 % actualtext={...} gives a picture of words the words themselves; artifact marks
-% a picture that carries nothing, so it is skipped. The artifact sits in its own
-% centered line with paragraph tagging off: a paragraph holding only an artifact
-% would be an empty tag. Meets: ISO 32000-2:2020 14.9.4 (ActualText), 14.8.2.2.
+% a picture that carries nothing, so it is skipped. The picture below stands in
+% for a logo, the one case WCAG 2.1 1.4.5 exempts; anything else set as words in
+% a picture has to be redrawn as text. The artifact sits in its own centered
+% line with paragraph tagging off: a paragraph holding only an artifact would be
+% an empty tag. Meets: ISO 32000-2:2020 14.9.4 (ActualText); WCAG 2.1 1.4.5.
 {\centering\vspace{1ex}\includegraphics[height=0.8cm,actualtext={Clemson University}]{text-image}\par}
 \begingroup\tagpdfsetup{para/tagging=false}%
 {\centering\vspace{1ex}\includegraphics[width=0.35\linewidth,artifact]{ornament}\par}%
@@ -338,21 +367,22 @@ into the document, where every reader can find it. Keep the description beside t
 when it runs to a few sentences; move it to an appendix when it is long or when many figures
 need one.
 
-% A complex image: alt states the point and points at the description, which is
-% real text under the figure rather than a hidden attribute. The same numbers
-% appear as a table, which is the best description a chart can have.
-% Meets: Tagged PDF BPG 1.0.1 5.5.2 (Alt carries what is essential); WCAG 2.1 1.1.1.
+% A complex image: alt states the point and says where the description is, and
+% the same numbers follow as text and as a table. No width key: scaling a
+% vector graphic scales the type inside it, and 0.62\linewidth took this
+% chart's 9 pt labels down to 6.9 pt, so it is placed at its natural size.
+% Meets: Tagged PDF BPG 1.0.1 5.5.2 (Alt); Clemson text concept (9 pt floor).
 \begin{figure}\centering
-  \includegraphics[width=0.62\linewidth,alt={Bar chart of visitors to four South Carolina destinations: Myrtle Beach draws the most and Aiken the fewest. Described in the paragraph and the table below.}]{chart}
   \caption[Visitors to four South Carolina destinations]{Visitors to four South
     Carolina destinations, 2025. Described in the paragraph below}\label{fig:chart}
+  \includegraphics[alt={Bar chart of visitors to four South Carolina destinations: Myrtle Beach draws the most and Aiken the fewest. Described in the paragraph and the table below.}]{chart}
 \end{figure}
 
-\noindent \strong{Description of Figure~\ref{fig:chart}.} The horizontal axis names four
+\noindent \strong{Description of \autoref{fig:chart}.} The horizontal axis names four
 destinations. The vertical axis is ``Visitors (thousands)'' and runs from 0 to 1500. Aiken had
 250 thousand visitors, Charleston 1200, Greenville 700 and Myrtle Beach 1500. The two coastal
 destinations drew more visitors than the two inland ones, and Myrtle Beach drew six times as
-many as Aiken. Table~\ref{tab:chartdata} lists the same numbers.
+many as Aiken. \autoref{tab:chartdata} lists the same numbers.
 
 % The data behind a chart is the description a reader can check, so print it as
 % a real table with a header row and a header column, not as a picture. The
@@ -361,7 +391,7 @@ many as Aiken. Table~\ref{tab:chartdata} lists the same numbers.
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, Scope); WCAG 2.1 1.1.1.
 \begin{table}\centering
   \caption[The numbers behind the visitor chart]{The numbers behind
-    Figure~\ref{fig:chart}}\label{tab:chartdata}
+    \autoref{fig:chart}}\label{tab:chartdata}
   \tagpdfsetup{table/header-rows={1}, table/header-columns={1}}
   \begin{tabular}{lr}
     \toprule Destination  & Visitors (thousands) \\ \midrule
@@ -376,9 +406,9 @@ many as Aiken. Table~\ref{tab:chartdata} lists the same numbers.
 % alt, because alt is written to the PDF as a plain string.
 % Meets: Tagged PDF BPG 1.0.1 5.5.2; WCAG 2.1 1.1.1.
 \begin{figure}\centering
-  \includegraphics[width=0.3\linewidth,alt={Photograph of the cable wall. Full description in the appendix Extended image descriptions.}]{example}
   \caption[The cable wall, described in an appendix]{The cable wall in the
-    network store. Full description in Appendix~\ref{app:desc}}\label{fig:wall}
+    network store. Full description in \autoref{app:desc}}\label{fig:wall}
+  \includegraphics[width=0.3\linewidth,alt={Photograph of the cable wall. Full description in the appendix Extended image descriptions.}]{example}
 \end{figure}
 \subsection{Decorative rules, other languages and abbreviations}
 Four small things that come up in any paper; the first two need a command, shown after the list.
@@ -404,7 +434,7 @@ Four small things that come up in any paper; the first two need a command, shown
   \item[An abbreviation] Write it out the first time it appears: Institutional Review Board
     (IRB). PDF has an \verb|/E| attribute for an expansion, but it is not needed once the
     expansion is in the text, where every reader gets it.
-  \item[Color] Color is never the only signal. Figure~\ref{fig:chart} draws every bar in one
+  \item[Color] Color is never the only signal. \autoref{fig:chart} draws every bar in one
     shade and names each bar on the axis, so nothing depends on telling colors apart.
 \end{description}
 
@@ -419,8 +449,9 @@ tout de suite\UseTaggingSocket{inline/end}
 \label{sec:tables}
 A table is accessible when a reader can tell which cells are headers and what each header
 covers. Declare the header cells with \verb|\tagpdfsetup| before \verb|\begin{tabular}|, put the
-caption above the table, and keep notes outside it. The eight layouts below, and the one
-caveat that follows them, cover the cases that come up in a thesis.
+caption above the table, as above every figure in this file, and keep notes outside it. The
+eight layouts below, and the one caveat that follows them, cover the cases that come up in a
+thesis.
 
 % Layouts follow https://www.clemson.edu/accessibility/digital/concepts/tables.html
 % Rules: the caption goes above the table, as the Graduate School's Word template
@@ -440,7 +471,8 @@ caveat that follows them, cover the cases that come up in a thesis.
 \end{table}
 % 2. Simple table, header column: every cell in column 1 is a TH with Scope=Row.
 \begin{table}\centering
-  \caption{Simple table: the first column is the header (row scope)}
+  \caption[Simple table: the first column is the header]{Simple table: the first
+    column is the header (row scope); the three data columns are trials 1 to 3}
   \tagpdfsetup{table/header-columns={1}}
   \begin{tabular}{lrrr}
     \toprule
@@ -462,9 +494,12 @@ caveat that follows them, cover the cases that come up in a thesis.
 % 4. Complex table, multi-level header: two header rows; \multicolumn cells get
 % ColSpan automatically. table/multirow=2 makes the corner cell span both rows,
 % so the blank cell under it is not an empty header (leave that cell empty).
+% header-columns={1} as well: without it the row labels are data cells and every
+% number names its two column headers but not its method.
+% Meets: ISO 32000-2:2020 14.8.4.8.3 (Headers, Scope); Clemson complex tables.
 \begin{table}\centering
   \caption{Complex table: a two-level header with merged header cells}
-  \tagpdfsetup{table/header-rows={1,2}}
+  \tagpdfsetup{table/header-rows={1,2}, table/header-columns={1}}
   \begin{tabular}{lcccc}
     \toprule
     \tagpdfsetup{table/multirow=2}%
@@ -595,8 +630,8 @@ other section. Tables and figures in an appendix are tagged exactly as in the bo
 \end{table}
 
 \begin{figure}\centering
-  \includegraphics[width=0.35\linewidth,alt={The cable wall once more, as an example of a figure inside an appendix.}]{example}
   \caption{A figure in an appendix, numbered A.1}
+  \includegraphics[width=0.35\linewidth,alt={Coiled gray network cables on a beige pegboard wall, shown again here as an example of a figure inside an appendix.}]{example}
 \end{figure}
 \section{Extended image descriptions}
 \label{app:desc}
@@ -604,7 +639,7 @@ This appendix holds the descriptions that are too long to sit beside their figur
 Begin every entry with the figure it describes, so that the caption and the description
 link to each other in both directions.
 
-\strong{Figure~\ref{fig:wall}:} A color photograph of a storage wall in a network room. Gray
+\strong{\autoref{fig:wall}:} A color photograph of a storage wall in a network room. Gray
 patch cables are wound into loops about twenty centimetres across and hung on a beige
 pegboard in six rows of eight. A blue plastic clip holds each coil near the top, and the blue
 connectors at the ends of each cable hang below the coil. The rows are evenly spaced and the

@@ -5,7 +5,7 @@
 %          align=ragged (default) | justified;  package options
 %          fonts=lm|termes|false, floats=here|free, headings=word|kernel,
 %          title=h1|none, links=keep|hidden, pagination=plain|typed,
-%          math=full|af;  anything else (10pt, a4paper, ...) goes to the base class.
+%          math=af|full;  anything else (10pt, a4paper, ...) goes to the base class.
 % Defines: \email{addr} (a mailto link whose text is the address) and, with
 %          theorems=true, theorem, lemma, proposition, corollary, definition,
 %          example, remark and algorithm.
@@ -31,6 +31,10 @@
   {Use one column. Two-column layout breaks the reading order in PDF/UA-1 tools.}}
 % Package options are forwarded to clemsona11y.sty. The class defaults are
 % fonts=lm and links=keep (the package keeps links black and underlines them).
+% pagination stays plain: typed writes /Type /Pagination on the folio, which
+% the Tagged PDF BPG asks for, but tagpdf implements it with an empty Artifact
+% structure element per header and footer, and two of them land inside a list
+% item. Meets: ISO 32000-2:2020 14.8.2.2 (artifacts are outside the tree).
 \PassOptionsToPackage{fonts=lm,links=keep}{clemsona11y}
 \DeclareOption{fonts=lm}{\PassOptionsToPackage{fonts=lm}{clemsona11y}}
 \DeclareOption{fonts=termes}{\PassOptionsToPackage{fonts=termes}{clemsona11y}}
@@ -120,17 +124,20 @@
 % 14.8.4.4 (Sect); Tagged PDF BPG 1.0.1 4.2.2 (heading hierarchy).
 \@ifundefined{abstract}{}{%
   \renewenvironment{abstract}{%
+    \pdfbookmark[1]{\abstractname}{clemsona.abstract}%
     \begin{quotation}[tag-name=Sect, tagging-recipe=standalone]\small
     \begin{center}\AssignStructureRole{para/textblock}{H2}\bfseries\abstractname\end{center}%
   }{\end{quotation}}}
 % Note text at 9 pt. Clemson's text concept sets a 9 pt floor, and \footnotesize
 % is 8 pt on a 10 pt base. It is the size both \footnote and enotez use for note
-% text, so raising it here covers both. Raised marks stay smaller, as marks are.
+% text, so raising it here covers both. A TeX point is 1/72.27 in and a PDF
+% point 1/72 in, so a PDF tool measures these 9 pt as 8.97.
 % Meets: Clemson text concept (no text under 9 pt); WCAG 2.1 1.4.4 (resize text).
 \renewcommand{\footnotesize}{\small}
 % The label in front of a footnote's text is a superscript inside that 9 pt
 % text, and LaTeX's script size for 9 pt is 6 pt. This declares 7 pt instead,
-% so every raised mark, in the text and at the foot, is the same 7 pt.
+% so every raised mark, in the text and at the foot, is the same 7 pt. A raised
+% mark is not body text; Clemson's floor is written for text a reader reads.
 % Meets: Clemson text concept (no text under 9 pt); WCAG 2.1 1.4.4 (resize text).
 \DeclareMathSizes{9}{9}{7}{5}
 % Endnotes: \endnote{...} writes one, \printendnotes prints them all. enotez is
@@ -168,6 +175,15 @@
     {\ClassWarningNoLine{clemsona11y}{Instance blockenv/list not found: lists
       inside theorems stay justified}}
 \fi
+% A11Y: FRONT-MATTER BOOKMARKS
+% The contents and the two lists are H2 headings, but none of the three writes
+% an outline entry, so a reader navigating by bookmarks cannot reach the front
+% matter. \pdfbookmark is hyperref's documented command and is emitted before
+% each heading, so the entry lands on the right page. The abstract gets one in
+% its own definition above. Meets: Tagged PDF BPG 1.0.1 7.2 (outlines).
+\AddToHook{cmd/tableofcontents/before}{\pdfbookmark[1]{\contentsname}{clemsona.toc}}
+\AddToHook{cmd/listoffigures/before}{\pdfbookmark[1]{\listfigurename}{clemsona.lof}}
+\AddToHook{cmd/listoftables/before}{\pdfbookmark[1]{\listtablename}{clemsona.lot}}
 % Link styling comes from the package (links=keep): black text, viewer-drawn
 % underline in running text, none in the contents. A \hypersetup{colorlinks=...}
 % here would clear that underline, so the class sets nothing more about links.
