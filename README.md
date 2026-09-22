@@ -2,7 +2,8 @@
 
 Drop this folder into a project. `clemsona11y.cls` and `clemsona11y.sty` do the work; the output
 is a tagged PDF 2.0 that conforms to PDF/UA-2 and PDF/A-4f. `main.tex` is a worked example of every
-kind of content; build it first. Clemson's [accessibility
+kind of content; build it first. Pictures go in `resources/` (the class looks there and beside the
+`.tex` file); `references.bib` holds the bibliography; `Makefile.a11y` builds and checks. Clemson's [accessibility
 concepts](https://www.clemson.edu/accessibility/digital/concepts/) are the rules its comments cite.
 
 ## Requirements

@@ -151,6 +151,10 @@
   counter-format=roman}
 % The package goes last: it loads hyperref.
 \RequirePackage{clemsona11y}
+% Pictures live in resources/ next to the document; \includegraphics finds
+% them there or beside the .tex file (graphicx comes with the package above).
+% A document can add folders with \graphicspath after \documentclass.
+\graphicspath{{resources/}{./}}
 % Text alignment. Clemson's text concept prefers left-aligned text and says to
 % avoid justified text, so align=ragged is the default. \raggedright is the
 % kernel's para instance: it writes TextAlign/Start into the paragraph's layout
