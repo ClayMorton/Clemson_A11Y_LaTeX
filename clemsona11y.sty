@@ -249,10 +249,11 @@
 % Meets: Tagged PDF BPG 1.0.1 4.2.4 (caption label); 4.2.7 (Span).
 \AssignStructureRole{float/figure/label}{Span}  % "Figure 1.1" -> Span, not Lbl
 \AssignStructureRole{float/table/label}{Span}   % "Table 2.3"  -> Span, not Lbl
-% The same rule hits the section number in a contents entry and the number in
-% front of a footnote's text; both become Span too (valid children of TOCI and
-% of a note). Restore Lbl the same way if a PDF/UA-2 reader prefers it.
+% The same rule hits the section number in a contents entry, the raised mark
+% in the text and the number before a footnote's text; all become Span (valid
+% there, and the mark keeps its two-way Ref to the note). Restore Lbl the same way.
 \AssignStructureRole{toc/item/label}{Span}      % "2.1" in the contents -> Span
+\AssignStructureRole{fnote/mark}{Span}          % the raised mark in the text
 \AssignStructureRole{fnote/note/label}{Span}    % "1" before a footnote -> Span
 
 
