@@ -22,8 +22,8 @@
 %   title      h1*     | none         tag the kernel \maketitle title as H1
 %   links      keep*   | hidden       black underlined links, or hidelinks
 %   pagination plain*  | typed        untyped artifact, or /Type /Pagination
-%   math       full*   | af           MathML structure elements + attached
-%                                     file, or the attached file only
+%   math       af*     | full         MathML attached as a file, or also as
+%                                     structure elements (PDF/UA-2 readers)
 %
 % Details: README.md; LaTeX_A11Y.md, Standards checklist.
 % Meets: ISO 14289-2:2024 (PDF/UA-2); ISO 32000-2:2020 14.8 (tagged PDF).
@@ -103,7 +103,7 @@
 \newcommand*{\clemsona@title}{h1}
 \newcommand*{\clemsona@links}{keep}
 \newcommand*{\clemsona@pagination}{plain}
-\newcommand*{\clemsona@math}{full}
+\newcommand*{\clemsona@math}{af}
 \newcommand*{\clemsona@tmp}{}
 \newcommand{\clemsona@if}[4]{%
     \def\clemsona@tmp{#2}\ifx#1\clemsona@tmp#3\else#4\fi}
@@ -249,13 +249,18 @@
 % Meets: Tagged PDF BPG 1.0.1 4.2.4 (caption label); 4.2.7 (Span).
 \AssignStructureRole{float/figure/label}{Span}  % "Figure 1.1" -> Span, not Lbl
 \AssignStructureRole{float/table/label}{Span}   % "Table 2.3"  -> Span, not Lbl
+% The same rule hits the section number in a contents entry and the number in
+% front of a footnote's text; both become Span too (valid children of TOCI and
+% of a note). Restore Lbl the same way if a PDF/UA-2 reader prefers it.
+\AssignStructureRole{toc/item/label}{Span}      % "2.1" in the contents -> Span
+\AssignStructureRole{fnote/note/label}{Span}    % "1" before a footnote -> Span
 
 
-% A11Y: MATHEMATICS
-% Every formula is a Formula with Alt text, MathML structure elements and the
-% MathML attached as a file: what the PDF Association's Math BPG (2026) asks
-% for. Acrobat and PAC, PDF/UA-1 tools, list MathML spacing as empty tags;
-% math=af drops the structure elements for a clean Acrobat tree (UA-1 only).
+% A11Y: MATHEMATICS. Every formula is a Formula with Alt text and its MathML
+% attached as a file (math=af): one content item per formula, a clean tree in
+% Acrobat and PAC. math=full also writes MathML structure elements (the PDF
+% Association's Math BPG direction) at the price of empty spacing tags and one
+% reading-order item per symbol in PDF/UA-1 tools. Both pass veraPDF PDF/UA-2.
 % Meets: ISO 32000-2:2020 14.8.6.3 (MathML); PDF Association BPG Math in PDF 1.0.
 \clemsona@if{\clemsona@math}{full}{%
     \tagpdfsetup{math/setup={mathml-SE,mathml-AF}}%

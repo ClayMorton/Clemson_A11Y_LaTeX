@@ -149,14 +149,13 @@ make -f Makefile.a11y check
 \end{verbatim}
 \section{Mathematics}
 \label{sec:math}
-Mathematics is written into the PDF twice: as MathML, which lets a MathCAT-class reader speak
-the real structure of a formula, and as alt text, which is what most readers hear. Write
-\verb|\mathalt{spoken text}| immediately before a formula to set that alt text; without it the
-alt text is the bare LaTeX source, including any \verb|\label|. Acrobat and PAC check PDF/UA-1
-and list the MathML spacing elements (\texttt{mspace}, \texttt{mtd}, \texttt{mrow},
-\texttt{mtext}) as empty tags: that is the checker's limit, not a defect in the file. The
-class option \verb|math=af| drops those elements and keeps only the attached MathML file,
-which gives a checker-clean tree.
+Mathematics is written into the PDF twice: as MathML attached to each formula, which lets a
+MathCAT-class reader speak the real structure, and as alt text, which is what most readers
+hear. Write \verb|\mathalt{spoken text}| immediately before a formula to set that alt text;
+without it the alt text is the bare LaTeX source, including any \verb|\label|. The class
+option \verb|math=full| also writes the MathML into the tag tree, which PDF/UA-2 readers can
+navigate; Acrobat and PAC, which check PDF/UA-1, then list its spacing elements as empty tags
+and every symbol as its own reading-order item, so this file keeps the default.
 
 \mathalt{e to the power i pi, plus one, equals zero}%
 Inline mathematics sits in the sentence: $e^{i\pi} + 1 = 0$. A displayed equation takes
@@ -537,22 +536,21 @@ caveat that follows them, cover the cases that come up in a thesis.
 % table turned sideways is not shown: lscape and pdflscape are untested here.
 
 The grid of names below holds no data and no headers: it only puts two names side by side. It
-is not a table, so it is tagged as presentation and a screen reader reads it as plain text
-rather than announcing rows and columns. Better still, lay such text out without a \texttt{tabular}.
+is not a table, so table tagging is switched off for it and a screen reader reads the names
+as plain text rather than announcing rows and columns. Better still, lay such text out without
+a \texttt{tabular}.
 
-% 8. A layout grid is not a data table. Do not use one; if a tabular only
-% arranges things (an author block), tag it as presentation so no TH/TD is read.
-% Keep table/tagging=presentation inside a group: it is a local switch and, left
-% open, it would demote every later table. Paragraph tagging is off around it
-% so the centering leaves no empty paragraph.
-% Meets: ISO 32000-2:2020 14.8.4.8 (Table); WAI-ARIA 1.1 role=presentation.
-\begingroup\tagpdfsetup{para/tagging=false}%
-{\centering
-\tagpdfsetup{table/tagging=presentation}%
+% 8. A layout grid is not a data table: switch table tagging off for it so no
+% Table, TH or TD is written and the words stay ordinary text (Acrobat fails a
+% Table without headers and ignores the PDF 2.0 presentation role). Keep
+% table/tagging=false inside a group: left open, it would untag every later table.
+% Meets: ISO 32000-2:2020 14.8.4.8 (Table); Clemson tables concept.
+\begingroup\centering
+\tagpdfsetup{table/tagging=false}%
 \begin{tabular}{cc}
   First Author & Second Author \\
   Clemson University & Clemson University
-\end{tabular}\par}%
+\end{tabular}\par
 \endgroup
 \noindent Never nest a table inside a table; split it into two tables instead.
 \section{Footnotes and endnotes}

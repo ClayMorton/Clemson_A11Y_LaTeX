@@ -44,8 +44,8 @@ artifact, a phrase in another language, and an abbreviation written out on first
 layout in Clemson's [tables
 guide](https://www.clemson.edu/accessibility/digital/concepts/tables.html), one header row to merged
 cells, one table per group instead of header rows inside a table (a second group row gets the wrong
-`/Headers` today), a title and note outside the table, no empty cells, and a layout grid tagged as
-presentation (`longtable` tags its caption as a cell, so split long tables; `lscape`/`pdflscape`
+`/Headers` today), a title and note outside the table, no empty cells, and a layout grid with table
+tagging switched off (`longtable` tags its caption as a cell, so split long tables; `lscape`/`pdflscape`
 untested). Back matter: appendix A.1, endnotes and bibliography, all in the contents.
 
 ## Already have a Makefile or a class?
@@ -74,7 +74,7 @@ options go in the same brackets:
 | `headings` | `word`, `kernel` | title = only H1 and sections H2 (Word style), or LaTeX default |
 | `links` | `keep`, `hidden` | keep: black text, links underlined in running text by the PDF viewer; contents, list of figures and list of tables entries are links without the underline (every line there is one), and their page numbers link too. hidden: no marking at all |
 | `align` | `ragged`, `justified` | left-aligned text (Clemson's rule), or LaTeX's justified look |
-| `math` | `full`, `af` | MathML structure elements + attached file (Acrobat lists MathML spacing as empty tags), or attached file only, checker-clean |
+| `math` | `af`, `full` | af: MathML attached to each formula, one reading-order item per formula, clean in Acrobat; full: MathML structure elements in the tree as well (PDF/UA-2 readers; Acrobat shows empty spacing tags and one item per symbol) |
 | `pagination` | `plain`, `typed` | plain: page numbers are untyped artifacts; typed: `/Pagination` artifacts for PDF/UA-1 checkers (adds two empty Artifact tags per page) |
 | `title` | `h1`, `none` | tag the `\maketitle` title as the H1, or leave it for a class that tags its own title page |
 | `theorems` | `true`, `false` | predefined theorem, lemma, proposition, corollary, definition, example, remark, algorithm |
@@ -89,7 +89,7 @@ Other options (`11pt`, `a4paper`, ...) go to the base class; `twocolumn` is refu
 | `mhchem`: write `$\ce{H2O}$` | `chemfig`, `chemformula`, `chemmacros`; `\ce{^{14}C}` | draw structures as images with alt text; the isotope form raises a tagpdf warning |
 | `physics`, `siunitx` (not both) | `\qtyrange` | `\qty` clashes when both are loaded; `\qtyrange` loses its numbers in the alt text |
 | `algpseudocode`; `verbatim` or `fancyvrb` | `listings`, `minted`, `algorithm2e`, `algorithm` | not tagged; do not load the `algorithm` package, the class defines the environment |
-| `booktabs`, `tabularx` | `tabularray`, `nicematrix`, `multirow`, `caption`, `subcaption` | replace the table or caption code; use `\tagpdfsetup{table/multirow=2}` for row spans (inside the `\multicolumn` text when a cell also spans columns); keep `table/tagging=presentation` inside a group or it demotes every later table |
+| `booktabs`, `tabularx` | `tabularray`, `nicematrix`, `multirow`, `caption`, `subcaption` | replace the table or caption code; use `\tagpdfsetup{table/multirow=2}` for row spans (inside the `\multicolumn` text when a cell also spans columns); keep `table/tagging=false` (a layout grid) inside a group or it untags every later table |
 | `tikz` with `[alt={...}]` | `pgfplots` | export plots as images with alt text |
 | `enotez` (loaded) | `endnotes` | `endnotes` marks carry no link to the note |
 | `\UseTaggingSocket{inline/begin}{tag=Span,lang=fr-FR}` ... `\UseTaggingSocket{inline/end}` | `babel` | its language files are reported incompatible, and `\foreignlanguage` writes no `/Lang` |
