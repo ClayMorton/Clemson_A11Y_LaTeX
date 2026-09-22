@@ -118,4 +118,7 @@ before the `Figure` in the tag tree although the caption is printed below the im
 set by latex-lab, not by `main.tex`. Note text is 9 pt and raised marks 7 pt. Two kernel choices
 PDF/UA-2 allows: `\ref`, `\pageref` and `\eqref` give a bare `Link` and only `\cite` adds
 `Reference`; the steps of an `algorithmic` block (a generic `list` without `\usecounter`) are tagged
-as an unordered list although the labels are line numbers. veraPDF `--flavour ua2` is authoritative.
+as an unordered list although the labels are line numbers; a nested list sits inside its parent item's
+body (`LBody` > `Part` > `P`, `L`), the form ISO 32000-2 allows but calls "not part of the hierarchy",
+rather than as a child of the parent `L`; the kernel's paragraph grouping (`Part`) is why. veraPDF
+`--flavour ua2` is authoritative.
