@@ -159,8 +159,14 @@
   % \EditInstance is the kernel's documented template command; the instance
   % names are latex-lab's and can change with a kernel release, so re-check
   % both lines after every TeX Live update. Meets: Clemson text concept.
-  \EditInstance{captionedtext}{proof}{body-decls=\clemsonacls@ragged}
-  \EditInstance{blockenv}{list}{para-instance=}
+  \IfInstanceExistsTF{captionedtext}{proof}
+    {\EditInstance{captionedtext}{proof}{body-decls=\clemsonacls@ragged}}
+    {\ClassWarningNoLine{clemsona11y}{Instance captionedtext/proof not found:
+      proofs stay justified}}
+  \IfInstanceExistsTF{blockenv}{list}
+    {\EditInstance{blockenv}{list}{para-instance=}}
+    {\ClassWarningNoLine{clemsona11y}{Instance blockenv/list not found: lists
+      inside theorems stay justified}}
 \fi
 % Link styling comes from the package (links=keep): black text, viewer-drawn
 % underline in running text, none in the contents. A \hypersetup{colorlinks=...}

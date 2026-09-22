@@ -206,6 +206,24 @@
 \RequirePackage{graphicx}
 
 
+% A11Y: FAIL-SAFE ROLE MAPPING. \AssignStructureRole stores the tag under the
+% kernel's structure name; a name that a future release renames would take the
+% assignment in silence and the mapping would just stop. \clemsona@role checks
+% that the name exists first and otherwise warns, so `make check` fails loudly.
+% Meets: the maintenance rule of this package (no silent loss of a mapping).
+\ExplSyntaxOn
+\cs_new_protected:Npn \clemsona@role #1 #2
+  {
+    \tl_if_exist:cTF { l__tag_name_#1_tl }
+      { \AssignStructureRole {#1} {#2} }
+      {
+        \PackageWarningNoLine{clemsona11y}{%
+            Structure~name~'#1'~is~unknown~to~this~LaTeX~release:~the^^J%
+            mapping~to~'#2'~was~skipped.~Check~the~tag~tree~and~this~package}
+      }
+  }
+\ExplSyntaxOff
+
 % A11Y: FLOATS
 % Tag every float where it stands in the source. With tagging on the kernel
 % otherwise defers floats into figures/tables bins at the end of the tree, so
@@ -223,8 +241,8 @@
 % Aside as "Note". Do not remap to Div: Div is transparent, so the Caption is
 % judged against the enclosing Sect and fails the first/last-child rule.
 % Meets: ISO 32000-2:2020 14.8.4.4 Table 365; ISO 14289-2:2024 8.2.5.27.
-\AssignStructureRole{float/figure}{Aside}
-\AssignStructureRole{float/table}{Aside}
+\clemsona@role{float/figure}{Aside}
+\clemsona@role{float/table}{Aside}
 % A11Y WORKAROUND: \par ends the paragraph the float interrupts, then
 % paragraph tagging goes off for the float body, so Figure/Table is a direct
 % child of the Aside instead of sitting inside an empty P.
@@ -247,14 +265,14 @@
 % caption in the document. Both tags are valid; PDF/UA-2 requires neither.
 % Restore with \AssignStructureRole{float/figure/label}{Lbl} in your preamble.
 % Meets: Tagged PDF BPG 1.0.1 4.2.4 (caption label); 4.2.7 (Span).
-\AssignStructureRole{float/figure/label}{Span}  % "Figure 1.1" -> Span, not Lbl
-\AssignStructureRole{float/table/label}{Span}   % "Table 2.3"  -> Span, not Lbl
+\clemsona@role{float/figure/label}{Span}  % "Figure 1.1" -> Span, not Lbl
+\clemsona@role{float/table/label}{Span}   % "Table 2.3"  -> Span, not Lbl
 % The same rule hits the section number in a contents entry, the raised mark
 % in the text and the number before a footnote's text; all become Span (valid
 % there, and the mark keeps its two-way Ref to the note). Restore Lbl the same way.
-\AssignStructureRole{toc/item/label}{Span}      % "2.1" in the contents -> Span
-\AssignStructureRole{fnote/mark}{Span}          % the raised mark in the text
-\AssignStructureRole{fnote/note/label}{Span}    % "1" before a footnote -> Span
+\clemsona@role{toc/item/label}{Span}      % "2.1" in the contents -> Span
+\clemsona@role{fnote/mark}{Span}          % the raised mark in the text
+\clemsona@role{fnote/note/label}{Span}    % "1" before a footnote -> Span
 
 
 % A11Y: MATHEMATICS. Every formula is a Formula with Alt text and its MathML
@@ -320,18 +338,18 @@
 \clemsona@if{\clemsona@headings}{word}{%
     \ifdefined\chapter
         % book, report, ClemsonThesis: level 0 is \chapter.
-        \AssignStructureRole{sec/0/title}{H2}% \chapter, \chapter* -> "Heading 2"
-        \AssignStructureRole{sec/1/title}{H3}% \section            -> "Heading 3"
-        \AssignStructureRole{sec/2/title}{H4}% \subsection         -> "Heading 4"
-        \AssignStructureRole{sec/3/title}{H5}% \subsubsection      -> "Heading 5"
-        \AssignStructureRole{sec/4/title}{H6}% \paragraph -- rarely used, but set
+        \clemsona@role{sec/0/title}{H2}% \chapter, \chapter* -> "Heading 2"
+        \clemsona@role{sec/1/title}{H3}% \section            -> "Heading 3"
+        \clemsona@role{sec/2/title}{H4}% \subsection         -> "Heading 4"
+        \clemsona@role{sec/3/title}{H5}% \subsubsection      -> "Heading 5"
+        \clemsona@role{sec/4/title}{H6}% \paragraph -- rarely used, but set
     \else
         % article: no \chapter, so \section is the top heading. \part is left
         % alone; a document that uses one decides its own top heading.
-        \AssignStructureRole{sec/1/title}{H2}% \section            -> "Heading 2"
-        \AssignStructureRole{sec/2/title}{H3}% \subsection         -> "Heading 3"
-        \AssignStructureRole{sec/3/title}{H4}% \subsubsection      -> "Heading 4"
-        \AssignStructureRole{sec/4/title}{H5}% \paragraph -- rarely used, but set
+        \clemsona@role{sec/1/title}{H2}% \section            -> "Heading 2"
+        \clemsona@role{sec/2/title}{H3}% \subsection         -> "Heading 3"
+        \clemsona@role{sec/3/title}{H4}% \subsubsection      -> "Heading 4"
+        \clemsona@role{sec/4/title}{H5}% \paragraph -- rarely used, but set
     \fi
 }{}
 % THE ALTERNATIVE, IF A REVIEWER EVER INSISTS ON THE PDF 2.0 Title TAG:
@@ -344,7 +362,7 @@
 \ifx\clemsona@title\clemsona@tmp
     \def\clemsona@tmp{word}
     \ifx\clemsona@headings\clemsona@tmp
-        \NewTaggingSocketPlug{title}{h1}{\AssignStructureRole{para/textblock}{H1}#2}
+        \NewTaggingSocketPlug{title}{h1}{\clemsona@role{para/textblock}{H1}#2}
         \AssignTaggingSocketPlug{title}{h1}
     \fi
 \fi
@@ -407,6 +425,10 @@
     \AddToHook{begindocument/end}{%
         \ifcsname __socket_fnmark/link_plug_link:w\endcsname
             \AssignSocketPlug{fnmark/link}{clemsonally}%
+        \else
+            \PackageWarningNoLine{clemsona11y}{%
+                hyperref's footnote link plug was not found: footnote marks^^J%
+                keep the line-height link box (underline below the line)}%
         \fi}%
 }{}
 

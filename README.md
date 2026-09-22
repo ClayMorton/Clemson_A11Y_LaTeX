@@ -98,6 +98,18 @@ Other options (`11pt`, `a4paper`, ...) go to the base class; `twocolumn` is refu
 
 Full status list: https://latex3.github.io/tagging-project/tagging-status/
 
+## Workarounds, and what a LaTeX update does to them
+
+The package works around four gaps in the LaTeX tagging code, each marked `A11Y WORKAROUND` with a
+`REMOVE WHEN` line: header-cell IDs and direct cell attributes on tables, spoken alt text for formulas
+(`\mathalt`), the footnote-mark link box, and the role mappings that keep Acrobat's list rule quiet
+(caption numbers, contents numbers, footnote marks and labels as `Span`). Every one of them checks
+that the kernel piece it relies on still exists and otherwise does nothing and writes a
+`Package clemsona11y Warning` to the log; `make -f Makefile.a11y check` then fails and names it.
+After `tlmgr update`, build the kit's `main.tex` once: a clean `check` means every workaround still
+works or is no longer needed. Everything else in the package uses documented interfaces only
+(`\DocumentMetadata`, `\tagpdfsetup`, `\AssignStructureRole`, tagging sockets, hooks, hyperref).
+
 ## What the checker will still say
 
 Acrobat checks PDF/UA-1. On this PDF/UA-2 output it may show figure containers as "Note" (the PDF
