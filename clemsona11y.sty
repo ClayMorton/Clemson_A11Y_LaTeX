@@ -215,7 +215,7 @@
 % A11Y: FAIL-SAFE ROLE MAPPING. \AssignStructureRole stores the tag under the
 % kernel's structure name; a name that a future release renames would take the
 % assignment in silence and the mapping would just stop. \clemsona@role checks
-% that the name exists first and otherwise warns, so `make check` fails loudly.
+% that the name exists first and otherwise warns, so the check fails loudly.
 % Meets: the maintenance rule of this package (no silent loss of a mapping).
 \ExplSyntaxOn
 \cs_new_protected:Npn \clemsona@role #1 #2
@@ -305,11 +305,18 @@
 % template ("LaTeX formula starts ... ends") with no user interface yet
 % (latex-lab-math.pdf 5.7; tagging-project discussion 717). This math/content
 % plug uses the text of \mathalt{...} written right before a formula, else the
-% bare LaTeX source. REMOVE WHEN: the kernel offers a formula alt-text key.
+% LaTeX source, and logs each so the check can list them for a person to read.
+% REMOVE WHEN: the kernel offers a formula alt-text key.
 % Meets: ISO 14289-2:2024 8.2.5.29; ISO 14289-1:2014 7.7 (Alt on Formula).
 \ExplSyntaxOn
 \tl_new:N \g__cly_mathalt_tl
-\NewDocumentCommand \mathalt { m } { \tl_gset:Nn \g__cly_mathalt_tl {#1} }
+\NewDocumentCommand \mathalt { m }
+  { \tag_if_active:T { \tl_gset:Nn \g__cly_mathalt_tl {#1} } }
+% \tag_if_active:T skips the measuring passes (a caption's box, a tabularx trial)
+% that run with tagging suspended; a text set there would wait for the next
+% formula in the real pass and land on the wrong one.
+% \clemsona@srcfile is the file LuaTeX is reading, for the log lines below.
+\cs_new:Npn \clemsona@srcfile { \lua_now:n { tex.sprint(-2,~status.filename~or~"") } }
 % A \mathalt with no formula after it would otherwise still be waiting when the
 % next formula is tagged, anywhere later in the document, and give that formula
 % the wrong alt text. The paragraph the text was written in is the end of its
@@ -327,10 +334,16 @@
     \NewTaggingSocketPlug {math/content} {clemsonally}
       {
         \tl_if_empty:NTF \g__cly_mathalt_tl
-          { \tl_set:Ne \l__math_content_alt_tl { \l__math_content_template_tl } }
+          {
+            \tl_set:Ne \l__math_content_alt_tl { \l__math_content_template_tl }
+            \PackageInfo{clemsona11y}{Formula~without~\token_to_str:N \mathalt
+              \c_colon_str \c_space_tl the~alt~text~is~the~LaTeX~source~in~\clemsona@srcfile}
+          }
           {
             \tl_set:Ne \l__math_content_alt_tl
               { \text_purify:V \g__cly_mathalt_tl }
+            \PackageInfo{clemsona11y}{Formula~alt~text:~\l__math_content_alt_tl
+              \c_space_tl in~\clemsona@srcfile}
             \tl_gclear:N \g__cly_mathalt_tl
           }
         \tl_set:Ne \l__math_content_AF_source_tl { \l__math_texsource_template_tl }

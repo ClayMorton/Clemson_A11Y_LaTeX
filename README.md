@@ -39,8 +39,11 @@ clemsona11y.cls  clemsona11y.sty  main.tex  example.tex  references.bib  README.
    `??` and leaves links empty). VS Code runs the whole cycle from the `% !TEX` and `% !BIB` lines at
    the top of `example.tex` (copy the `% !BIB` pair into `main.tex` once it cites something); TeXShop
    typesets once per click, so there run Typeset, BibTeX, Typeset, Typeset.
-4. **Check:** `make -f Makefile.a11y check` (log, veraPDF), then Acrobat's accessibility checker and
-   Clemson's [six manual checks](https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/manual-checks.html).
+4. **Check:** `make -f Makefile.a11y check` runs what a script can verify (errors, alt text present
+   in every `.tex` file the build read, tagging warnings, the package report, veraPDF PDF/UA-2) and
+   then prints what only a person can judge: every alt text and every spoken formula to read over,
+   structure, reading order, links, color. Finish in Acrobat Pro's accessibility checker (Reader
+   cannot show tags or reading order) and Clemson's [six manual checks](https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/manual-checks.html).
 
 `make -f Makefile.a11y example` builds and checks the worked example (`example.tex` -> `example.pdf`);
 `make -f Makefile.a11y requirements` tests the TeX install; `TARGET=paper` builds `paper.tex`.
@@ -119,7 +122,8 @@ works or is no longer needed.
 - **Acrobat** checks PDF/UA-1: figure containers may show as "Note" (the PDF 1.7 fallback for
   `Aside`), and the Tags panel shows LaTeX names that the role map turns into standard ones
   (`text` = `P`, `text-unit` = `Part`, `item` = `LI`, `itemlabel` = `Lbl`, `itembody` = `LBody`,
-  `quote` = `BlockQuote`, `verbatim` = `Code`, `footnote` = `FENote`). Do not rename them by hand.
+  `quote` = `BlockQuote`, `verbatim` = `Code`, `footnote` = `FENote`, `itemize`, `enumerate`,
+  `description` and `list` = `L`). Do not rename them by hand.
   With `fonts=lm`, Acrobat reports "cannot extract the embedded font" on the 17 pt title face; the
   file is valid.
 - **Kernel choices**, all valid: `BBox` only on figures; `\ref`, `\pageref` and `\eqref` give a bare

@@ -4,7 +4,10 @@
 # example.tex: `make -f Makefile.a11y example` builds and checks it, and
 # `make -f Makefile.a11y TARGET=example open` (or any target) works on it too.
 TARGET  ?= main
-LATEXMK  = latexmk -lualatex -interaction=nonstopmode -halt-on-error
+MK       = $(firstword $(MAKEFILE_LIST))
+# max_print_line keeps every log line whole, so `check` can read back the spoken
+# formula texts that the package writes to the log.
+LATEXMK  = max_print_line=10000 latexmk -lualatex -interaction=nonstopmode -halt-on-error
 
 all: build
 
@@ -23,27 +26,132 @@ requirements:
 	@grep -q FORMATOK a11y-fmt-check.log && echo "OK: LaTeX 2026-06-01 or newer" || { echo "FAIL: LaTeX too old. Run 'sudo tlmgr update --self --all' or install TeX Live 2026."; exit 1; }
 	@rm -f a11y-fmt-check.log
 
-# check: errors, alt text and tagging warnings from the log, the package status
-#        report, veraPDF (PDF/UA-2) if installed, then the Acrobat step.
-check: build
-	@if grep -q '^!' $(TARGET).log; then echo "FAIL: LaTeX errors in $(TARGET).log"; exit 1; fi
-	@if grep -q 'Alternative text for graphic is missing' $(TARGET).log; then echo "FAIL: a picture has no alt text (see $(TARGET).log)"; exit 1; else echo "OK: every picture has alt text"; fi
-	@if grep -qE 'Package tag(pdf)? Warning|latex-lab[^:]*Warning|(Package|Class) clemsona11y Warning' $(TARGET).log; then echo "FAIL: tagging or clemsona11y warnings in $(TARGET).log:"; grep -hE 'Package tag(pdf)? Warning|latex-lab[^:]*Warning|(Package|Class) clemsona11y Warning' $(TARGET).log | sort -u; exit 1; else echo "OK: no tagging warning"; fi
-	@echo "-- package status (sections 1-3 of the report in $(TARGET).log; float.sty here is a known false alarm) --"
-	@sed -n '/Status report of the tagging support/,$$p' $(TARGET).log | sed -n '/1\. Unsupported/,/4\. Compatible/p' | grep -v '^ *$$' | grep -v '4\. Compatible' || true
-	@if command -v verapdf >/dev/null; then \
-	    out=`verapdf --flavour ua2 --format text $(TARGET).pdf 2>/dev/null | tail -1`; \
-	    case "$$out" in PASS*) echo "OK: veraPDF ua2 PASS";; *) echo "FAIL: veraPDF ua2: $$out"; exit 1;; esac; \
-	  else echo "veraPDF not found on PATH: install it from https://verapdf.org/software/ and add its folder to PATH (PDF/UA-2 check skipped)"; fi
-	@echo "Last step: Acrobat > All tools > Prepare for accessibility > Check for accessibility"
-	@echo "  https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/"
+# A11Y_SCAN: a perl program (perl comes with latexmk) that reads every local .tex
+# file the build used, skips comments and \verb, and reports each picture:
+# ALT / TEXT (actualtext) with its text, NOALT, or PLACEHOLDER for alt={...}.
+define A11Y_SCAN
+my %seen;
+for my $$f (@ARGV) {
+  next if $$seen{$$f}++ or !open(my $$h, "<", $$f);
+  local $$/; my $$s = <$$h>; close $$h;
+  $$s =~ s/(?<!\\)%[^\n]*//g;
+  $$s =~ s/\\verb(\W)(.*?)\1//g;
+  while ($$s =~ /\\(includegraphics|begin\s*\{tikzpicture\}|tikz(?![A-Za-z]))\s*(?:\[((?:[^\[\]]|\[[^\]]*\])*)\])?/gs) {
+    my ($$what, $$opt) = ($$1, defined $$2 ? $$2 : "");
+    my $$line = 1 + (substr($$s, 0, $$-[0]) =~ tr/\n//);
+    my $$where = "$$f line $$line";
+    if ($$opt =~ /\balt\s*=\s*\{((?:[^{}]|\{[^{}]*\})*)\}/s) {
+      (my $$a = $$1) =~ s/\s+/ /g;
+      if ($$a =~ /^\s*\.\.\.\s*$$/) { print "PLACEHOLDER $$where\n" } else { print "ALT $$where: $$a\n" }
+    } elsif ($$opt =~ /\bactualtext\s*=\s*\{((?:[^{}]|\{[^{}]*\})*)\}/s) {
+      (my $$a = $$1) =~ s/\s+/ /g; print "TEXT $$where: $$a\n";
+    } elsif ($$opt !~ /\bartifact\b/) {
+      print "NOALT $$where: ", ($$what eq "includegraphics" ? "\\includegraphics" : "tikz drawing"), "\n";
+    }
+  }
+}
+endef
+export A11Y_SCAN
+
+# check: a quiet build, then what a script can verify (errors, alt text present,
+#        tagging warnings, package report, veraPDF PDF/UA-2) and the list a person
+#        must check by hand. `build` shows the full latexmk output when needed.
+check:
+	@fail=0; warn=0; skip=0; log=$(TARGET).log; tex=$(TARGET).tex; built=0; \
+	$(LATEXMK) -silent $(TARGET).tex >/dev/null 2>&1 && built=1; \
+	if grep 'clemsona11y Info: Formula' $$log 2>/dev/null | grep -qv 'on input line [0-9]*\.$$'; then \
+	  built=0; $(LATEXMK) -g -silent $(TARGET).tex >/dev/null 2>&1 && built=1; fi; \
+	echo "================================================================================"; \
+	if [ ! -s "$$log" ]; then echo " clemsona11y check: $(TARGET).pdf"; \
+	  echo "   FAIL  build: latexmk wrote no $$log in this folder (a latexmkrc with out_dir or"; \
+	  echo "         aux_dir, or a TARGET in another folder?)"; \
+	  echo "================================================================================"; \
+	  echo " RESULT: FAIL. Nothing can be checked without the log."; exit 1; fi; \
+	pages=`sed -n 's/.*Output written on .*(\([0-9]*\) page.*/\1/p' $$log | tail -1`; \
+	if [ "$$pages" = 1 ]; then pages="1 page"; elif [ -n "$$pages" ]; then pages="$$pages pages"; else pages="not built"; fi; \
+	echo " clemsona11y check: $(TARGET).pdf ($$pages)"; \
+	echo "================================================================================"; \
+	echo " Checked automatically"; \
+	if grep -q '^!' $$log; then echo "   FAIL  build: LaTeX error (the first one; the rest is in $$log)"; \
+	    if grep -m1 '^!' $$log | grep -q 'Fatal error occurred'; then \
+	      grep -B12 'Fatal error occurred' $$log | grep -E '^\[\\directlua\]|^l\.[0-9]|[Ee]rror' | sed 's/^/           /'; \
+	    else awk '/^!/{p=1} p && !/^Type +H <return>|^See the .* for explanation|^For immediate help|^ *\.\.\. *$$|^ *$$/{print "           " $$0} p && /^l\.[0-9]/{exit}' $$log; fi; fail=1; \
+	  elif [ $$built -eq 0 ]; then echo "   FAIL  build: latexmk stopped; run 'make -f $(MK) TARGET=$(TARGET) build' to see why"; fail=1; \
+	  else echo "   OK    build: no LaTeX errors"; fi; \
+	if [ $$fail -ne 0 ]; then echo "================================================================================"; \
+	  echo " RESULT: FAIL. Nothing else can be checked until the document builds."; exit 1; fi; \
+	if grep -q 'There were undefined references\|Citation .* undefined\|Reference .* undefined' $$log; then \
+	  echo "   WARN  references: something prints as ?? (a mistyped label, ref or cite key)"; warn=1; fi; \
+	srcs="$$tex `sed -n 's|^INPUT \./\(.*\.tex\)$$|\1|p' $(TARGET).fls 2>/dev/null | sort -u`"; \
+	scan=`perl -e "$$A11Y_SCAN" $$srcs`; \
+	npic=`echo "$$scan" | grep -c '^ALT \|^TEXT '`; \
+	noalt=`echo "$$scan" | sed -n 's/^NOALT //p'`; ph=`echo "$$scan" | sed -n 's/^PLACEHOLDER //p'`; \
+	if [ -n "$$noalt" ]; then echo "   FAIL  pictures: no alt text (a screen reader gets the file name, or nothing):"; \
+	    echo "$$noalt" | sed 's/^/           - /'; fail=1; fi; \
+	if [ -n "$$ph" ]; then echo "   FAIL  pictures: alt={...} is still the placeholder:"; \
+	    echo "$$ph" | sed 's/^/           - /'; fail=1; fi; \
+	if [ -z "$$noalt$$ph" ]; then \
+	  if [ "$$npic" -eq 0 ]; then echo "   OK    pictures: none"; \
+	  else echo "   OK    pictures: $$npic, every one with alt text"; fi; fi; \
+	nalt=`grep -c 'clemsona11y Info: Formula alt text' $$log`; nsrc=`grep -c 'clemsona11y Info: Formula without' $$log`; \
+	if [ "$$nsrc" -gt 0 ]; then echo "   WARN  formulas: $$nalt with \\mathalt, $$nsrc without (a screen reader reads out the LaTeX code)"; warn=1; \
+	  elif [ "$$nalt" -eq 0 ]; then echo "   OK    formulas: none"; \
+	  else echo "   OK    formulas: $$nalt, every one with \\mathalt spoken text"; fi; \
+	tw=`awk '/Package tag(pdf)? Warning|latex-lab[^:]*Warning|(Package|Class) clemsona11y Warning/{p=1; print; next} p && /^\(/{print; next} {p=0}' $$log | grep -v 'Alternative text for graphic is missing\|^(tag[a-z]*)  *Using .* instead' | uniq`; \
+	if [ -n "$$tw" ]; then echo "   FAIL  tags: LaTeX's tagging reported a problem (README, Packages by field, lists the usual causes):"; \
+	    echo "$$tw" | sed 's/^/           /'; fail=1; \
+	  else echo "   OK    tags: LaTeX's tagging reported no problem"; fi; \
+	if ! grep -q 'Status report of the tagging support' $$log; then \
+	  echo "   SKIP  packages: no status report; keep check-tagging-status in DocumentMetadata"; skip=1; \
+	else bad=`sed -n '/Status report of the tagging support/,$$p' $$log | sed -n '/1\. Unsupported/,/3\. Partially/p' | grep -E '\.(sty|cls|tex)$$' | grep -v 'float\.sty' | tr -d ' ' | tr '\n' ' '`; \
+	  if [ -n "$$bad" ]; then echo "   WARN  packages: LaTeX lists these as not tagging yet: $$bad"; warn=1; \
+	  else echo "   OK    packages: none listed as unsupported or incompatible with tagging"; fi; fi; \
+	if command -v verapdf >/dev/null; then out=`verapdf --flavour ua2 --format text --verbose $(TARGET).pdf 2>/dev/null`; \
+	  case "`echo \"$$out\" | head -1`" in \
+	    PASS*) echo "   OK    PDF/UA-2: veraPDF PASS";; \
+	    FAIL*) echo "   FAIL  PDF/UA-2: veraPDF failed these rules of ISO 14289-2 (for the reasons:"; \
+	           echo "         verapdf --flavour ua2 --format html $(TARGET).pdf > $(TARGET)-verapdf.html):"; \
+	           echo "$$out" | grep -E '^  +FAIL' | sed 's/^ */           - /'; fail=1;; \
+	    *) echo "   SKIP  PDF/UA-2: veraPDF did not run (it needs Java and a version with --flavour ua2)"; skip=1;; \
+	  esac; \
+	else echo "   SKIP  PDF/UA-2: veraPDF is not on PATH (https://verapdf.org/software/, needs Java)"; skip=1; fi; \
+	echo "--------------------------------------------------------------------------------"; \
+	echo " Check by hand: a script sees that alt text exists, not whether it is any good"; \
+	echo "   1. Pictures: does each alt text say what the picture shows and why it is here?"; \
+	echo "$$scan" | sed -n 's/^ALT \(.*\)/        - \1/p; s/^TEXT \(.*\)/        - (image of text) \1/p'; \
+	echo "      Acrobat Pro: All tools > Prepare for accessibility > Fix reading order, tick"; \
+	echo "      Show tables and figures."; \
+	echo "   2. Formulas: does each spoken text read the way you would say it aloud?"; \
+	sed -n 's/^Package clemsona11y Info: Formula alt text: \(.*\) in \(.*\) on input line \([0-9]*\)\.$$/        - \2 line \3: \1/p' $$log | sed 's/- \.\//- /'; \
+	sed -n 's/^Package clemsona11y Info: Formula without .* in \(.*\) on input line \([0-9]*\)\.$$/        - \1 line \2: NO \\mathalt/p' $$log | sed 's/- \.\//- /'; \
+	echo "   3. Structure: the title is the only H1 (heading 1) and no level is skipped; table"; \
+	echo "      header cells are TH and data cells TD; lists are list tags. Acrobat Pro:"; \
+	echo "      Accessibility tags panel, Options > Highlight content. Names such as text and"; \
+	echo "      item are LaTeX's own (README, What the checkers still say)."; \
+	echo "   4. Reading order: content runs top to bottom, left to right, and figures and tables"; \
+	echo "      come where the text mentions them. Acrobat Pro: Fix reading order > Page"; \
+	echo "      content order."; \
+	echo "   5. Links: the link text names its destination; press Tab through them in order"; \
+	echo "      (any viewer)."; \
+	echo "   6. Color: nothing is said by color alone; colored text or charts keep a contrast"; \
+	echo "      of 4.5:1 (WebAIM's contrast checker; the kit's black text passes)."; \
+	echo "   No Acrobat Pro? Items 2, 5 and 6 need none, and Acrobat Reader's View > Read Out"; \
+	echo "   Loud reads the alt texts in reading order. Items 1, 3, 4 and the checker need Pro."; \
+	echo "   Then: Acrobat Pro > All tools > Prepare for accessibility > Check for accessibility,"; \
+	echo "   and Clemson's manual-check guide, with screenshots:"; \
+	echo "   https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/manual-checks.html"; \
+	echo "================================================================================"; \
+	if [ $$fail -ne 0 ]; then echo " RESULT: FAIL. Fix the lines marked FAIL and run the check again."; exit 1; \
+	  elif [ $$skip -ne 0 ]; then echo " RESULT: passed, but a check was skipped (see SKIP): run veraPDF or Acrobat's checker."; \
+	  elif [ $$warn -ne 0 ]; then echo " RESULT: passed with warnings. Read the lines marked WARN, then do the six checks."; \
+	  else echo " RESULT: automatic checks passed. The six checks above are yours."; fi
 
 open: build
 	@open $(TARGET).pdf 2>/dev/null || xdg-open $(TARGET).pdf
 
 # example: the worked example, built and checked exactly like your document.
 example:
-	@$(MAKE) --no-print-directory -f $(firstword $(MAKEFILE_LIST)) TARGET=example check
+	@$(MAKE) --no-print-directory -f $(MK) TARGET=example check
 
 clean:
 	@latexmk -c $(TARGET).tex >/dev/null 2>&1 || true

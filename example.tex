@@ -302,9 +302,9 @@ back, comment out the \verb|\qedsymbol| line in the theorem block of
 Input: the values \mathalt{a 1 through a n}$a_1,\dots,a_n$. Output: the largest of them.
 \begin{algorithmic}[1]
   \State \mathalt{m gets a 1}$m \gets a_1$
-  \For{\mathalt{i gets 2}$i \gets 2$ to $n$} \If{\mathalt{a sub i is greater than
+  \For{\mathalt{i gets 2}$i \gets 2$ to \mathalt{n}$n$} \If{\mathalt{a sub i is greater than
     m}$a_i > m$} \State \mathalt{m gets a sub i}$m \gets a_i$ \EndIf \EndFor
-  \State \Return $m$
+  \State \Return \mathalt{m}$m$
 \end{algorithmic}\end{algorithm}
 
 %------------------------------------------------------------------------------
