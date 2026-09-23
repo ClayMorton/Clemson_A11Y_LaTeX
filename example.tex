@@ -263,9 +263,10 @@ and algorithm, so \verb|\newtheorem| is not needed:
 \begin{proof} Sections start at H2, which leaves the title alone at H1. \end{proof}
 \begin{definition} A \emph{header cell} names the row or the column it belongs to. \end{definition}
 \begin{example} A table of results has one header row; its first row is tagged TH. \end{example}
-\begin{remark} A proof ends with an open square, which a screen reader does not
-announce. To end proofs with the word QED instead, uncomment the \verb|\qedsymbol| line
-in the theorem block of \texttt{clemsona11y.cls}. \end{remark}
+\begin{remark} A proof ends with the word QED, which a screen reader reads aloud;
+amsthm's open square is drawn with rules and announces nothing. To get the square
+back, comment out the \verb|\qedsymbol| line in the theorem block of
+\texttt{clemsona11y.cls}. \end{remark}
 % An algorithm is a theorem-like block, not a float: the algorithm package is
 % listed "Currently incompatible" and an algorithmic body inside a figure
 % aborts the build. This gives a tagged Caption, a label \ref reaches and the

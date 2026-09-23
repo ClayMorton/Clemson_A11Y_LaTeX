@@ -114,9 +114,9 @@
   \newtheorem{algorithm}{Algorithm}
   \theoremstyle{remark}
   \newtheorem{remark}[theorem]{Remark}
-  % Proofs end with amsthm's open square, drawn with rules, so a screen reader
-  % announces nothing at the end of a proof. To end proofs with the word QED
-  % instead (read aloud, and preferred by some authors), uncomment the next line.
+  % Proofs end with the word QED, which a screen reader reads aloud; amsthm's
+  % open square is drawn with rules and announces nothing. To get the square
+  % back, comment out the next line.
   \renewcommand{\qedsymbol}{\textup{QED}}
 \fi\fi
 % Abstract: article/report tag it BlockQuote with "Abstract" as a plain P. This
