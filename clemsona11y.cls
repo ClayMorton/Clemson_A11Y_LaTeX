@@ -14,6 +14,10 @@
 %          clemsona11y.sty last.
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{clemsona11y}[2026/09/21 v1.0 Accessible LaTeX class (Clemson A11Y)]
+
+%------------------------------------------------------------------------------
+% OPTIONS
+%------------------------------------------------------------------------------
 \newcommand*{\clemsonacls@base}{article}
 \newcommand*{\clemsonacls@theorems}{true}
 \newcommand*{\clemsonacls@align}{ragged}
@@ -73,6 +77,10 @@
 \edef\clemsonacls@load{\noexpand\PassOptionsToClass{\clemsonacls@passed}{\clemsonacls@base}%
   \noexpand\LoadClass{\clemsonacls@base}}
 \clemsonacls@load
+
+%------------------------------------------------------------------------------
+% BASE PACKAGES
+%------------------------------------------------------------------------------
 % url breaks long URLs at hyphens too; hyperref loads url later, so the option
 % must be passed now. Without it a long URL runs into the margin (an overfull box).
 \PassOptionsToPackage{hyphens}{url}
@@ -80,6 +88,10 @@
 % \clemsonacls@ragged: left-aligned text with the paragraph indent kept, used
 % below for the body text and for theorem and proof bodies (align=ragged).
 \newcommand*{\clemsonacls@ragged}{\raggedright\setlength{\parindent}{1.5em}}
+
+%------------------------------------------------------------------------------
+% THEOREMS
+%------------------------------------------------------------------------------
 % Theorems: amsthm with the label ("Lemma 2") tagged Span, not Lbl. Acrobat's
 % checker applies its list rule (Lbl only inside LI) to every Lbl; Span is valid
 % for a label. Meets: ISO/TS 32005 (structure nesting); Tagged PDF BPG 1.0.1 4.2.4.
@@ -119,6 +131,10 @@
   % back, comment out the next line.
   \renewcommand{\qedsymbol}{\textup{QED}}
 \fi\fi
+
+%------------------------------------------------------------------------------
+% ABSTRACT
+%------------------------------------------------------------------------------
 % Abstract: article/report tag it BlockQuote with "Abstract" as a plain P. This
 % keeps the layout and tags it Sect with an H2 heading. Meets: ISO 32000-2:2020
 % 14.8.4.4 (Sect); Tagged PDF BPG 1.0.1 4.2.2 (heading hierarchy).
@@ -128,6 +144,10 @@
     \begin{quotation}[tag-name=Sect, tagging-recipe=standalone]\small
     \begin{center}\AssignStructureRole{para/textblock}{H2}\bfseries\abstractname\end{center}%
   }{\end{quotation}}}
+
+%------------------------------------------------------------------------------
+% NOTE TEXT SIZE
+%------------------------------------------------------------------------------
 % Note text at 9 pt. Clemson's text concept sets a 9 pt floor, and \footnotesize
 % is 8 pt on a 10 pt base. It is the size both \footnote and enotez use for note
 % text, so raising it here covers both. A TeX point is 1/72.27 in and a PDF
@@ -140,6 +160,10 @@
 % mark is not body text; Clemson's floor is written for text a reader reads.
 % Meets: Clemson text concept (no text under 9 pt); WCAG 2.1 1.4.4 (resize text).
 \DeclareMathSizes{9}{9}{7}{5}
+
+%------------------------------------------------------------------------------
+% ENDNOTES
+%------------------------------------------------------------------------------
 % Endnotes: \endnote{...} writes one, \printendnotes prints them all. enotez is
 % used because its mark is a link to the note and the note's number is a link
 % back; list-style=description tags the list L/LI/Lbl/LBody, totoc=auto puts
@@ -149,12 +173,21 @@
 \RequirePackage{enotez}
 \setenotez{backref=true, list-style=description, totoc=auto,
   counter-format=roman}
+
+%------------------------------------------------------------------------------
+% PACKAGE AND PICTURES
+%------------------------------------------------------------------------------
 % The package goes last: it loads hyperref.
 \RequirePackage{clemsona11y}
 % Pictures live in resources/ next to the document; \includegraphics finds
 % them there or beside the .tex file (graphicx comes with the package above).
-% A document can add folders with \graphicspath after \documentclass.
+% \graphicspath replaces this list, so a document that adds a folder repeats
+% resources/ in it: \graphicspath{{resources/}{figures/}}.
 \graphicspath{{resources/}{./}}
+
+%------------------------------------------------------------------------------
+% TEXT ALIGNMENT
+%------------------------------------------------------------------------------
 % Text alignment. Clemson's text concept prefers left-aligned text and says to
 % avoid justified text, so align=ragged is the default. \raggedright is the
 % kernel's para instance: it writes TextAlign/Start into the paragraph's layout
@@ -179,7 +212,10 @@
     {\ClassWarningNoLine{clemsona11y}{Instance blockenv/list not found: lists
       inside theorems stay justified}}
 \fi
-% A11Y: FRONT-MATTER BOOKMARKS
+
+%------------------------------------------------------------------------------
+% FRONT-MATTER BOOKMARKS
+%------------------------------------------------------------------------------
 % The contents and the two lists are H2 headings, but none of the three writes
 % an outline entry, so a reader navigating by bookmarks cannot reach the front
 % matter. \pdfbookmark is hyperref's documented command and is emitted before
@@ -188,6 +224,10 @@
 \AddToHook{cmd/tableofcontents/before}{\pdfbookmark[1]{\contentsname}{clemsona.toc}}
 \AddToHook{cmd/listoffigures/before}{\pdfbookmark[1]{\listfigurename}{clemsona.lof}}
 \AddToHook{cmd/listoftables/before}{\pdfbookmark[1]{\listtablename}{clemsona.lot}}
+
+%------------------------------------------------------------------------------
+% LINKS AND EMAIL
+%------------------------------------------------------------------------------
 % Link styling comes from the package (links=keep): black text, viewer-drawn
 % underline in running text, none in the contents. A \hypersetup{colorlinks=...}
 % here would clear that underline, so the class sets nothing more about links.

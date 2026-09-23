@@ -33,9 +33,9 @@
 \ProvidesPackage{clemsona11y}[\clemsonaDate\space v\clemsonaVersion\space
   Accessible (tagged, PDF/UA-2) LaTeX in one package -- Clemson University A11Y]
 
-
-
-% A11Y: TOOLCHAIN GUARDS
+%------------------------------------------------------------------------------
+% TOOLCHAIN GUARDS
+%------------------------------------------------------------------------------
 % Four checks that refuse to build when the toolchain cannot tag; each failure
 % otherwise yields a normal-looking untagged PDF that goes unnoticed until an
 % ADA review. (1) LuaLaTeX: only it runs luamml for MathML and OpenType fonts
@@ -93,7 +93,9 @@
   }
 \ExplSyntaxOff
 
-
+%------------------------------------------------------------------------------
+% OPTIONS
+%------------------------------------------------------------------------------
 % Options: store each value here, act on it in the block that owns it. Acting
 % at once would let a default load a font package before fonts=false arrived.
 % \clemsona@if{\stored}{wanted}{then}{else} is the \ifx test those blocks use.
@@ -156,8 +158,9 @@
 \clemsona@check{pagination}{plain,typed}
 \clemsona@check{math}{af,full}
 
-
-% A11Y: FONTS
+%------------------------------------------------------------------------------
+% FONTS
+%------------------------------------------------------------------------------
 % fontspec and unicode-math give every glyph a ToUnicode entry, so the text is
 % searchable, copyable and pronounceable, and luamml gets the glyph data it
 % needs to write correct MathML. termes is metric-compatible with Times New
@@ -196,8 +199,9 @@
     \AddToHook{cmd/strong/after}{\UseTaggingSocket{inline/end}}%
 }
 
-
-% A11Y: GRAPHICS
+%------------------------------------------------------------------------------
+% GRAPHICS
+%------------------------------------------------------------------------------
 % Load graphicx so \includegraphics and its alt= and [artifact] keys exist:
 % step 3 of the recipe promises that interface, and a document that loads
 % nothing else stops with "Undefined control sequence" without it. Loading it
@@ -205,7 +209,9 @@
 % Meets: ISO 32000-2:2020 14.8.4.8.5 (Figure Alt); Tagged PDF BPG 1.0.1 5.5.2.
 \RequirePackage{graphicx}
 
-
+%------------------------------------------------------------------------------
+% ROLE MAPPING GUARD
+%------------------------------------------------------------------------------
 % A11Y: FAIL-SAFE ROLE MAPPING. \AssignStructureRole stores the tag under the
 % kernel's structure name; a name that a future release renames would take the
 % assignment in silence and the mapping would just stop. \clemsona@role checks
@@ -224,7 +230,9 @@
   }
 \ExplSyntaxOff
 
-% A11Y: FLOATS
+%------------------------------------------------------------------------------
+% FLOATS
+%------------------------------------------------------------------------------
 % Tag every float where it stands in the source. With tagging on the kernel
 % otherwise defers floats into figures/tables bins at the end of the tree, so
 % a screen reader meets every table after the bibliography. floats=here also
@@ -258,8 +266,9 @@
 % Meets: ISO 32000-2:2020 14.8.2.2.2 (artifact marking).
 \AddToHook{env/table/begin}{\par\tagpdfsetup{para/tagging=false}}
 
-
-% A11Y: TAG THE CAPTION NUMBER
+%------------------------------------------------------------------------------
+% LABELS AS SPAN
+%------------------------------------------------------------------------------
 % "Figure 1.1" is tagged Span, not Lbl. Acrobat's PDF/UA-1 rule "Lbl and
 % LBody" flags every Lbl outside a list item, so the default Lbl reports every
 % caption in the document. Both tags are valid; PDF/UA-2 requires neither.
@@ -276,7 +285,9 @@
 \clemsona@role{fnote/mark}{Span}          % the raised mark in the text
 \clemsona@role{fnote/note/label}{Span}    % "1" before a footnote -> Span
 
-
+%------------------------------------------------------------------------------
+% MATH
+%------------------------------------------------------------------------------
 % A11Y: MATHEMATICS. Every formula is a Formula with Alt text and its MathML
 % attached as a file (math=af): one content item per formula, a clean tree in
 % Acrobat and PAC. math=full also writes MathML structure elements (the PDF
@@ -330,8 +341,9 @@
   }
 \ExplSyntaxOff
 
-
-% A11Y: THE HEADING MAP
+%------------------------------------------------------------------------------
+% HEADINGS
+%------------------------------------------------------------------------------
 % headings=word moves every sectioning level down one rung so the document
 % title is the only H1: chapter H2, section H3, subsection H4, subsubsection
 % H5, paragraph H6, one rung less in article. That is the Graduate School's
@@ -369,12 +381,13 @@
     \fi
 \fi
 
-
-% A11Y: LINKS AND THE BOOKMARK PANEL
+%------------------------------------------------------------------------------
+% LINKS AND BOOKMARKS
+%------------------------------------------------------------------------------
 % hyperref is loaded last in this file, as its own manual asks, through
 % \PassOptionsToPackage so a class's hyperref options survive. The bookmark
 % panel is how a screen-reader user navigates a long document, so it reaches
-% subsections (bookmarksdepth=3) even when the printed ToC stops earlier.
+% subsubsections (bookmarksdepth=3) even when the printed ToC stops earlier.
 % Meets: Tagged PDF BPG 1.0.1 7.2 (outlines); 3.3 (title displayed, not file).
 \PassOptionsToPackage{%
     bookmarksnumbered,%       outline reads "1 Introduction"
@@ -408,6 +421,10 @@
     \AddToHook{cmd/listoftables/before}{\hypersetup{pdfborderstyle={}}}%
     \AddToHook{cmd/listoftables/after}{\hypersetup{pdfborderstyle={/S/U/W 1}}}%
 }{}
+
+%------------------------------------------------------------------------------
+% FOOTNOTES
+%------------------------------------------------------------------------------
 % A11Y WORKAROUND: FOOTNOTE MARK LINK BOX. hyperref's fnmark/link plug wraps
 % the whole mark box, so the link box is the line's and the underline lands
 % under the baseline, far from the raised number. This plug runs hyperref's
@@ -458,6 +475,9 @@
   }
 \ExplSyntaxOff
 
+%------------------------------------------------------------------------------
+% AUTOREF NAMES
+%------------------------------------------------------------------------------
 % A11Y: LINK TEXT. \autoref{label} links the whole phrase ("Section 3",
 % "Figure 1", "Appendix A"), which is what a screen reader announces, where
 % \ref links the bare number. hyperref's names are set here in title case;
@@ -472,7 +492,9 @@
     \def\footnoteautorefname{footnote}\def\itemautorefname{item}%
 }
 
-% A11Y: LINK ANNOTATION /Contents
+%------------------------------------------------------------------------------
+% LINK DESCRIPTIONS
+%------------------------------------------------------------------------------
 % Give every link annotation a generic type description through the documented
 % l3pdfannot interface. PDF/UA-1 requires an annotation to carry one and the
 % Acrobat and PAC checkers apply that rule; PDF/UA-2 dropped it. A screen
@@ -485,7 +507,9 @@
 \pdfannot_dict_put:nnn {link/Named} {Contents} {(Link)}
 \ExplSyntaxOff
 
-
+%------------------------------------------------------------------------------
+% TABLE CELLS
+%------------------------------------------------------------------------------
 % A11Y WORKAROUND: TABLE CELL ATTRIBUTES AND HEADER IDS. latex-lab-table
 % writes Scope, ColSpan and RowSpan only as attribute classes (/C) and no
 % /Headers, so Acrobat's Table Editor and PAC show no cell properties. At the
@@ -856,8 +880,9 @@
 }
 \ExplSyntaxOff
 
-
-% A11Y: PAGE FURNITURE
+%------------------------------------------------------------------------------
+% PAGE NUMBERS
+%------------------------------------------------------------------------------
 % The kernel wraps header and footer material in /Artifact BMC already, so no
 % page number reaches the reading order. pagination=typed writes /Artifact
 % <</Type /Pagination>> BDC instead for PDF/UA-1 checkers, at the cost of two
