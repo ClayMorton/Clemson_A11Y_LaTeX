@@ -117,7 +117,7 @@
   % Proofs end with amsthm's open square, drawn with rules, so a screen reader
   % announces nothing at the end of a proof. To end proofs with the word QED
   % instead (read aloud, and preferred by some authors), uncomment the next line.
-  % \renewcommand{\qedsymbol}{\textup{QED}}
+  \renewcommand{\qedsymbol}{\textup{QED}}
 \fi\fi
 % Abstract: article/report tag it BlockQuote with "Abstract" as a plain P. This
 % keeps the layout and tags it Sect with an H2 heading. Meets: ISO 32000-2:2020
