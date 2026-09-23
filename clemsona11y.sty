@@ -16,7 +16,6 @@
 %
 % Options -- \usepackage[key=value]{clemsona11y}; * = default. An unknown
 % value stops the build, because a mistyped option is otherwise silent.
-%   fonts      lm* | termes | false   text+math font via fontspec/unicode-math
 %   floats     here*   | free         [H] as the default float placement
 %   headings   word*   | kernel       title=H1, chapter=H2 ... or kernel Title
 %   title      h1*     | none         tag the kernel \maketitle title as H1
@@ -97,9 +96,8 @@
 % OPTIONS
 %------------------------------------------------------------------------------
 % Options: store each value here, act on it in the block that owns it. Acting
-% at once would let a default load a font package before fonts=false arrived.
+% at once would let a default take effect before a later option arrived.
 % \clemsona@if{\stored}{wanted}{then}{else} is the \ifx test those blocks use.
-\newcommand*{\clemsona@fonts}{lm}
 \newcommand*{\clemsona@floats}{here}
 \newcommand*{\clemsona@headings}{word}
 \newcommand*{\clemsona@title}{h1}
@@ -110,8 +108,6 @@
 \newcommand{\clemsona@if}[4]{%
     \def\clemsona@tmp{#2}\ifx#1\clemsona@tmp#3\else#4\fi}
 \DeclareKeys[clemsona11y]{
-  fonts    .store = \clemsona@fonts,
-  fonts    .usage = load,
   floats   .store = \clemsona@floats,
   floats   .usage = load,
   headings .store = \clemsona@headings,
@@ -150,7 +146,6 @@
              Correct the spelling -- or delete the option to use the default --
              and compile again.}%
     \fi}
-\clemsona@check{fonts}{lm,termes,false}
 \clemsona@check{floats}{here,free}
 \clemsona@check{headings}{word,kernel}
 \clemsona@check{title}{h1,none}
@@ -161,49 +156,31 @@
 %------------------------------------------------------------------------------
 % FONTS
 %------------------------------------------------------------------------------
-% fontspec and unicode-math give every glyph a ToUnicode entry, so the text is
-% searchable, copyable and pronounceable, and luamml gets the glyph data it
-% needs to write correct MathML. lm is LaTeX's own Latin Modern; termes is
-% metric-compatible with Times New Roman. amsmath is named first so
+% Latin Modern, LaTeX's standard face, is the only font: fontspec and
+% unicode-math give every glyph a ToUnicode entry, so the text is searchable,
+% copyable and pronounceable, and luamml gets the glyph data it needs to write
+% correct MathML. No option changes the font. amsmath is named first so
 % \PassOptionsToPackage can still reach it.
 % Meets: ISO 32000-2:2020 14.8.2.6.1; ISO 14289-2:2024 8.4.5.8 (ToUnicode).
 \RequirePackage{amsmath}
-\clemsona@if{\clemsona@fonts}{false}{%
-    \PackageWarningNoLine{clemsona11y}{%
-        Option fonts=false: no font package is loaded.^^J%
-        Load fontspec and unicode-math yourself, or the MathML written for
-        your^^J%
-        equations may contain the wrong characters and the PDF may fail
-        veraPDF^^J%
-        check 8.4.5.8 (fonts must map every character code to Unicode)}%
-}{%
-    % Do not add amssymb or bm on top of unicode-math: amssymb aborts on
-    % symbols unicode-math already defines, bm silently prints non-bold maths.
-    % Use \symbf for bold maths.
-    \RequirePackage{fontspec}%    OpenType text fonts + Unicode text encoding
-    \RequirePackage{unicode-math}% OpenType maths fonts; what luamml needs
-    \clemsona@if{\clemsona@fonts}{termes}{%
-        % Times-like, as the Graduate School's thesis format asks.
-        \setmainfont{TeX Gyre Termes}%      body + headings: Times New Roman clone
-        \setmathfont{TeX Gyre Termes Math}% matching maths, full Unicode coverage
-    }{%
-        % Latin Modern, LaTeX's standard face, with all its optical sizes (5 to
-        % 17 pt designs). Acrobat's checker wrongly reports the 17 pt face used
-        % for titles as not extractable; the font is valid (veraPDF, fontTools).
-        % Its small capitals live in a font of their own, so \textsc needs it
-        % named; the letters stay lowercase in the text layer.
-        \setmainfont{Latin Modern Roman}[SmallCapsFont={Latin Modern Roman Caps}]%
-        \setmathfont{Latin Modern Math}%
-    }%
-    % A11Y: \strong
-    % Map fontspec's \strong to a Strong element through the kernel's inline
-    % tagging socket. \textbf is only a font switch and leaves no trace in the
-    % tag tree, so bold used as meaning is lost on a screen reader. Keep
-    % \textbf in table header cells, which are announced as headers already.
-    % Meets: ISO 32000-2:2020 14.8.4.7.2 Table 368 (Strong).
-    \AddToHook{cmd/strong/before}{\leavevmode\UseTaggingSocket{inline/begin}{tag=Strong}}%
-    \AddToHook{cmd/strong/after}{\UseTaggingSocket{inline/end}}%
-}
+% Do not add amssymb or bm on top of unicode-math: amssymb aborts on symbols
+% unicode-math already defines, bm silently prints non-bold maths. Use \symbf.
+\RequirePackage{fontspec}%    OpenType text fonts + Unicode text encoding
+\RequirePackage{unicode-math}% OpenType maths fonts; what luamml needs
+% All of Latin Modern's optical sizes (5 to 17 pt designs) are used. Acrobat's
+% checker wrongly reports the 17 pt face of titles as not extractable; the font
+% is valid (veraPDF, fontTools). The small capitals live in a font of their
+% own, so \textsc needs it named; the letters stay lowercase in the text layer.
+\setmainfont{Latin Modern Roman}[SmallCapsFont={Latin Modern Roman Caps}]
+\setmathfont{Latin Modern Math}
+% A11Y: \strong
+% Map fontspec's \strong to a Strong element through the kernel's inline
+% tagging socket. \textbf is only a font switch and leaves no trace in the
+% tag tree, so bold used as meaning is lost on a screen reader. Keep
+% \textbf in table header cells, which are announced as headers already.
+% Meets: ISO 32000-2:2020 14.8.4.7.2 Table 368 (Strong).
+\AddToHook{cmd/strong/before}{\leavevmode\UseTaggingSocket{inline/begin}{tag=Strong}}
+\AddToHook{cmd/strong/after}{\UseTaggingSocket{inline/end}}
 
 %------------------------------------------------------------------------------
 % GRAPHICS

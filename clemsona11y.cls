@@ -3,7 +3,7 @@
 %          \documentclass[options]{clemsona11y}
 % Options: article (default) | report | book;  theorems=false;
 %          align=ragged (default) | justified;  package options
-%          fonts=lm|termes|false, floats=here|free, headings=word|kernel,
+%          floats=here|free, headings=word|kernel,
 %          title=h1|none, links=keep|hidden, pagination=plain|typed,
 %          math=af|full;  anything else (10pt, a4paper, ...) goes to the base class.
 % Defines: \email{addr} (a mailto link whose text is the address) and, with
@@ -33,17 +33,13 @@
 % order in PDF/UA-1 tools. Meets: ISO 32000-2:2020 14.8.5.4.7 (column attributes).
 \DeclareOption{twocolumn}{\ClassError{clemsona11y}{twocolumn is not supported}
   {Use one column. Two-column layout breaks the reading order in PDF/UA-1 tools.}}
-% Package options are forwarded to clemsona11y.sty. The class defaults are
-% fonts=lm (LaTeX's Latin Modern; Acrobat's checker wrongly flags its 17 pt
-% title face, and fonts=termes gives the Graduate School's Times look) and
-% links=keep (black text, underlined links). pagination stays plain: typed
-% writes /Type /Pagination on the folio
+% Package options are forwarded to clemsona11y.sty. The class default is
+% links=keep (black text, underlined links); the font is always Latin Modern
+% and no option changes it. pagination stays plain: typed writes
+% /Type /Pagination on the folio
 % as the BPG asks, but tagpdf adds an empty Artifact element per header and
 % footer, some inside list items. Meets: ISO 32000-2:2020 14.8.2.2 (artifacts).
-\PassOptionsToPackage{fonts=lm,links=keep}{clemsona11y}
-\DeclareOption{fonts=lm}{\PassOptionsToPackage{fonts=lm}{clemsona11y}}
-\DeclareOption{fonts=termes}{\PassOptionsToPackage{fonts=termes}{clemsona11y}}
-\DeclareOption{fonts=false}{\PassOptionsToPackage{fonts=false}{clemsona11y}}
+\PassOptionsToPackage{links=keep}{clemsona11y}
 \DeclareOption{floats=here}{\PassOptionsToPackage{floats=here}{clemsona11y}}
 \DeclareOption{floats=free}{\PassOptionsToPackage{floats=free}{clemsona11y}}
 \DeclareOption{headings=word}{\PassOptionsToPackage{headings=word}{clemsona11y}}
