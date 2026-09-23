@@ -1,9 +1,9 @@
 % !TEX program = lualatex
 % !TEX TS-program = lualatex
-% main.tex -- your document. Build and check it with
+% main.tex: your document. Build and check it with
 %   make -f Makefile.a11y check
-% Every kind of content, tagged and explained, is in example.tex. Find the block
-% you need by its banner line (search example.tex for "%----") and copy it here.
+% example.tex has every kind of content, tagged and explained. Find the block
+% you need by its banner line (search for "%----") and copy it here.
 
 %------------------------------------------------------------------------------
 % METADATA AND CLASS
@@ -16,9 +16,10 @@
   tagging     = on,
   check-tagging-status,
 }
-% [report] for chapters ([book] too, but delete the abstract: book has none);
-% align=justified for justified text; the other options are in README.md. A
-% misspelt key=value option stops the build.
+% Use [report] for chapters. [book] also works, but book has no abstract, so
+% delete the abstract below. Clemson's text concept prefers left-aligned text,
+% so align=ragged is the default; align=justified overrides it. README.md lists
+% the other options. A misspelled key=value option stops the build.
 \documentclass{clemsona11y}
 
 %------------------------------------------------------------------------------
@@ -32,15 +33,16 @@
 %------------------------------------------------------------------------------
 % PICTURES
 %------------------------------------------------------------------------------
-% Put every figure and image in the resources/ folder next to this file;
-% \includegraphics[alt={...}]{name} finds it there by file name. Only pictures
-% are looked up there: references.bib and any \input file stay beside main.tex.
-% The example's pictures live there too; example.tex still needs them.
+% Put every figure and image in the resources/ folder next to this file.
+% \includegraphics[alt={...}]{name} finds it there by file name. LaTeX looks
+% there only for pictures: references.bib and any \input file stay next to
+% main.tex. The example's pictures are there too; example.tex still needs them.
 
 %------------------------------------------------------------------------------
 % TITLE AND ABSTRACT
 %------------------------------------------------------------------------------
-% pdftitle: doubled braces keep commas in one title. pdfauthor: commas between names.
+% pdftitle and pdfauthor set the PDF metadata. The doubled braces keep a comma
+% from splitting the title. Separate the names in pdfauthor with commas.
 \title[pdftitle={{Title of the document}}]{Title of the document}
 \author[pdfauthor={First Author, Second Author}]{First Author and Second Author}
 \date{\today}
@@ -72,13 +74,14 @@ table; \texttt{example.tex} shows both.
 % ENDNOTES AND BIBLIOGRAPHY
 %------------------------------------------------------------------------------
 % \printendnotes prints the endnotes written with \endnote. Uncomment the four
-% bibliography lines once something is cited (entries go in references.bib); with
-% no \cite they print an empty References heading. make runs BibTeX; so does
-% VS Code once "% !BIB program = bibtex" and "% !BIB TS-program = bibtex" are
-% under line 2; TeXShop needs Typeset, BibTeX, Typeset, Typeset by hand.
+% bibliography lines once something is cited; with no \cite they print an
+% empty References heading. Entries go in references.bib. make runs BibTeX.
+% VS Code runs it once you add "% !BIB program = bibtex" and
+% "% !BIB TS-program = bibtex" under line 2. In TeXShop, run Typeset, BibTeX,
+% Typeset, Typeset by hand.
 \printendnotes
 % \phantomsection
-% \addcontentsline{toc}{section}{\refname}   % {chapter}{\bibname} with [report] or [book]
+% \addcontentsline{toc}{section}{\refname}  % report/book: {chapter}{\bibname}
 % \bibliographystyle{plain}
 % \bibliography{references}
 \end{document}

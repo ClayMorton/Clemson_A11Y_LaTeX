@@ -2,15 +2,16 @@
 % !TEX TS-program = lualatex
 % !BIB program = bibtex
 % !BIB TS-program = bibtex
-% example.tex -- the worked example; write your own document in main.tex.
+% example.tex: the worked example. Write your own document in main.tex.
 % Build: make -f Makefile.a11y example
 
 %------------------------------------------------------------------------------
 % METADATA AND CLASS
 %------------------------------------------------------------------------------
-% First block of every accessible document, above \documentclass. lang sets
-% /Lang; pdfstandard=ua-2 gives PDF 2.0 + the PDF/UA-2 flag; check-tagging-status
-% appends a package report to the .log that `make -f Makefile.a11y check` reads.
+% Every accessible document starts with this block, above \documentclass.
+% lang sets /Lang. pdfstandard=ua-2 gives PDF 2.0 and the PDF/UA-2 flag.
+% check-tagging-status appends a package report to the .log that
+% `make -f Makefile.a11y check` reads.
 % Meets: ISO 14289-2:2024 8.11 (metadata).
 \DocumentMetadata{
   lang        = en-US,
@@ -24,24 +25,26 @@
 % PACKAGES
 %------------------------------------------------------------------------------
 \usepackage{booktabs}   % rules for the tables below; optional
-% The packages for the examples below. None appears in section 1 (unsupported) or
-% 2 (incompatible) of the tagging status report, and each produces Formula, list
-% or Figure tags. Meets: LaTeX tagging status list, sections 1-2 (none listed).
+% Packages for the examples below. None of them is in section 1 (unsupported)
+% or section 2 (incompatible) of the tagging status report, and each one
+% produces Formula, list or Figure tags.
+% Meets: LaTeX tagging status list, sections 1-2 (none listed).
 \usepackage[version=4]{mhchem} % chemical formulae and reactions
 \usepackage{siunitx}        % numbers and units (do not load physics as well)
 \usepackage{braket}         % bra-ket notation
 \usepackage{algpseudocode}  % the steps of an algorithm
 \usepackage{tikz}           % a diagram drawn in the document
-% A long \verb string or URL cannot be hyphenated and can end up in the margin;
-% \emergencystretch lets TeX loosen such a line instead (typography, not tagging).
+% A long \verb string or URL cannot be hyphenated and can run into the margin.
+% \emergencystretch lets TeX loosen that line instead. This is for typography
+% and has no effect on tagging.
 \setlength{\emergencystretch}{2em}
 
 %------------------------------------------------------------------------------
 % TITLE, ABSTRACT, CONTENTS
 %------------------------------------------------------------------------------
-% pdftitle: doubled braces keep commas in one title.
+% pdftitle: the doubled braces keep a comma from splitting the title.
 \title[pdftitle={{Accessible LaTeX, quickly}}]{Accessible LaTeX, quickly}
-% pdfauthor: commas between names.
+% pdfauthor: separate the names with commas.
 \author[pdfauthor={First Author, Second Author}]{First Author and Second Author}
 \date{\today} % Can be left blank; the class adds \today to the PDF metadata.
 \begin{document}
@@ -54,12 +57,14 @@ with alt text and long descriptions, tables and an appendix. All of it is tagged
 conforms to PDF/UA-2. Copy the pieces you need; the comments in the source say why each line
 is written the way it is.
 \end{abstract}
-% The table of contents is tagged TOC with one TOCI per entry, and every entry is
-% a link to its heading. Meets: ISO 32000-2:2020 14.8.4.6; Tagged PDF BPG 1.0.1 7.1.
+% The table of contents is tagged TOC, with one TOCI per entry, and each entry
+% links to its heading.
+% Meets: ISO 32000-2:2020 14.8.4.6; Tagged PDF BPG 1.0.1 7.1.
 \tableofcontents
-% The two lists are tagged and linked the same way. Each entry is the short title
-% from \caption[Short title]{Long caption}, or the whole caption when there is no
-% short title. Meets: ISO 32000-2:2020 14.8.4.6 (TOC, TOCI).
+% The list of figures and the list of tables are tagged and linked the same
+% way. Each entry is the short title from \caption[Short title]{Long caption},
+% or the whole caption if there is no short title.
+% Meets: ISO 32000-2:2020 14.8.4.6 (TOC, TOCI).
 \listoffigures
 \listoftables
 
@@ -151,9 +156,10 @@ for every item. Keep nesting shallow; two levels is usually enough.
   \item A numbered list holds steps that happen in order.
   \item Its numbers are tagged as labels, so they are read aloud.
 \end{enumerate}
-% label= is the kernel's own list key, so enumitem (incompatible with tagging) is
-% not needed. Any label built from \alph, \arabic, \roman or \Alph works, and the
-% label is still tagged Lbl. Meets: ISO 32000-2:2020 14.8.4.9; Clemson lists.
+% label= is the kernel's own list key, so there is no need for enumitem, which
+% is incompatible with tagging. Any label built from \alph, \arabic, \roman or
+% \Alph works, and the label is still tagged Lbl.
+% Meets: ISO 32000-2:2020 14.8.4.9; Clemson lists.
 \begin{enumerate}[label=(\alph*)]
   \item Lettered items come from \verb|[label=(\alph*)]|, a kernel key.
   \item The letters are labels, not typed-in text.
@@ -230,10 +236,10 @@ with its own alt text, and \verb|\eqref| links to the number.
 Equations~\eqref{eq:group-a} and~\eqref{eq:group-b} are the two members of the group.
 \begin{gather} x = 1 \\ y = 2 \end{gather}
 %---- Long formula (multline) -------------------------------------------------
-% multline splits one formula that is too long for a line: the first part sits
-% at the left margin and the continuation at the right. The numbered form makes
-% tagpdf warn "structure with label 0 is unknown" on every run, so the starred
-% form is used here and the equation is not referenced by number.
+% multline splits a formula that is too long for one line: the first part goes
+% at the left margin, the rest at the right. With math=full the numbered form
+% makes tagpdf warn "structure with label 0 is unknown" on every run, so this
+% uses the starred form and the equation is not referenced by number.
 % Meets: ISO 32000-2:2020 14.8.6.3 (Formula, MathML); WCAG 2.1 1.1.1.
 A formula too long for one line goes in \texttt{multline}, which sets its first part at
 the left margin and the rest at the right:
@@ -248,8 +254,8 @@ Write chemistry with \verb|\ce| from \texttt{mhchem}, numbers and units with \ve
 \verb|\num| from \texttt{siunitx}, and quantum states with \verb|\braket| and \verb|\ket| from
 \texttt{braket}. Each one becomes a Formula with alt text and MathML, exactly like ordinary
 mathematics: a MathML reader hears a value and its unit as structure.
-% $\ce{^{14}C}$, the isotope form, makes tagpdf report "structure with label 36
-% has already been used", so carbon-14 is written out in words instead.
+% Carbon-14 is written out in words because, under math=full, $\ce{^{14}C}$
+% makes tagpdf report "structure with label 36 has already been used".
 % Meets: ISO 32000-2:2020 14.8.6.3 (Formula Alt, MathML); WCAG 2.1 1.1.1.
 Water is $\ce{H2O}$ and the sulfate ion is
 $\ce{SO4^2-}$; carbon-14 is written out in words.
@@ -275,11 +281,11 @@ and algorithm, so \verb|\newtheorem| is not needed:
 amsthm's open square is drawn with rules and announces nothing. To get the square
 back, comment out the \verb|\qedsymbol| line in the theorem block of
 \texttt{clemsona11y.cls}. \end{remark}
-% An algorithm is a theorem-like block, not a float: the algorithm package is
-% listed "Currently incompatible" and an algorithmic body inside a figure
-% aborts the build. This gives a tagged Caption, a label \ref reaches and the
-% steps as a list -- an unordered one, because algpseudocode prints the step
-% numbers itself instead of using a list counter; the labels are still Lbl.
+% The algorithm block is theorem-like, not a float. The algorithm package is
+% listed "Currently incompatible", and an algorithmic body inside a figure
+% aborts the build. This gives a tagged Caption and a label \ref can reach. The
+% steps are an unordered list because algpseudocode prints the step numbers
+% itself instead of using a list counter. The labels are still Lbl.
 % Meets: ISO 32000-2:2020 14.8.4.6 (Caption), 14.8.4.9 (L); Clemson lists.
 \begin{algorithm}[Find the largest value]\label{alg:max}
 Input: the values $a_1,\dots,a_n$. Output: the largest of them.
@@ -304,10 +310,10 @@ the file, and do not repeat the caption, which the reader hears anyway. Clemson'
 ``[name] and [name] [action] [location]'', as in ``Dr.~Ellis and two students test a screen
 reader in Cooper Library''; no picture in this kit shows people, so the pattern is written out here.
 
-% Every informative picture needs alt={...}: what it shows and why it is here,
-% in one or two sentences, not the file name and not the caption again. No kit
-% picture shows people, so Clemson's people pattern is in the prose above.
-% \caption goes above the image in every float: latex-lab always writes the
+% Every informative picture needs alt={...}: one or two sentences on what it
+% shows and why it is here. Do not use the file name or repeat the caption. No
+% kit picture shows people, so Clemson's people pattern is in the prose above.
+% \caption goes above the image in every float. latex-lab always writes the
 % Caption first, so a caption printed below would contradict the tag order.
 % Meets: ISO 32000-2:2020 14.8.4.8.5 (Figure Alt); Clemson tags (tag order).
 \begin{figure}\centering
@@ -322,7 +328,8 @@ are not compatible with tagging, so lay the panels out with \verb|\hfill|, as he
 \autoref{fig:panels} uses \verb|trim| and \verb|clip| to show two halves of the picture above.
 
 % Two panels in one figure: one \includegraphics per panel, each with its own
-% alt text, one caption that names the panels. subcaption/subfig are incompatible.
+% alt text, and one caption that names the panels. subcaption and subfig are
+% incompatible with tagging, so \hfill places the panels.
 % Meets: Tagged PDF BPG 1.0.1 5.5.3.1 (per-panel alternative text).
 \begin{figure}\centering
   \caption{Two panels: (a) the left half and (b) the right half of the wall}\label{fig:panels}
@@ -335,8 +342,9 @@ are not compatible with tagging, so lay the panels out with \verb|\hfill|, as he
 A caption that runs to three lines would fill the List of Figures. Give \verb|\caption| a short
 title in brackets: the long form is printed with the figure, and the short form goes into the list.
 
-% \caption[short]{long}: the long form is printed here, the short one goes into
-% the list. Meets: Tagged PDF BPG 1.0.1 4.2.6 (Caption); ISO 32000-2:2020 14.8.4.6.
+% \caption[short]{long}: the long form is printed here and the short one goes
+% into the list.
+% Meets: Tagged PDF BPG 1.0.1 4.2.6 (Caption); ISO 32000-2:2020 14.8.4.6.
 \begin{figure}\centering
   \caption[A short title for the List of Figures]{A caption long enough to be
     worth shortening: the same cable wall printed at a smaller size, with the
@@ -349,8 +357,8 @@ title in brackets: the long form is printed with the figure, and the short form 
 A diagram drawn in the document is a picture too. \texttt{tikz} takes the same
 \verb|alt| key, so the drawing is tagged Figure with alt text and needs no export step.
 
-% A drawing needs alt text exactly as a photograph does. tikzpicture takes the
-% alt key directly; pgfplots does not tag, so export a plot as an image instead.
+% A drawing needs alt text just like a photograph. tikzpicture takes the alt
+% key directly. pgfplots does not tag, so export a plot as an image instead.
 % Meets: ISO 32000-2:2020 14.8.4.8.5 (Figure Alt); WCAG 2.1 1.1.1.
 \begin{figure}\centering
   \caption{A diagram drawn in the document with \texttt{tikz}}\label{fig:tikz}
@@ -369,12 +377,12 @@ in for one. When the picture has to stay, give it \verb|actualtext={...}|, the w
 themselves, and a reader hears the words. A picture that carries no information at all gets
 \verb|artifact|, and is skipped.
 
-% actualtext={...} gives a picture of words the words themselves; artifact marks
-% a picture that carries nothing, so it is skipped. The picture below stands in
-% for a logo, which WCAG 2.1 1.4.5 counts as essential; words in a picture whose
-% look is not essential are redrawn as text. The artifact sits in its own centered
-% line with paragraph tagging off: a paragraph holding only an artifact would be
-% an empty tag. Meets: ISO 32000-2:2020 14.9.4 (ActualText); WCAG 2.1 1.4.5.
+% actualtext={...} holds the words in a picture of text; a screen reader reads
+% them instead. artifact marks a decorative picture, which is skipped. The
+% first picture stands in for a logo (essential under WCAG 2.1 1.4.5); redraw
+% any other picture of words as text. The artifact's own line has paragraph
+% tagging off, since a paragraph holding only an artifact is an empty tag.
+% Meets: ISO 32000-2:2020 14.9.4 (ActualText); WCAG 2.1 1.4.5.
 {\centering\vspace{1ex}\includegraphics[height=0.8cm,actualtext={Clemson University}]{text-image}\par}
 \begingroup\tagpdfsetup{para/tagging=false}%
 {\centering\vspace{1ex}\includegraphics[width=0.35\linewidth,artifact]{ornament}\par}%
@@ -393,9 +401,9 @@ when it runs to a few sentences; move it to an appendix when it is long or when 
 need one.
 
 % A complex image: alt states the point and says where the description is, and
-% the same numbers follow as text and as a table. No width key: scaling a
-% vector graphic scales the type inside it, and 0.62\linewidth took this
-% chart's 9 pt labels down to 6.9 pt, so it is placed at its natural size.
+% the same numbers follow as text and as a table. The chart is placed at its
+% natural size, with no width key: scaling a vector graphic scales the type
+% inside it, and 0.62\linewidth took its 9 pt labels down to 6.9 pt.
 % Meets: Tagged PDF BPG 1.0.1 5.5.2 (Alt); Clemson text concept (9 pt floor).
 \begin{figure}\centering
   \caption[Visitors to four South Carolina destinations]{Visitors to four South
@@ -409,10 +417,10 @@ destinations. The vertical axis is ``Visitors (thousands)'' and runs from 0 to 1
 destinations drew more visitors than the two inland ones, and Myrtle Beach drew six times as
 many as Aiken. \autoref{tab:chartdata} lists the same numbers.
 
-% The data behind a chart is the description a reader can check, so print it as
-% a real table with a header row and a header column, not as a picture. The
-% short title holds no \ref: a reference inside a List of Tables entry would be
-% a link inside the entry's own link, which is not a legal pair of tags.
+% The chart's data is the description a reader can check, so it goes in a real
+% table with a header row and a header column rather than in a picture. The
+% short title has no \ref: in a List of Tables entry it would be a link inside
+% the entry's own link, which is not a legal pair of tags.
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, Scope); WCAG 2.1 1.1.1.
 \begin{table}\centering
   \caption[The numbers behind the visitor chart]{The numbers behind
@@ -427,9 +435,9 @@ many as Aiken. \autoref{tab:chartdata} lists the same numbers.
   \end{tabular}
 \end{table}
 %---- Long description in appendix --------------------------------------------
-% The other pattern: the caption names the appendix and the appendix entry names
-% the figure, so a reader can follow the link either way. \ref is not used inside
-% alt, because alt is written to the PDF as a plain string.
+% The other pattern: the caption names the appendix and the appendix entry
+% names the figure, so a reader can follow the link either way. alt has no
+% \ref, because alt is written to the PDF as a plain string.
 % Meets: Tagged PDF BPG 1.0.1 5.5.2; WCAG 2.1 1.1.1.
 \begin{figure}\centering
   \caption[The cable wall, described in an appendix]{The cable wall in the
@@ -439,21 +447,21 @@ many as Aiken. \autoref{tab:chartdata} lists the same numbers.
 %---- Rule, language, abbreviation, color -------------------------------------
 \subsection{Decorative rules, other languages and abbreviations}
 Four small things that come up in any paper; the first two need a command, shown after the list.
-% A rule drawn inside a paragraph is decoration, so it is marked as an artifact.
-% In Lua mode the artifact state is global, so \tagmcend must be followed at once
-% by \tagmcbegin{tag=text}; without it the rest of the paragraph is written as an
-% artifact and disappears from the tag tree. \tagmcbegin/\tagmcend are the
-% documented tagpdf commands for this, and nothing higher level covers a rule.
+% A rule inside a paragraph is decoration, so it is marked as an artifact. In
+% Lua mode the artifact state is global, so \tagmcend must be followed at once
+% by \tagmcbegin{tag=text}. Without it the rest of the paragraph is written as
+% an artifact and disappears from the tag tree. \tagmcbegin/\tagmcend are the
+% documented tagpdf commands for this; nothing higher level covers a rule.
 % Meets: ISO 32000-2:2020 14.8.2.2 (artifacts); Tagged PDF BPG 1.0.1 4.3.1.
 \begin{description}
   \item[A decorative rule] A rule that only separates words carries no meaning:
     \tagmcbegin{artifact}\rule{2cm}{0.4pt}\tagmcend%
     \tagmcbegin{tag=text} and the sentence carries on after it.
-  % A phrase in another language needs its own /Lang so a screen reader changes
-  % voice. babel is the usual way, but its language files are reported as
-  % incompatible with tagging, and \foreignlanguage writes no /Lang. The kernel's
-  % inline tagging socket (the one \emph uses) opens a Span with its own marked
-  % content, then reopens the paragraph's, so no text before or after it is lost.
+  % A foreign phrase needs its own /Lang so a screen reader changes voice.
+  % babel is the usual way, but its language files are reported as incompatible
+  % with tagging, and \foreignlanguage writes no /Lang. The kernel's inline
+  % tagging socket (the one \emph uses) opens a Span with its own marked
+  % content, then reopens the paragraph's, so no text around it is lost.
   % Meets: ISO 32000-2:2020 14.9.2 (Lang); WCAG 2.1 3.1.2 (language of parts).
   \item[A phrase in another language] The French for ``right away'' is
     \UseTaggingSocket{inline/begin}{tag=Span,lang=fr-FR}%
@@ -484,14 +492,15 @@ caption above the table, as above every figure in this file, and keep notes outs
 eight layouts below, and the one caveat that follows them, cover the cases that come up in a
 thesis.
 
-% Layouts follow https://www.clemson.edu/accessibility/digital/concepts/tables.html
-% Rules: the caption goes above the table, as the Graduate School's Word template
-% has it; declare the header row and/or column; a merged cell must carry its
-% span; notes stay outside the table; avoid empty cells; never nest tables.
+% Layouts follow Clemson's tables guide:
+% https://www.clemson.edu/accessibility/digital/concepts/tables.html
+% Rules: caption above the table, as in the Graduate School's Word template;
+% declare the header row and/or column; a merged cell must carry its span;
+% notes stay outside the table; avoid empty cells; never nest tables.
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, Scope); Tagged PDF BPG 1.0.1 4.2.6.2.
 
 %---- Table: header row -------------------------------------------------------
-% 1. Simple table, header row: every cell in row 1 is a TH with Scope=Column.
+% 1. Simple table, header row: each cell in row 1 is a TH with Scope=Column.
 \begin{table}\centering
   \caption{Simple table: the first row is the header (column scope)}\label{tab:headerrow}
   \tagpdfsetup{table/header-rows={1}}
@@ -502,7 +511,7 @@ thesis.
   \end{tabular}
 \end{table}
 %---- Table: header column ----------------------------------------------------
-% 2. Simple table, header column: every cell in column 1 is a TH with Scope=Row.
+% 2. Simple table, header column: each cell in column 1 is a TH with Scope=Row.
 \begin{table}\centering
   \caption[Simple table: the first column is the header]{Simple table: the first
     column is the header (row scope); the three data columns are trials 1 to 3}
@@ -529,8 +538,8 @@ thesis.
 % 4. Complex table, multi-level header: two header rows; \multicolumn cells get
 % ColSpan automatically. table/multirow=2 makes the corner cell span both rows,
 % so the blank cell under it is not an empty header (leave that cell empty).
-% header-columns={1} as well: without it the row labels are data cells and every
-% number names its two column headers but not its method.
+% Set header-columns={1} too: without it the row labels are data cells, and
+% each number names its two column headers but not its method.
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (Headers, Scope); Clemson complex tables.
 \begin{table}\centering
   \caption{Complex table: a two-level header with merged header cells}
@@ -546,10 +555,11 @@ thesis.
   \end{tabular}
 \end{table}
 %---- Table: merged cells -----------------------------------------------------
-% 5. Complex table, merged data and header cells: a row header spanning two rows
-% (table/multirow=2, RowSpan=2) and a data cell spanning two columns (ColSpan=2).
-% A cell spanning rows AND columns takes the key inside the \multicolumn text:
-% \multicolumn{2}{l}{\tagpdfsetup{table/multirow=2}Text}; before it, it aborts.
+% 5. Complex table, merged data and header cells: a row header that spans two
+% rows (table/multirow=2, RowSpan=2) and a data cell that spans two columns
+% (ColSpan=2). A cell that spans rows AND columns takes the key inside the
+% \multicolumn text: \multicolumn{2}{l}{\tagpdfsetup{table/multirow=2}Text}.
+% Placed before \multicolumn, the key aborts the build.
 \begin{table}\centering
   \caption{Complex table: merged cells carry their row and column spans}
   \tagpdfsetup{table/header-rows={1}, table/header-columns={1}}
@@ -566,9 +576,9 @@ thesis.
 %---- Table: one per group ----------------------------------------------------
 % 6. Headers outside the first row. A group row ("Fall semester") in the middle
 % of a table is a header row too (table/header-rows={1,2,5}, one \multicolumn
-% cell per group), but the /Headers the package writes under a second group
+% cell per group). But the /Headers the package writes under a second group
 % still name the first group, so a screen reader would hear the wrong group.
-% Until that is fixed, do what Clemson recommends anyway: one table per group.
+% Until that is fixed, use one table per group, as Clemson recommends anyway.
 \begin{table}\centering
   \caption{One table per group: fall semester}
   \tagpdfsetup{table/header-rows={1}, table/header-columns={1}}
@@ -588,9 +598,9 @@ thesis.
   \end{tabular}
 \end{table}
 %---- Table: note outside, no empty cells -------------------------------------
-% 7. Title and notes outside the table; no empty data cells. The \caption is the
-% title and its short form is what the List of Tables prints; a note is a paragraph
-% after the table, not a row inside it; a cell with no value says so ("n/a").
+% 7. Title and notes outside the table; no empty data cells. The \caption is
+% the title; the List of Tables prints its short form. A note is a paragraph
+% after the table, not a row in it. A cell with no value says so ("n/a").
 \begin{table}\centering
   \caption[A table with no empty cells]{A table with no empty cells; its note
     follows as a paragraph}
@@ -604,10 +614,11 @@ thesis.
 \noindent Note: the South site opened in 2025, so it has no 2024 value.
 
 %---- Long tables (caveat) ----------------------------------------------------
-% The caveat, not a layout: a table that runs over a page break. longtable typesets
-% its caption as a table row, tagged as a header cell rather than a Caption, so
-% split a long table into page-sized tables, each with its own \caption. A wide
-% table turned sideways is not shown: lscape and pdflscape are untested here.
+% Caveat, not one of the eight layouts: a table that runs over a page break.
+% longtable typesets its caption as a table row, tagged as a header cell rather
+% than a Caption, so split a long table into page-sized tables, each with its
+% own \caption. A wide table turned sideways is not shown: lscape and pdflscape
+% are untested here.
 
 %---- Layout grid, untagged ---------------------------------------------------
 The grid of names below holds no data and no headers: it only puts two names side by side. It
@@ -615,10 +626,10 @@ is not a table, so table tagging is switched off for it and a screen reader read
 as plain text rather than announcing rows and columns. Better still, lay such text out without
 a \texttt{tabular}.
 
-% 8. A layout grid is not a data table: switch table tagging off for it so no
-% Table, TH or TD is written and the words stay ordinary text (Acrobat fails a
-% Table without headers and ignores the PDF 2.0 presentation role). Keep
-% table/tagging=false inside a group: left open, it would untag every later table.
+% 8. A layout grid is not a data table, so table tagging is off for it: no
+% Table, TH or TD is written and the words stay ordinary text. Acrobat fails a
+% Table without headers and ignores the PDF 2.0 presentation role. Keep
+% table/tagging=false inside a group; left open, it untags every later table.
 % Meets: ISO 32000-2:2020 14.8.4.8 (Table); Clemson tables concept.
 \begingroup\centering
 \tagpdfsetup{table/tagging=false}%
@@ -639,12 +650,12 @@ mark; an endnote is an item in a tagged list whose number links back to the mark
 mark links to the note, so a reader can follow either and come straight back. Footnote marks
 are arabic and endnote marks roman, so the two series cannot be confused.
 
-% Endnotes: enotez. Its mark is a link to the note and the note's number is a
-% link back, and the list is tagged L/LI/Lbl/LBody. Rejected: the endnotes
-% package (plain superscript marks, no Link and no Ref, so the note cannot be
-% reached), and hand-rolled \hypertarget/\hyperlink pairs (a Link both ways, but
-% the note list is ordinary text with no note structure and no Ref attribute).
-% The class loads and configures enotez. Meets: ISO 32000-2:2020 14.8.4.7 (Link).
+% Endnotes use enotez, which the class loads and configures. The mark links to
+% the note and the note's number links back. The list is tagged L/LI/Lbl/LBody.
+% Rejected: the endnotes package (plain superscript marks, no Link or Ref, so
+% the note cannot be reached) and hand-rolled \hypertarget/\hyperlink pairs (a
+% Link both ways, but the list is plain text with no note structure or Ref).
+% Meets: ISO 32000-2:2020 14.8.4.7 (Link).
 Write a footnote where it is needed, with \verb|\footnote{...}|,\footnote{The second
 footnote in the file; its mark is the arabic 2.} and an endnote in the same place in the
 text, with \verb|\endnote{...}|.\endnote{The second endnote. Inside a note, write
@@ -656,9 +667,9 @@ its own text and cannot sit inside the argument of another command.}
 %------------------------------------------------------------------------------
 %---- Appendix A: table, figure -----------------------------------------------
 \appendix
-% In the article class \appendix letters the sections but leaves floats numbered
-% straight through. \counterwithin adds the section letter and restarts the count,
-% so this appendix holds Table A.1 and Figure A.1, as the Word template has it.
+% In the article class \appendix letters the sections but leaves floats
+% numbered straight through. \counterwithin adds the section letter and
+% restarts the count, giving Table A.1 and Figure A.1 as in the Word template.
 \counterwithin{figure}{section}
 \counterwithin{table}{section}
 \section{An appendix}
@@ -699,12 +710,13 @@ equipment in service.
 %------------------------------------------------------------------------------
 % ENDNOTES AND BIBLIOGRAPHY
 %------------------------------------------------------------------------------
-% The endnotes are printed after the appendices and before the works cited, where
-% a reader looks for them. \printendnotes also adds "Notes" to the contents.
+% \printendnotes goes after the appendices and before the works cited, where a
+% reader looks for the notes. It also adds "Notes" to the contents.
 \printendnotes
 
 % The bibliography heading is a starred section, so \phantomsection puts a link
-% target here and \addcontentsline lists it. Meets: ISO 32000-2:2020 14.8.4.6.
+% target here and \addcontentsline lists it in the contents.
+% Meets: ISO 32000-2:2020 14.8.4.6.
 \phantomsection
 \addcontentsline{toc}{section}{\refname}
 \bibliographystyle{plain}

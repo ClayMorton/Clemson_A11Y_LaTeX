@@ -1,5 +1,6 @@
-# Makefile.a11y -- build and check an accessible PDF.   make -f Makefile.a11y [target]
-# `make -f Makefile.a11y help` lists the targets. TARGET=main is your document
+# Makefile.a11y: build and check an accessible PDF.
+# Usage: make -f Makefile.a11y [target]
+# `make -f Makefile.a11y help` lists the targets. TARGET defaults to main
 # (main.tex -> main.pdf); TARGET=name works on name.tex instead. The worked
 # example has its own targets: example (build and check) and cleanex.
 TARGET  ?= main
@@ -21,9 +22,9 @@ help:
 	@echo "  cleanex        remove everything the example produced, example.pdf included"
 	@echo "  help           this list"
 
-# build: latexmk runs every time and decides for itself. Its own record
-# (.fdb_latexmk) tells it when nothing changed, and then it returns at once;
-# make alone would trust a stale log next to a pdf that an editor pass left.
+# build: latexmk runs every time and decides whether to rebuild. When its
+# record (.fdb_latexmk) shows nothing changed, it returns at once. A make rule
+# on file dates would accept the PDF and stale log an editor's build left.
 build:
 	$(LATEXMK) $(TARGET).tex
 
@@ -36,9 +37,9 @@ requirements:
 	@grep -q FORMATOK a11y-fmt-check.log && echo "OK: LaTeX 2026-06-01 or newer" || { echo "FAIL: LaTeX too old. Run 'sudo tlmgr update --self --all' or install TeX Live 2026."; exit 1; }
 	@rm -f a11y-fmt-check.log
 
-# A11Y_SCAN: a perl program (perl comes with latexmk) that reads every local .tex
-# file the build used, skips comments and \verb, and reports each picture:
-# ALT / TEXT (actualtext) with its text, NOALT, or PLACEHOLDER for alt={...}.
+# A11Y_SCAN: a perl program (perl comes with latexmk) that reads every local
+# .tex file the build used, skips comments and \verb, and reports each picture:
+# ALT or TEXT (actualtext) with its text, NOALT, or PLACEHOLDER for alt={...}.
 define A11Y_SCAN
 my %seen;
 for my $$f (@ARGV) {
@@ -63,9 +64,9 @@ for my $$f (@ARGV) {
 endef
 export A11Y_SCAN
 
-# check: a quiet build, then what a script can verify (errors, alt text present,
-#        tagging warnings, package report, veraPDF PDF/UA-2) and the list a person
-#        must check by hand. `build` shows the full latexmk output when needed.
+# check: builds quietly, then runs what a script can verify (errors, alt text
+# present, tagging warnings, package report, veraPDF PDF/UA-2) and prints the
+# list a person must check by hand. For the full latexmk output, use `build`.
 check:
 	@fail=0; warn=0; skip=0; log=$(TARGET).log; tex=$(TARGET).tex; built=0; \
 	$(LATEXMK) -silent $(TARGET).tex >/dev/null 2>&1 && built=1; \
@@ -155,8 +156,8 @@ open: build
 example:
 	@$(MAKE) --no-print-directory -f $(MK) TARGET=example check
 
-# clean: the build files of $(TARGET); cleanall: its PDF too; cleanex: the same
-# for the example, so the folder holds only your own work again.
+# clean: removes the build files of $(TARGET). cleanall: removes its PDF too.
+# cleanex: the same for the example, leaving only your own work in the folder.
 clean:
 	@latexmk -c $(TARGET).tex >/dev/null 2>&1 || true
 	@rm -f $(TARGET)-luamml-mathml.html $(TARGET)-verapdf.html $(TARGET).bbl $(TARGET).run.xml \

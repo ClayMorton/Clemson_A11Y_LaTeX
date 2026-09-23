@@ -1,4 +1,4 @@
-% clemsona11y.sty -- accessible (tagged, PDF/UA-2) LaTeX in one package.
+% clemsona11y.sty: accessible (tagged, PDF/UA-2) LaTeX in one package.
 % Clemson University, CCIT Internal Operations, ADA Compliance Team (A11Y).
 % Class-independent; tested with article, report, book and ClemsonThesis.
 % Requires LuaLaTeX and LaTeX 2026-06-01+; the guards below enforce both.
@@ -14,11 +14,11 @@
 %   3. alt={...} on every informative \includegraphics or tikzpicture
 %      ([artifact] on a decorative one), \tagpdfsetup{table/header-rows={1}}
 %      before each tabular.
-%      Build with LuaLaTeX; check with make -f Makefile.a11y check, which runs
-%      verapdf -f ua2 and lists what a person must check by hand.
+%      Build with LuaLaTeX, then run make -f Makefile.a11y check, which runs
+%      verapdf -f ua2 and lists what to check by hand.
 %
-% Options -- \usepackage[key=value]{clemsona11y}; * = default. An unknown
-% value stops the build, because a mistyped option is otherwise silent.
+% Options: \usepackage[key=value]{clemsona11y}; * = default. An unknown
+% value stops the build; otherwise a typo would be accepted silently.
 %   floats     here*   | free         [H] as the default float placement
 %   headings   word*   | kernel       title=H1, chapter=H2 ... or kernel Title
 %   title      h1*     | none         tag the kernel \maketitle title as H1
@@ -38,10 +38,10 @@
 %------------------------------------------------------------------------------
 % TOOLCHAIN GUARDS
 %------------------------------------------------------------------------------
-% Four checks that refuse to build when the toolchain cannot tag; each failure
-% otherwise yields a normal-looking untagged PDF that goes unnoticed until an
-% ADA review. (1) LuaLaTeX: only it runs luamml for MathML and OpenType fonts
-% with a ToUnicode map, so pdfLaTeX and XeLaTeX are rejected.
+% Four checks that stop the build when the toolchain cannot tag. Without them,
+% each failure gives a normal-looking untagged PDF that goes unnoticed until
+% an ADA review. (1) LuaLaTeX: only it runs luamml for MathML and OpenType
+% fonts with a ToUnicode map, so pdfLaTeX and XeLaTeX are rejected.
 % Meets: ISO 32000-2:2020 14.8.1 (MarkInfo /Marked true).
 \RequirePackage{iftex}
 \ifLuaTeX\else
@@ -59,7 +59,7 @@
 \fi
 \RequireLuaTeX
 
-% (2) Format floor, never a pin: 2026-06-01 is the first release that tags [H]
+% (2) Minimum, not pinned: 2026-06-01 is the first release that tags [H]
 % floats in place. Newer releases are expected to work and to improve on it.
 \IfFormatAtLeastTF{2026-06-01}{}{%
     \PackageError{clemsona11y}%
@@ -72,11 +72,11 @@
          LuaLaTeX).}%
 }
 
-% (3) \DocumentMetadata must precede \documentclass, or tagging is off.
+% (3) \DocumentMetadata must come before \documentclass, or tagging is off.
 \NeedsDocumentMetadata
 
-% (4) Tagging must still be active when the body starts: \tag_if_active:TF is
-% the kernel's own test, so ask it once at \begin{document}.
+% (4) Tagging must still be active when the body starts. The hook below calls
+% the kernel's own test, \tag_if_active:TF, once at \begin{document}.
 \newcommand{\clemsonaTaggingError}{%
     \PackageError{clemsona11y}%
         {PDF tagging is not active -- this PDF would NOT be accessible}%
@@ -99,8 +99,8 @@
 %------------------------------------------------------------------------------
 % OPTIONS
 %------------------------------------------------------------------------------
-% Options: store each value here, act on it in the block that owns it. Acting
-% at once would let a default take effect before a later option arrived.
+% Store each option value here and act on it in the block that owns it.
+% Acting at once would let a default take effect before a later option arrived.
 % \clemsona@if{\stored}{wanted}{then}{else} is the \ifx test those blocks use.
 \newcommand*{\clemsona@floats}{here}
 \newcommand*{\clemsona@headings}{word}
@@ -127,10 +127,10 @@
 }
 \ProcessKeyOptions[clemsona11y]
 
-% Option validation: \clemsona@check walks the legal list with the same \ifx
-% the blocks below use and errors naming the values. Without it a typo such as
-% headings=Word is accepted in silence and the setting it controls never
-% happens. Adding a value: extend this list, the table above and its block.
+% \clemsona@check tests each stored value against its legal values, with the
+% same \ifx the blocks below use, and stops with an error that lists them.
+% Without it a typo such as headings=Word is accepted silently and never takes
+% effect. To add a value, extend this list, the table above and its block.
 \newif\ifclemsona@known
 \newcommand*{\clemsona@check}[2]{%
     \clemsona@knownfalse
@@ -161,28 +161,27 @@
 %------------------------------------------------------------------------------
 % FONTS
 %------------------------------------------------------------------------------
-% Latin Modern, LaTeX's standard face, is the only font: fontspec and
-% unicode-math give every glyph a ToUnicode entry, so the text is searchable,
-% copyable and pronounceable, and luamml gets the glyph data it needs to write
-% correct MathML. No option changes the font. amsmath is named first so
-% \PassOptionsToPackage can still reach it.
+% Latin Modern, LaTeX's standard face, is the only font; no option changes it.
+% fontspec and unicode-math give every glyph a ToUnicode entry, so the text can
+% be searched, copied and read aloud, and luamml gets the glyph data it needs
+% to write correct MathML. amsmath is loaded first so \PassOptionsToPackage
+% can still reach it.
 % Meets: ISO 32000-2:2020 14.8.2.6.1; ISO 14289-2:2024 8.4.5.8 (ToUnicode).
 \RequirePackage{amsmath}
 % Do not add amssymb or bm on top of unicode-math: amssymb aborts on symbols
-% unicode-math already defines, bm silently prints non-bold maths. Use \symbf.
+% unicode-math already defines; bm silently prints non-bold math. Use \symbf.
 \RequirePackage{fontspec}%    OpenType text fonts + Unicode text encoding
-\RequirePackage{unicode-math}% OpenType maths fonts; what luamml needs
+\RequirePackage{unicode-math}% OpenType math fonts; what luamml needs
 % All of Latin Modern's optical sizes (5 to 17 pt designs) are used. Acrobat's
-% checker wrongly reports the 17 pt face of titles as not extractable; the font
-% is valid (veraPDF, fontTools). The small capitals live in a font of their
-% own, so \textsc needs it named; the letters stay lowercase in the text layer.
+% checker wrongly reports the 17 pt title face as not extractable; the font is
+% valid (veraPDF, fontTools). Small caps are a separate font, so \textsc needs
+% it named; the letters stay lowercase in the text layer.
 \setmainfont{Latin Modern Roman}[SmallCapsFont={Latin Modern Roman Caps}]
 \setmathfont{Latin Modern Math}
-% A11Y: \strong
-% Map fontspec's \strong to a Strong element through the kernel's inline
-% tagging socket. \textbf is only a font switch and leaves no trace in the
-% tag tree, so bold used as meaning is lost on a screen reader. Keep
-% \textbf in table header cells, which are announced as headers already.
+% Tag fontspec's \strong as a Strong element through the kernel's inline
+% tagging socket. \textbf is only a font switch and leaves nothing in the tag
+% tree, so bold used for meaning is lost to a screen reader. Keep \textbf in
+% table header cells, which are already announced as headers.
 % Meets: ISO 32000-2:2020 14.8.4.7.2 Table 368 (Strong).
 \AddToHook{cmd/strong/before}{\leavevmode\UseTaggingSocket{inline/begin}{tag=Strong}}
 \AddToHook{cmd/strong/after}{\UseTaggingSocket{inline/end}}
@@ -190,20 +189,20 @@
 %------------------------------------------------------------------------------
 % GRAPHICS
 %------------------------------------------------------------------------------
-% Load graphicx so \includegraphics and its alt= and [artifact] keys exist:
-% step 3 of the recipe promises that interface, and a document that loads
-% nothing else stops with "Undefined control sequence" without it. Loading it
-% twice is harmless; pass your own options with \PassOptionsToPackage first.
+% Load graphicx so \includegraphics and its alt= and [artifact] keys exist.
+% Step 3 of the recipe tells authors to use them, and a document that loads
+% nothing else stops with "Undefined control sequence" without it. Loading
+% it twice is harmless; pass your own options with \PassOptionsToPackage first.
 % Meets: ISO 32000-2:2020 14.8.4.8.5 (Figure Alt); Tagged PDF BPG 1.0.1 5.5.2.
 \RequirePackage{graphicx}
 
 %------------------------------------------------------------------------------
 % ROLE MAPPING GUARD
 %------------------------------------------------------------------------------
-% A11Y: FAIL-SAFE ROLE MAPPING. \AssignStructureRole stores the tag under the
-% kernel's structure name; a name that a future release renames would take the
-% assignment in silence and the mapping would just stop. \clemsona@role checks
-% that the name exists first and otherwise warns, so the check fails loudly.
+% \AssignStructureRole stores the tag under the kernel's structure name. If a
+% future release renames that name, the old one is still accepted silently
+% and the mapping stops working. \clemsona@role checks that the name exists
+% first and warns if not, which fails make -f Makefile.a11y check.
 % Meets: the maintenance rule of this package (no silent loss of a mapping).
 \ExplSyntaxOn
 \cs_new_protected:Npn \clemsona@role #1 #2
@@ -221,32 +220,32 @@
 %------------------------------------------------------------------------------
 % FLOATS
 %------------------------------------------------------------------------------
-% Tag every float where it stands in the source. With tagging on the kernel
-% otherwise defers floats into figures/tables bins at the end of the tree, so
-% a screen reader meets every table after the bibliography. floats=here also
-% prints them there ([H]); float/here fixes the tags for floats=free too.
+% Tag floats where they appear in the source. By default the kernel moves them
+% into figures/tables sections at the end of the tag tree, so a screen reader
+% gets every table after the bibliography. floats=here also prints them there
+% ([H]); float/here fixes the tag position for floats=free as well.
 % Meets: ISO 32000-2:2020 14.8.2.5.1 (page order = logical content order).
 \RequirePackage{float}
 \clemsona@if{\clemsona@floats}{here}{%
     \floatplacement{figure}{H}%  a plain \begin{figure} means \begin{figure}[H]
     \floatplacement{table}{H}%   a plain \begin{table}  means \begin{table}[H]
 }{}
-\tagpdfsetup{float/here}%        tags go where the float is written, not at the end
-% DO NOT "FIX" THE Aside TAG: float containers are named Aside, the PDF 2.0
-% tag the kernel maps them to anyway. Acrobat is a PDF 1.7 tool and shows
-% Aside as "Note". Do not remap to Div: Div is transparent, so the Caption is
-% judged against the enclosing Sect and fails the first/last-child rule.
+\tagpdfsetup{float/here}%        tagged in place, not at the end of the tree
+% Leave the Aside tag alone. Float containers are named Aside, the PDF 2.0 tag
+% the kernel maps them to anyway. Acrobat is a PDF 1.7 tool and shows Aside as
+% "Note". Do not remap to Div: Div is transparent, so the Caption is judged
+% against the enclosing Sect and fails the first/last-child rule.
 % Meets: ISO 32000-2:2020 14.8.4.4 Table 365; ISO 14289-2:2024 8.2.5.27.
 \clemsona@role{float/figure}{Aside}
 \clemsona@role{float/table}{Aside}
 % A11Y WORKAROUND: \par ends the paragraph the float interrupts, then
-% paragraph tagging goes off for the float body, so Figure/Table is a direct
-% child of the Aside instead of sitting inside an empty P.
+% paragraph tagging is switched off for the float body, so Figure/Table is a
+% direct child of the Aside instead of sitting inside an empty P.
 % REMOVE WHEN: the tagging project offers that nesting with paragraph tagging
-% left on -- https://github.com/latex3/tagging-project/issues
+% left on; see https://github.com/latex3/tagging-project/issues
 % Meets: Tagged PDF BPG 1.0.1 4.3.1 (Figure and Caption under the container).
 \AddToHook{env/figure/begin}{\par\tagpdfsetup{para/tagging=false}}
-% Price of the line above -- RULE 1: a float holds only \centering, \caption
+% That hook forces two rules. RULE 1: a float holds only \centering, \caption
 % (above the picture), \label, \includegraphics, tikzpicture, tabular, \hfill,
 % \tagpdfsetup; center, quote, lists and \[ \] abort: "text para hooks differ".
 % RULE 2: blank line before \begin{figure}/\begin{table}. Loose text in a float
@@ -258,16 +257,16 @@
 % LABELS AS SPAN
 %------------------------------------------------------------------------------
 % "Figure 1.1" is tagged Span, not Lbl. Acrobat's PDF/UA-1 rule "Lbl and
-% LBody" flags every Lbl outside a list item, so the default Lbl reports every
-% caption in the document. Both tags are valid; PDF/UA-2 requires neither.
+% LBody" flags every Lbl outside a list item, so with the default Lbl Acrobat
+% reports every caption. Both tags are valid; PDF/UA-2 requires neither.
 % Restore with \AssignStructureRole{float/figure/label}{Lbl} in your preamble.
 % Meets: Tagged PDF BPG 1.0.1 4.2.4 (caption label); 4.2.7 (Span).
 \clemsona@role{float/figure/label}{Span}  % "Figure 1.1" -> Span, not Lbl
 \clemsona@role{float/table/label}{Span}   % "Table 2.3"  -> Span, not Lbl
-% The same rule hits the section number in a contents entry, the raised mark
-% in the text and the number before a footnote's text; all become Span. The
-% mark and the note stay paired by their two-way Ref, which PDF/UA-2 requires;
-% the BPG's optional Lbl-matching is given up so Acrobat stays clean.
+% The same rule flags the section number in a contents entry, the raised mark
+% in the text and the number before a footnote's text; all three become Span.
+% Mark and note stay paired by their two-way Ref, which PDF/UA-2 requires. The
+% BPG's optional Lbl matching is given up so Acrobat stays clean.
 % Meets: ISO 14289-2:2024 8.2.5.14 (note Ref pair); BPG 4.2.8 (Lbl optional).
 \clemsona@role{toc/item/label}{Span}      % "2.1" in the contents -> Span
 \clemsona@role{fnote/mark}{Span}          % the raised mark in the text
@@ -276,27 +275,29 @@
 %------------------------------------------------------------------------------
 % MATH
 %------------------------------------------------------------------------------
-% A11Y: MATHEMATICS. Every formula is a Formula with LaTeX's own Alt text (the
-% formula's source) and its MathML attached as a file (math=af): one content
-% item per formula, a clean tree in Acrobat and PAC. math=full also writes
-% MathML structure elements (the Math BPG direction) at the price of empty
-% spacing tags and one reading-order item per symbol in PDF/UA-1 tools. The
-% kit adds no alt text of its own. Both settings pass veraPDF PDF/UA-2.
-% Meets: ISO 32000-2:2020 14.8.6.3 (MathML); PDF Association BPG Math in PDF 1.0.
+% math=af attaches each formula's MathML as a file: one content item per
+% formula, clean in Acrobat and PAC. math=full also writes MathML structure
+% elements (the Math BPG direction); PDF/UA-1 tools then show empty spacing
+% tags and one reading-order item per symbol. Both pass veraPDF PDF/UA-2.
+% Meets: ISO 32000-2:2020 14.8.6.3 (MathML);
+%        PDF Association BPG Math in PDF 1.0.
 \clemsona@if{\clemsona@math}{full}{%
     \tagpdfsetup{math/setup={mathml-SE,mathml-AF}}%
 }{%
     \tagpdfsetup{math/setup={mathml-AF}}%
 }
-\tagpdfsetup{math/alt/use}% LaTeX's own Alt on every Formula
+% LaTeX leaves the Alt off outside PDF/UA-1; math/alt/use turns it on, so
+% every Formula gets LaTeX's own Alt text, the formula's source. The kit adds
+% no alt text of its own.
+\tagpdfsetup{math/alt/use}%
 
 %------------------------------------------------------------------------------
 % HEADINGS
 %------------------------------------------------------------------------------
-% headings=word moves every sectioning level down one rung so the document
-% title is the only H1: chapter H2, section H3, subsection H4, subsubsection
-% H5, paragraph H6, one rung less in article. That is the Graduate School's
-% Word ladder, and a screen reader needs a ladder with no missing rungs.
+% headings=word moves every sectioning level down one, so the document title
+% is the only H1: chapter H2, section H3, subsection H4, subsubsection H5,
+% paragraph H6; one less in article (section H2). This matches the Graduate
+% School's Word template. Screen readers need heading levels with no gaps.
 % Meets: ISO 32000-2:2020 14.8.4.5 Table 366; Tagged PDF BPG 1.0.1 4.2.2.
 \clemsona@if{\clemsona@headings}{word}{%
     \ifdefined\chapter
@@ -305,20 +306,20 @@
         \clemsona@role{sec/1/title}{H3}% \section            -> "Heading 3"
         \clemsona@role{sec/2/title}{H4}% \subsection         -> "Heading 4"
         \clemsona@role{sec/3/title}{H5}% \subsubsection      -> "Heading 5"
-        \clemsona@role{sec/4/title}{H6}% \paragraph -- rarely used, but set
+        \clemsona@role{sec/4/title}{H6}% \paragraph (rare)   -> "Heading 6"
     \else
         % article: no \chapter, so \section is the top heading. \part is left
         % alone; a document that uses one decides its own top heading.
         \clemsona@role{sec/1/title}{H2}% \section            -> "Heading 2"
         \clemsona@role{sec/2/title}{H3}% \subsection         -> "Heading 3"
         \clemsona@role{sec/3/title}{H4}% \subsubsection      -> "Heading 4"
-        \clemsona@role{sec/4/title}{H5}% \paragraph -- rarely used, but set
+        \clemsona@role{sec/4/title}{H5}% \paragraph (rare)   -> "Heading 5"
     \fi
 }{}
-% THE ALTERNATIVE, IF A REVIEWER EVER INSISTS ON THE PDF 2.0 Title TAG:
-% headings=kernel. Title plug (title=h1 with headings=word): the socket plug
-% below makes the title printed by the kernel's \maketitle an H1. A class with
-% its own title page passes title=none and tags the title line itself with
+% If a reviewer ever insists on the PDF 2.0 Title tag, use headings=kernel.
+% With title=h1 and headings=word, the socket plug below makes the title
+% printed by the kernel's \maketitle an H1. A class with its own title page
+% passes title=none and tags the title line itself with
 % \AssignStructureRole{para/textblock}{H1}.
 % Meets: ISO 32000-2:2020 14.8.4.5 Table 366; BPG 1.0.1 Annex B A.3.2.1.
 \def\clemsona@tmp{h1}
@@ -333,10 +334,10 @@
 %------------------------------------------------------------------------------
 % LINKS AND BOOKMARKS
 %------------------------------------------------------------------------------
-% hyperref is loaded last in this file, as its own manual asks, through
-% \PassOptionsToPackage so a class's hyperref options survive. The bookmark
-% panel is how a screen-reader user navigates a long document, so it reaches
-% subsubsections (bookmarksdepth=3) even when the printed ToC stops earlier.
+% hyperref is loaded last in this file, as its manual asks, with its options
+% passed through \PassOptionsToPackage so a class's hyperref options survive.
+% Screen-reader users navigate a long document by its bookmarks, so these go
+% to subsubsections (bookmarksdepth=3) even when the printed ToC stops earlier.
 % Meets: Tagged PDF BPG 1.0.1 7.2 (outlines); 3.3 (title displayed, not file).
 \PassOptionsToPackage{%
     bookmarksnumbered,%       outline reads "1 Introduction"
@@ -345,23 +346,23 @@
     pdfdisplaydoctitle=true,% window title = document title, not thesis.pdf
     linktoc=all%              contents entries: title AND page number are links
   }{hyperref}
-% links=hidden adds hidelinks: no color, no border, no underline (a class or
-% journal that forbids link styling). Either value leaves a tagged Link.
+% links=hidden adds hidelinks (no color, border or underline) for a class or
+% journal that forbids link styling. Either value still gives a tagged Link.
 \clemsona@if{\clemsona@links}{hidden}{%
     \PassOptionsToPackage{hidelinks,pdfborder={0 0 0}}{hyperref}%
 }{}
 \RequirePackage{hyperref}
-% A11Y: LINK APPEARANCE (links=keep). Text stays one color (black, contrast
-% 21:1). A link in running text, a caption or a reference entry gets an
-% underline the viewer draws from the annotation's border style, so nothing is
-% marked by color alone; the contents and the lists of figures and tables
-% stay plain (every line there is a link, so an underline would say nothing).
+% links=keep: all text stays black (contrast 21:1). A link in running text, a
+% caption or a reference entry gets an underline that the viewer draws from
+% the annotation's border style, so nothing is marked by color alone. The
+% contents and the lists of figures and tables stay plain: every line there
+% is a link, so an underline would tell the reader nothing.
 % Meets: Clemson links concept ("underline links"); WCAG 2.1 1.4.1, 1.4.3.
 \clemsona@if{\clemsona@links}{keep}{%
     \hypersetup{colorlinks=true, allcolors=black, allbordercolors=black,
                 pdfborderstyle={/S/U/W 1}}%
-    % The link box is the line's box, so its bottom edge, where the viewer
-    % draws the underline, can touch the glyphs; LuaTeX's link margin pads it.
+    % The link box is the line's box, so the underline the viewer draws at its
+    % bottom edge can touch the glyphs. LuaTeX's link margin pads the box.
     \pdfvariable linkmargin=1.5pt%
     \AddToHook{cmd/tableofcontents/before}{\hypersetup{pdfborderstyle={}}}%
     \AddToHook{cmd/tableofcontents/after}{\hypersetup{pdfborderstyle={/S/U/W 1}}}%
@@ -375,11 +376,11 @@
 % FOOTNOTES
 %------------------------------------------------------------------------------
 % A11Y WORKAROUND: FOOTNOTE MARK LINK BOX. latex-lab-footnotes' fnmark/link
-% plug wraps the whole mark, so the link box is the line's and the underline
-% lands under the baseline, far from the raised number. This plug runs that
-% plug inside the raised box (kernel-style marks) or in its own box, so the
-% underline sits under the numeral. Calls the plug by its ltsockets csname.
-% REMOVE WHEN: latex-lab-footnotes sizes the link to the mark. Meets: WCAG 2.4.4.
+% plug wraps the whole mark, so the line-high link box puts the underline below
+% the baseline. This plug calls it by its ltsockets csname inside the raised
+% box (kernel-style marks) or an hbox, so the underline sits under the mark.
+% REMOVE WHEN: latex-lab-footnotes sizes the link to the mark.
+% Meets: WCAG 2.4.4.
 \ExplSyntaxOn
 \NewSocketPlug{fnmark/link}{clemsonally}
   {
@@ -401,10 +402,10 @@
 }{}
 
 % A11Y WORKAROUND: FOOTNOTE NoteType. latex-lab opens the FENote with no
-% attribute, so every note takes the Table 384 default None and nothing in the
-% file tells a footnote from any other kind of note. This plug runs the
-% kernel's FENote plug, then writes /NoteType /Footnote on the structure it
-% just opened. REMOVE WHEN: latex-lab sets NoteType itself.
+% attribute, so every note gets the Table 384 default None and nothing in the
+% file tells a footnote from other notes. This plug runs the kernel's FENote
+% plug, then writes /NoteType /Footnote on the structure it just opened.
+% REMOVE WHEN: latex-lab sets NoteType itself.
 % Meets: ISO 14289-2:2024 8.2.5.14 (NoteType); ISO 32000-2:2020 Table 384.
 \ExplSyntaxOn
 \IfSocketPlugExistsTF {tagsupport/fntext/begin} {FENote}
@@ -427,10 +428,10 @@
 %------------------------------------------------------------------------------
 % AUTOREF NAMES
 %------------------------------------------------------------------------------
-% A11Y: LINK TEXT. \autoref{label} links the whole phrase ("Section 3",
-% "Figure 1", "Appendix A"), which is what a screen reader announces, where
-% \ref links the bare number. hyperref's names are set here in title case;
-% shared theorem counters need \hyperref[label]{Lemma~\ref*{label}} instead.
+% \autoref{label} makes the whole phrase the link ("Section 3", "Figure 1",
+% "Appendix A"), which is what a screen reader announces; \ref links only the
+% number. hyperref's names are set here in title case. With shared theorem
+% counters, use \hyperref[label]{Lemma~\ref*{label}} instead.
 % Meets: Clemson links concept (descriptive link text); WCAG 2.1 2.4.4.
 \AtBeginDocument{%
     \def\sectionautorefname{Section}\def\subsectionautorefname{Section}%
@@ -444,10 +445,10 @@
 %------------------------------------------------------------------------------
 % LINK DESCRIPTIONS
 %------------------------------------------------------------------------------
-% Give every link annotation a generic type description through the documented
-% l3pdfannot interface. PDF/UA-1 requires an annotation to carry one and the
-% Acrobat and PAC checkers apply that rule; PDF/UA-2 dropped it. A screen
-% reader reads the link text from the Link element; these are a fallback.
+% Give every link annotation a generic description of its type through the
+% documented l3pdfannot interface. PDF/UA-1 requires one and the Acrobat and
+% PAC checkers test for it; PDF/UA-2 dropped the rule. Screen readers take the
+% link text from the Link element, so these are only a fallback.
 % Meets: ISO 14289-1:2014 7.18.5; Tagged PDF BPG 1.0.1 4.2.12.2.
 \ExplSyntaxOn
 \pdfannot_dict_put:nnn {link/GoTo}  {Contents} {(Internal~link)}
@@ -462,15 +463,15 @@
 % A11Y WORKAROUND: TABLE CELL ATTRIBUTES AND HEADER IDS. latex-lab-table
 % writes Scope, ColSpan and RowSpan only as attribute classes (/C) and no
 % /Headers, so Acrobat's Table Editor and PAC show no cell properties. At the
-% end of each tabular this block writes them again as direct /A attributes and
-% adds /Headers with the /ID of the header cells that head the cell: the header
-% block at the top (left) of the table and the nearest one above (left of) it.
+% end of each tabular they are written again as direct /A attributes, and
+% /Headers lists the /IDs of the header cells over the cell: the top (left)
+% header block and the nearest one above (left of) it.
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (Headers, Scope, spans); Clemson tables.
 \ExplSyntaxOn
-% Reads testphase internals (\g__tbl_struct_cells_seq, \g__tbl_untagged_
-% cells_prop, \g__tbl_table_cols_tl, \g__tbl_struct_table_tl, the C entry of
-% g__tag_struct_<n>_prop, \__tag_struct_get_id:n, the Table plug's csname);
-% \socket_set_plug:nnn and \tag_struct_gput:nnn are documented. No longtable.
+% Reads testphase internals: \g__tbl_struct_cells_seq, \g__tbl_table_cols_tl,
+% \g__tbl_untagged_cells_prop, \g__tbl_struct_table_tl, \__tag_struct_get_id:n,
+% the C entry of g__tag_struct_<n>_prop and the Table plug's csname. longtable
+% is not covered. \socket_set_plug:nnn and \tag_struct_gput:nnn are documented.
 % If an internal is gone the guard warns (the check fails) and skips the block.
 % REMOVE WHEN: latex-lab-table writes Headers and direct attributes itself.
 \bool_new:N \l__hdrs_ok_bool
@@ -494,10 +495,10 @@
 \bool_if:NT \l__hdrs_ok_bool
 {
 
-% State for one table. The grid maps "row,col" to a cell structure number, so a
-% cell that spans appears once per slot it covers. minr/maxr/minc/maxc give the
-% anchor and the spans; scope holds Column, Row or Both for header cells only.
-% order keeps the cells in the sequence they were tagged in.
+% Per-table state. grid maps "row,col" to a cell's structure number, so a
+% spanning cell appears once per slot it covers. minr/maxr/minc/maxc give each
+% cell's anchor and spans; scope holds Column, Row or Both, for header cells
+% only. order lists the cells in tagging order.
 \prop_new:N  \l__hdrs_grid_prop
 \prop_new:N  \l__hdrs_minr_prop
 \prop_new:N  \l__hdrs_maxr_prop
@@ -536,10 +537,10 @@
 \cs_new:Npn \__hdrs_scope:n #1
   { \prop_item:Ne \l__hdrs_scope_prop { #1 } }
 
-% Store one grid slot. The first slot a cell occupies fixes its anchor row and
-% column; later slots widen the span. Cells are numbered by structure number,
-% so the same number arriving again is the same cell, not a new one.
-\cs_new_protected:Npn \__hdrs_record:nnn #1 #2 #3 % row, column, structure number
+% Store one grid slot. The first slot a cell occupies sets its anchor row and
+% column; later slots widen its span. Cells are keyed by structure number, so
+% a number seen again is the same cell.
+\cs_new_protected:Npn \__hdrs_record:nnn #1 #2 #3 % row, col, structure number
   {
     \prop_put:Nee \l__hdrs_grid_prop { #1,#2 } { #3 }
     \prop_if_in:NnTF \l__hdrs_minr_prop { #3 }
@@ -561,10 +562,10 @@
   }
 \cs_generate_variant:Nn \__hdrs_record:nnn { nne }
 
-% One grid slot per column. A slot listed in the untagged property is covered by
-% a cell that started in an earlier row (table/multirow), so it repeats the cell
-% above and consumes nothing from the row list. Every other slot takes the next
-% entry from the row list; a negative entry is a column a colspan covers.
+% Fill one grid slot; called once per column. A slot in the untagged property
+% is covered by a cell that started in an earlier row (table/multirow), so it
+% repeats the cell above and takes nothing from the row list. Every other slot
+% takes the next row-list entry; a negative entry is a column a colspan covers.
 \cs_new_protected:Npn \__hdrs_cell:nn #1 #2 % row, column
   {
     \prop_if_in:NnTF \l__hdrs_untagged_prop { #1,#2 }
@@ -590,10 +591,10 @@
     \int_step_inline:nn { \l__hdrs_cols_int } { \__hdrs_cell:nn { #1 } { ##1 } }
   }
 
-% Header cells are recognized by the attribute classes latex-lab-table gave
-% them: TH-col heads a column, TH-row heads a row, TH-both heads both. Reading
-% the classes rather than the header-row and header-column lists keeps this
-% package on the same decision the table code already made.
+% Header cells are found by the attribute classes latex-lab-table gave them:
+% TH-col heads a column, TH-row a row, TH-both both. Reading the classes
+% instead of the header-row and header-column lists keeps this code on the
+% decision the table code already made.
 \cs_new_protected:Npn \__hdrs_read_scopes:
   {
     \seq_map_inline:Nn \l__hdrs_order_seq
@@ -631,10 +632,11 @@
     \__hdrs_read_scopes:
   }
 
-% True when the slot holds a header cell of the wanted scope and is not the cell
-% being worked on. Both counts for either direction, which is what the corner
-% cell of a table with a header row and a header column carries.
-\cs_new_protected:Npn \__hdrs_test_head:nnnn #1 #2 #3 #4 % row, col, self, scope
+% Sets \l__hdrs_hit_bool when slot (#1 row, #2 col) holds a header cell of
+% scope #4 other than cell #3, the one being worked on. Both counts for either
+% direction: the corner cell of a table with a header row and a header column
+% has scope Both.
+\cs_new_protected:Npn \__hdrs_test_head:nnnn #1 #2 #3 #4 % see above
   {
     \bool_set_false:N \l__hdrs_hit_bool
     \tl_set:Ne \l__hdrs_test_tl { \__hdrs_at:nn { #1 } { #2 } }
@@ -651,10 +653,11 @@
       }
   }
 
-% Header cells above a cell, column by column. Two blocks are kept: the block of
-% header rows at the top of the table, and the nearest block of header rows just
-% above the cell. A table with group headers in the middle then gives a data
-% cell its column heading and its own group heading, not every group heading.
+% Collect the header cells above a cell, one column at a time: the header
+% rows at the top of the table, then the header rows directly above the cell.
+% A group row right under the column headings joins the top block, so later
+% groups also name the first group, and only a group's first data row gets
+% its own group heading. example.tex, "Table: one per group", avoids this.
 \cs_new_protected:Npn \__hdrs_collect_col:nn #1 #2 % structure number, column
   {
     \int_set:Nn \l__hdrs_r_int { 1 }
@@ -687,8 +690,8 @@
     \clist_concat:NNN \l__hdrs_list_clist \l__hdrs_list_clist \l__hdrs_block_clist
   }
 
-% Header cells left of a cell, row by row: the block of header columns at the
-% left edge and the nearest block of header columns before the cell.
+% The same for header cells left of a cell, one row at a time: the header
+% columns at the left edge and the nearest block of header columns before it.
 \cs_new_protected:Npn \__hdrs_collect_row:nn #1 #2 % structure number, row
   {
     \int_set:Nn \l__hdrs_c_int { 1 }
@@ -721,10 +724,10 @@
     \clist_concat:NNN \l__hdrs_list_clist \l__hdrs_list_clist \l__hdrs_block_clist
   }
 
-% One cell: build its attribute dictionary and hand it to tagpdf. Column headers
-% come first, then row headers, both in reading order. \tag_struct_gput:nnn with
-% the documented attribute key writes the dictionary as its own object and
-% appends it to /A, so the existing /C classes are left untouched.
+% Build one cell's attribute dictionary and hand it to tagpdf. Column headers
+% come first, then row headers, each in reading order. \tag_struct_gput:nnn
+% with the documented attribute key writes the dictionary as its own object
+% and appends it to /A, leaving the existing /C classes untouched.
 \cs_new_protected:Npn \__hdrs_do_cell:n #1 % structure number
   {
     \tl_clear:N \l__hdrs_dict_tl
@@ -771,10 +774,10 @@
       { \tag_struct_gput:nne { #1 } { attribute } { /O~/Table \l__hdrs_dict_tl } }
   }
 
-% The finalize plug of a table is the last point at which the row and cell
-% structure numbers still exist: the original body restores the enclosing
-% table's data and throws them away. So copy them first, run the original body
-% (it turns header rows into TH and sets their classes), then read the copies.
+% A table's finalize plug is the last point where the row and cell structure
+% numbers still exist: the original body restores the enclosing table's data
+% and discards them. So copy them first, run the original body (it turns
+% header rows into TH and sets their classes), then read the copies.
 \cs_new_protected:Npn \__hdrs_save:
   {
     \seq_set_eq:NN \l__hdrs_cells_seq \g__tbl_struct_cells_seq
@@ -783,9 +786,9 @@
     \int_set:Nn \l__hdrs_cols_int { \g__tbl_table_cols_tl }
     \tl_set_eq:NN \l__hdrs_table_tl \g__tbl_struct_table_tl
   }
-% A table marked role=presentation carries no cell semantics, so Scope and
-% Headers on its cells would contradict the role: leave it alone. A stray
-% table/tagging=presentation outside a group reaches every later table.
+% Skip tables marked role=presentation: they carry no cell semantics, so Scope
+% and Headers on their cells would contradict the role. A stray
+% table/tagging=presentation outside a group applies to every later table.
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (Headers); WAI-ARIA 1.1 role=presentation.
 \cs_new_protected:Npn \__hdrs_set_presentation:
   {
@@ -813,11 +816,11 @@
       }
   }
 
-% The socket plug keeps its name, Table, because \tagpdfsetup{table/tagging=...}
-% re-assigns that name and would otherwise drop a plug of any other name. The
-% original body is saved first and called in the middle, so nothing the table
-% code does is lost. \socket_set_plug:nnn is the documented way to replace it;
-% the csname of the saved body is an ltsockets internal.
+% Keep the plug's name, Table: \tagpdfsetup{table/tagging=...} re-assigns that
+% name and would drop a plug with any other name. The original body is saved
+% first and called in the middle, so nothing the table code does is lost.
+% \socket_set_plug:nnn is the documented way to replace the plug; the csname
+% of the saved body is an ltsockets internal.
 \cs_new_eq:Nc \__hdrs_orig_finalize:
   { __socket_tagsupport/tbl/finalize_plug_Table:w }
 \socket_set_plug:nnn { tagsupport/tbl/finalize } { Table }
@@ -833,16 +836,16 @@
 %------------------------------------------------------------------------------
 % PAGE NUMBERS
 %------------------------------------------------------------------------------
-% The kernel wraps header and footer material in /Artifact BMC already, so no
+% The kernel already wraps header and footer material in /Artifact BMC, so no
 % page number reaches the reading order. pagination=typed writes /Artifact
-% <</Type /Pagination>> BDC instead for PDF/UA-1 checkers, at the cost of two
-% empty Artifact elements per page ("Private" in Acrobat); plain is default.
+% <</Type /Pagination>> BDC instead, for PDF/UA-1 checkers, but adds two empty
+% Artifact elements per page ("Private" in Acrobat). plain is the default.
 % Meets: ISO 14289-1:2014 7.8; Tagged PDF BPG 1.0.1 3.7.2.
 \clemsona@if{\clemsona@pagination}{typed}{%
     \tagpdfsetup{page/exclude-header-footer=pagination}%
 }{}
 % page/exclude-header-footer is tagpdf's own documented key (manual 3.2.6),
-% marked experimental; do not patch tagpdf internals for the same effect.
+% marked experimental. Do not patch tagpdf internals for the same effect.
 
 \endinput
 % End of clemsona11y.sty
