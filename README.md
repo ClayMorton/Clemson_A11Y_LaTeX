@@ -63,6 +63,29 @@ Every example sits under a `%----` banner line that labels it, so searching the 
 steps from one to the next, and each carries a short comment that says why it is written that way
 and which standard it meets. `clemsona11y.cls` and `clemsona11y.sty` are divided the same way.
 
+## How to write great alt text
+
+A screen reader speaks alt text word for word, so write what a listener needs to hear.
+
+- **Pictures** (`alt={...}`): what the picture shows and why it is in the document, in one or two
+  sentences, as if describing it to a friend on the phone. Not the file name, not the caption again.
+  People: "[name] and [name] [action] [location]". A chart, map or diagram gets a short alt that
+  states its point and says where the full description is, then the description as text or a
+  table (`example.tex`, "Chart, description, data table").
+- **Formulas** (`\mathalt{...}` right before each one, inline ones too): say the formula the way you
+  would read it aloud in front of a class, *and* name every letter and symbol the page shows, in
+  the order it shows them. The listener has to be able to write the formula down from your words.
+  Good: `\mathalt{the integral from minus infinity to infinity of e to the minus x squared, d x,
+  equals the square root of pi}`. Not enough: "the Gaussian integral" (what it means, not what it
+  says) or "integral of e to the minus x squared" (drops the limits, the d x and the result).
+  Letters are letters ("x", "n", "capital A"), Greek letters go by name ("pi", "theta"),
+  subscripts are said one way throughout ("a sub 1"), and grouping is said in words ("the fraction
+  one over k squared", "a plus b, all squared"). Without `\mathalt` the reader hears the LaTeX source.
+- **Decoration** (`artifact`): a rule, an ornament, a picture that says nothing gets no alt text
+  and is skipped.
+- `make -f Makefile.a11y check` prints every alt text and every spoken formula so you can read
+  them back. That reading is the check; no tool can do it for you.
+
 ## Already have a project?
 
 - **Your own Makefile:** keep it; run `make -f Makefile.a11y TARGET=paper check` after your build, or copy the

@@ -193,7 +193,9 @@ make -f Makefile.a11y check
 Mathematics is written into the PDF twice: as MathML attached to each formula, which lets a
 MathCAT-class reader speak the real structure, and as alt text, which is what most readers
 hear. Write \verb|\mathalt{spoken text}| immediately before a formula to set that alt text;
-without it the alt text is the bare LaTeX source, including any \verb|\label|. The class
+without it the alt text is the bare LaTeX source, including any \verb|\label|. Say the
+formula as you would read it aloud in class and name every letter and symbol the page
+shows, so that a listener could write it down. The class
 option \verb|math=full| also writes the MathML into the tag tree, which PDF/UA-2 readers can
 navigate; Acrobat and PAC, which check PDF/UA-1, then list its spacing elements as empty tags
 and every symbol as its own reading-order item, so this file keeps the default.
@@ -209,16 +211,17 @@ equals the square root of pi}%
 \end{equation}
 Equation~\eqref{eq:gauss} is cited by number, and the number is a link. Aligned steps
 use \texttt{align}:
-\mathalt{a plus b, squared, equals a squared plus two a b plus b squared, which equals a
-squared plus b squared plus two a b}%
+\mathalt{a plus b, all squared, equals a squared plus two a b plus b squared, which equals
+a squared plus b squared plus two a b}%
 \begin{align}
   (a+b)^2 &= a^2 + 2ab + b^2 \\
           &= a^2 + b^2 + 2ab
 \end{align}
 Matrices, cases, sums and fractions come from \texttt{amsmath}, which the class loads:
-\mathalt{A is the two by two matrix with rows one, two and three, four. f of x is x
-squared for x at least zero, minus x otherwise. The sum from k equals one to n of one
-over k squared is at most pi squared over six}%
+\mathalt{capital A equals the two by two matrix with rows one, two and three, four. f of
+x equals x squared if x is greater than or equal to zero, and minus x if x is less than
+zero. The sum from k equals one to n of the fraction one over k squared is less than or
+equal to pi squared over six}%
 \begin{equation}
   A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}, \qquad
   f(x) = \begin{cases} x^2 & x \ge 0 \\ -x & x < 0 \end{cases}, \qquad
@@ -230,7 +233,7 @@ over k squared is at most pi squared over six}%
 \eqref{eq:group-a} and~\eqref{eq:group-b} below; \texttt{gather} centers lines that do
 not align; \verb|\text{}| puts words inside a formula. Every one of them is a Formula
 with its own alt text, and \verb|\eqref| links to the number.
-\mathalt{Equation group: a equals b, and c equals d for all d}%
+\mathalt{a equals b; c equals d for all d}%
 \begin{subequations}\label{eq:group}\begin{align}
     a &= b            \label{eq:group-a} \\
     c &= d \quad \text{for all } d \label{eq:group-b}
@@ -246,7 +249,9 @@ Equations~\eqref{eq:group-a} and~\eqref{eq:group-b} are the two members of the g
 % Meets: ISO 32000-2:2020 14.8.6.3 (Formula, MathML); WCAG 2.1 1.1.1.
 A formula too long for one line goes in \texttt{multline}, which sets its first part at
 the left margin and the rest at the right:
-\mathalt{the sum of a 1 through a 10 plus the sum of b 1 through b 10 equals s}%
+\mathalt{a sub 1 plus a sub 2 plus a sub 3 plus a sub 4 plus a sub 5 plus a sub 6 plus a sub 7
+plus a sub 8 plus a sub 9 plus a sub 10, plus b sub 1 plus b sub 2 plus b sub 3 plus b sub 4
+plus b sub 5 plus b sub 6 plus b sub 7 plus b sub 8 plus b sub 9 plus b sub 10, equals s}%
 \begin{multline*}
   a_1 + a_2 + a_3 + a_4 + a_5 + a_6 + a_7 + a_8 + a_9 + a_{10} \\
   + b_1 + b_2 + b_3 + b_4 + b_5 + b_6 + b_7 + b_8 + b_9 + b_{10} = s
@@ -261,7 +266,8 @@ mathematics: a MathML reader hears a value and its unit as structure, and the al
 what everyone else hears, so \verb|\mathalt| goes before inline notation too, as below.
 % Inline notation needs \mathalt as much as a display equation does: without it
 % the alt text is the LaTeX source, and a reader hears "backslash ce H 2 O".
-% Every formula in this file carries a spoken form written right before it.
+% Every formula in this file carries a spoken form written right before it,
+% and README (How to write great alt text) says how to word one.
 % $\ce{^{14}C}$, the isotope form, makes tagpdf report "structure with label 36
 % has already been used", so carbon-14 is written out in words instead.
 % Meets: ISO 32000-2:2020 14.8.6.3 (Formula Alt, MathML); WCAG 2.1 1.1.1.
@@ -276,7 +282,7 @@ hand. A state is \mathalt{the ket zero}$\ket{0}$ and an inner product is
 quantities, \mathalt{10 degrees Celsius}\qty{10}{\celsius} to
 \mathalt{20 degrees Celsius}\qty{20}{\celsius}: \verb|\qtyrange| loses its numbers in the
 alt text.
-\mathalt{Methane plus two O 2 gives C O 2 plus two H 2 O}%
+\mathalt{C H 4 plus two O 2 gives C O 2 plus two H 2 O}%
 \begin{equation}\label{eq:burn} \ce{CH4 + 2O2 -> CO2 + 2H2O} \end{equation}
 %---- Theorems and algorithm --------------------------------------------------
 \subsection{Theorems, proofs and algorithms}
@@ -299,9 +305,9 @@ back, comment out the \verb|\qedsymbol| line in the theorem block of
 % numbers itself instead of using a list counter; the labels are still Lbl.
 % Meets: ISO 32000-2:2020 14.8.4.6 (Caption), 14.8.4.9 (L); Clemson lists.
 \begin{algorithm}[Find the largest value]\label{alg:max}
-Input: the values \mathalt{a 1 through a n}$a_1,\dots,a_n$. Output: the largest of them.
+Input: the values \mathalt{a sub 1 through a sub n}$a_1,\dots,a_n$. Output: the largest of them.
 \begin{algorithmic}[1]
-  \State \mathalt{m gets a 1}$m \gets a_1$
+  \State \mathalt{m gets a sub 1}$m \gets a_1$
   \For{\mathalt{i gets 2}$i \gets 2$ to \mathalt{n}$n$} \If{\mathalt{a sub i is greater than
     m}$a_i > m$} \State \mathalt{m gets a sub i}$m \gets a_i$ \EndIf \EndFor
   \State \Return \mathalt{m}$m$
