@@ -235,9 +235,18 @@ check tells you where it is missing.
 
 6. Build, then check:
 
+   If you left your paper as main.tex, then simply do
+
    ```
-   make -f Makefile.a11y TARGET=paper
-   make -f Makefile.a11y TARGET=paper check
+   make -f Makefile.a11y
+   make -f Makefile.a11y check
+   ```
+
+   OR if you titled it something else, use
+
+   ```
+   make -f Makefile.a11y TARGET=<paper>
+   make -f Makefile.a11y TARGET=<paper> check
    ```
 
    Expect the first build of an older document to stop. The usual cause is a `center`
