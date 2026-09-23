@@ -108,9 +108,6 @@ you type it.
    `tabular` that only lines text up, with no data in it, gets
    `\begingroup\tagpdfsetup{table/tagging=false}` ... `\endgroup` around it instead.
 
-   Every formula, inline ones included, has its spoken text right in front of it:
-   `\mathalt{x squared plus one}$x^2+1$`. "How to write great alt text" below says how to word it.
-
    The caption of every figure and table goes above the picture or the tabular, because that is
    the order in which the tags are written. Leave a blank line before `\begin{figure}` and
    `\begin{table}`. Inside the environment use only `\centering`, `\includegraphics`,
@@ -149,7 +146,7 @@ you type it.
 
    The check builds the document again quietly, then prints a report in two parts. The first
    part, "Checked automatically", is what a script can verify. It tests that the document builds,
-   that every picture has alt text, that every formula has its spoken text, that no reference
+   that every picture has alt text, that no reference
    prints as `??`, that neither LaTeX's tagging nor the kit's own guards raised a warning, and
    that you load no package LaTeX cannot tag yet. It also gives veraPDF's PDF/UA-2 verdict. Each line is marked `OK`, `WARN`,
    `FAIL` or `SKIP`, and the report ends with a `RESULT` line (after a `FAIL`, make adds a line of
@@ -160,13 +157,13 @@ you type it.
    installed or `check-tagging-status` was taken out of `\DocumentMetadata`.
 
    The second part, "Check by hand", is what only a person can judge. The report prints every
-   alt text and every spoken formula with its line number, so that you can read them back, and
+   alt text with its line number, so that you can read them back, and
    then lists what to look at in the PDF: the tags and the reading order in Acrobat Pro, the
    links by pressing Tab through them in any viewer, and the use of color. When the `RESULT`
    line says the automatic checks passed, open the PDF in Acrobat Pro, run All tools > Prepare
    for accessibility > Check for accessibility, and go through Clemson's
    [manual checks](https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/manual-checks.html).
-   The report's six items are adapted from them. Acrobat's checker tests the older PDF/UA-1, and
+   The report's five items are adapted from them. Acrobat's checker tests the older PDF/UA-1, and
    Acrobat's Tags panel shows LaTeX's own tag names, so some of what Acrobat shows is expected;
    "What the checkers still say" below lists it.
 
@@ -238,18 +235,9 @@ check tells you where it is missing.
 
 6. Build, then check:
 
-   If you left your paper as main.tex, then simply do
-
    ```
-   make -f Makefile.a11y
-   make -f Makefile.a11y check
-   ```
-
-   OR if you titled it something else, use
-
-   ```
-   make -f Makefile.a11y TARGET=<paper>
-   make -f Makefile.a11y TARGET=<paper> check
+   make -f Makefile.a11y TARGET=paper
+   make -f Makefile.a11y TARGET=paper check
    ```
 
    Expect the first build of an older document to stop. The usual cause is a `center`
@@ -257,7 +245,7 @@ check tells you where it is missing.
    `\end{document}`, as "text para hooks differ", without naming the float, so search every
    float for them. Step 4 of "Starting from scratch" says what a float may hold. Once the
    document builds, the `FAIL` and `WARN` lines of the check are the to-do list: pictures without
-   alt text, formulas without `\mathalt`, references that print as `??`, packages LaTeX cannot
+   alt text, references that print as `??`, packages LaTeX cannot
    tag, and whatever else LaTeX's tagging complains about. The check cannot see two things, so do
    them yourself: give every table its `\tagpdfsetup` header line, and move every caption above
    its picture or tabular. Fix what the check lists and run it again until the `RESULT` line says
@@ -295,18 +283,11 @@ description is, then put the description in the document as text or as a table (
 shows this under "Chart, description, data table"). A rule or an ornament that says nothing gets
 `artifact` instead of alt text, and the reader skips it.
 
-For a formula the spoken text has to do two jobs at once: say the formula the way you would read
-it aloud in front of a class, and name every letter and symbol the page shows, in the order it
-shows them, so that a listener could write the formula down from your words. A good text for the
-Gaussian integral is `\mathalt{the integral from minus infinity to infinity of e to the minus x
-squared, d x, equals the square root of pi}`. "The Gaussian integral" is not enough, because it
-says what the formula means rather than what it says, and "integral of e to the minus x squared"
-is not enough either, because it drops the limits, the d x and the result. Letters are read as
-letters ("x", "n", "capital A"), Greek letters by name ("pi", "theta"), subscripts the same way
-throughout ("a sub 1"), and grouping in words ("the fraction one over k squared", "a plus b, all
-squared"). A formula without `\mathalt` makes the reader hear the LaTeX source.
+Formulas need nothing from you. LaTeX writes the MathML for each one and its own alt text,
+the formula's source, and the kit adds no direction of its own.
 
-The check prints every alt text and every spoken formula in the document with its line number.
+
+The check prints every alt text in the document with its line number.
 Reading them back is the check; no tool can do it for you.
 
 ## What `example.tex` shows
@@ -315,7 +296,7 @@ Reading them back is the check; no tool can do it for you.
 | --- | --- |
 | Front and back matter | contents, list of figures, list of tables, appendix, endnotes, bibliography, all tagged and linked |
 | Text | emphasis, footnote, endnote, links, citations, every cross-reference kind, lists (nested, lettered, description), block quote, special characters, code |
-| Mathematics | inline and display math, `align`, `subequations`, `gather`, `multline*`, matrices, cases, chemistry, units, bra-ket, theorems, proofs, an algorithm; spoken alt text on every formula |
+| Mathematics | inline and display math, `align`, `subequations`, `gather`, `multline*`, matrices, cases, chemistry, units, bra-ket, theorems, proofs, an algorithm; MathML on every formula |
 | Pictures | alt text, two panels, a `tikz` diagram, an image of text, a decorative image, a chart with its description and data table, a long description in an appendix linked both ways |
 | Tables | every layout in Clemson's [tables guide](https://www.clemson.edu/accessibility/digital/concepts/tables.html): header row, header column, both, two-level and merged headers, merged cells, one table per group, notes outside, no empty cells, a layout grid left untagged |
 | Odds and ends | an artifact rule, a phrase in another language, an abbreviation written out, QED as a proof ending (one line in the class) |
@@ -373,9 +354,9 @@ caption.
 
 ## After a LaTeX update
 
-LaTeX's tagging code is still being finished, and the package works around five gaps in the
+LaTeX's tagging code is still being finished, and the package works around four gaps in the
 current release: the empty paragraph LaTeX would otherwise wrap around the picture or tabular in
-a float, the spoken text of formulas, the clickable area of a footnote mark, the type of each
+a float, the clickable area of a footnote mark, the type of each
 footnote, and the attributes that tie each table cell to its headers and record its spans. Each
 one is marked `A11Y WORKAROUND` in `clemsona11y.sty`, with a `REMOVE WHEN` line that names the
 LaTeX change that will make it unnecessary. All but the float fix first check that the part of

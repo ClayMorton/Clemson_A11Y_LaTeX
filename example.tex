@@ -85,17 +85,16 @@ through five steps.
     \autoref{sec:tables} shows the eight layouts, the one caveat and the
     \verb|\tagpdfsetup| keys each layout needs.
   \item Build and check with \verb|make -f Makefile.a11y check|. A script cannot judge
-    everything, so the report ends with six checks by hand: it lists every alt text and
-    every spoken formula with its line for you to read back, then names the tags, the
+    everything, so the report ends with five checks by hand: it lists every alt text
+    for you to read back, then names the tags, the
     reading order, the links and the use of color. Then finish in Acrobat Pro: All tools,
     Prepare for accessibility, Check for accessibility; \texttt{README.md} links Clemson's
-    manual checks, which the six are adapted from.
+    manual checks, which the five are adapted from.
 \end{enumerate}
 
 Text is set ragged right, as Clemson's text guidance asks; pass \verb|align=justified| to
-\verb|\documentclass| for the justified look some journals require. Write
-\verb|\mathalt{spoken text}| immediately before a formula to set what a screen reader says
-about it. \texttt{README.md} has the full instructions, the class options and the list of
+\verb|\documentclass| for the justified look some journals require.
+\texttt{README.md} has the full instructions, the class options and the list of
 packages to use and to avoid in each field.
 
 %------------------------------------------------------------------------------
@@ -195,37 +194,24 @@ make -f Makefile.a11y check
 \label{sec:math}
 Mathematics is written into the PDF twice: as MathML attached to each formula, which lets a
 MathCAT-class reader speak the real structure, and as alt text, which is what most readers
-hear. Write \verb|\mathalt{spoken text}| immediately before a formula to set that alt text;
-without it the alt text is the LaTeX source, with only \verb|\label|, \verb|\displaystyle|
-and spacing commands taken out, and the check warns about the formula. Say the
-formula as you would read it aloud in class and name every letter and symbol the page
-shows, so that a listener could write it down. The class
+hear. LaTeX writes both itself; the alt text is the formula's own source. The class
 option \verb|math=full| also writes the MathML into the tag tree, which PDF/UA-2 readers can
 navigate; Acrobat and PAC, which check PDF/UA-1, then list its spacing elements as empty tags
 and every symbol as its own reading-order item, so this file keeps the default.
 
 %---- Inline and display math -------------------------------------------------
-\mathalt{e to the power i pi, plus one, equals zero}%
 Inline mathematics sits in the sentence: $e^{i\pi} + 1 = 0$. A displayed equation takes
 a \verb|\label| so that it can be cited:
-\mathalt{the integral from minus infinity to infinity of e to the minus x squared, d x,
-equals the square root of pi}%
 \begin{equation}\label{eq:gauss}
   \int_{-\infty}^{\infty} e^{-x^2}\,dx = \sqrt{\pi}
 \end{equation}
 Equation~\eqref{eq:gauss} is cited by number, and the number is a link. Aligned steps
 use \texttt{align}:
-\mathalt{a plus b, all squared, equals a squared plus two a b plus b squared, which equals
-a squared plus b squared plus two a b}%
 \begin{align}
   (a+b)^2 &= a^2 + 2ab + b^2 \\
           &= a^2 + b^2 + 2ab
 \end{align}
 Matrices, cases, sums and fractions come from \texttt{amsmath}, which the class loads:
-\mathalt{capital A equals the two by two matrix with rows one, two and three, four. f of
-x equals x squared if x is greater than or equal to zero, and minus x if x is less than
-zero. The sum from k equals one to n of the fraction one over k squared is less than or
-equal to pi squared over six}%
 \begin{equation}
   A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}, \qquad
   f(x) = \begin{cases} x^2 & x \ge 0 \\ -x & x < 0 \end{cases}, \qquad
@@ -237,13 +223,11 @@ equal to pi squared over six}%
 \eqref{eq:group-a} and~\eqref{eq:group-b} below; \texttt{gather} centers lines that do
 not align; \verb|\text{}| puts words inside a formula. Every one of them is a Formula
 with its own alt text, and \verb|\eqref| links to the number.
-\mathalt{a equals b; c equals d for all d}%
 \begin{subequations}\label{eq:group}\begin{align}
     a &= b            \label{eq:group-a} \\
     c &= d \quad \text{for all } d \label{eq:group-b}
 \end{align}\end{subequations}
 Equations~\eqref{eq:group-a} and~\eqref{eq:group-b} are the two members of the group.
-\mathalt{x equals one; y equals two}%
 \begin{gather} x = 1 \\ y = 2 \end{gather}
 %---- Long formula (multline) -------------------------------------------------
 % multline splits one formula that is too long for a line: the first part sits
@@ -253,9 +237,6 @@ Equations~\eqref{eq:group-a} and~\eqref{eq:group-b} are the two members of the g
 % Meets: ISO 32000-2:2020 14.8.6.3 (Formula, MathML); WCAG 2.1 1.1.1.
 A formula too long for one line goes in \texttt{multline}, which sets its first part at
 the left margin and the rest at the right:
-\mathalt{a sub 1 plus a sub 2 plus a sub 3 plus a sub 4 plus a sub 5 plus a sub 6 plus a sub 7
-plus a sub 8 plus a sub 9 plus a sub 10, plus b sub 1 plus b sub 2 plus b sub 3 plus b sub 4
-plus b sub 5 plus b sub 6 plus b sub 7 plus b sub 8 plus b sub 9 plus b sub 10, equals s}%
 \begin{multline*}
   a_1 + a_2 + a_3 + a_4 + a_5 + a_6 + a_7 + a_8 + a_9 + a_{10} \\
   + b_1 + b_2 + b_3 + b_4 + b_5 + b_6 + b_7 + b_8 + b_9 + b_{10} = s
@@ -266,27 +247,19 @@ plus b sub 5 plus b sub 6 plus b sub 7 plus b sub 8 plus b sub 9 plus b sub 10, 
 Write chemistry with \verb|\ce| from \texttt{mhchem}, numbers and units with \verb|\qty| and
 \verb|\num| from \texttt{siunitx}, and quantum states with \verb|\braket| and \verb|\ket| from
 \texttt{braket}. Each one becomes a Formula with alt text and MathML, exactly like ordinary
-mathematics: a MathML reader hears a value and its unit as structure, and the alt text is
-what everyone else hears, so \verb|\mathalt| goes before inline notation too, as below.
-% Inline notation needs \mathalt as much as a display equation does: without it
-% the alt text is the LaTeX source, and a reader hears "backslash ce H 2 O".
-% Every formula in this file carries a spoken form written right before it,
-% and README (How to write great alt text) says how to word one.
+mathematics: a MathML reader hears a value and its unit as structure.
 % $\ce{^{14}C}$, the isotope form, makes tagpdf report "structure with label 36
 % has already been used", so carbon-14 is written out in words instead.
 % Meets: ISO 32000-2:2020 14.8.6.3 (Formula Alt, MathML); WCAG 2.1 1.1.1.
-Water is \mathalt{water, H 2 O}$\ce{H2O}$ and the sulfate ion is
-\mathalt{the sulfate ion, S O 4 two minus}$\ce{SO4^2-}$; carbon-14 is written out in words.
-Standard gravity is \mathalt{9.81 metres per second
-squared}\qty{9.81}{\metre\per\second\squared}, room temperature is
-\mathalt{25 degrees Celsius}\qty{25}{\celsius}, and \mathalt{twelve thousand three hundred
-forty-five point six seven eight}\num{12345.678} is grouped by \verb|\num| rather than by
-hand. A state is \mathalt{the ket zero}$\ket{0}$ and an inner product is
-\mathalt{the inner product of psi and phi}$\braket{\psi|\phi}$. Write a range as two
-quantities, \mathalt{10 degrees Celsius}\qty{10}{\celsius} to
-\mathalt{20 degrees Celsius}\qty{20}{\celsius}: \verb|\qtyrange| loses its numbers in the
+Water is $\ce{H2O}$ and the sulfate ion is
+$\ce{SO4^2-}$; carbon-14 is written out in words.
+Standard gravity is \qty{9.81}{\metre\per\second\squared}, room temperature is
+\qty{25}{\celsius}, and \num{12345.678} is grouped by \verb|\num| rather than by
+hand. A state is $\ket{0}$ and an inner product is
+$\braket{\psi|\phi}$. Write a range as two
+quantities, \qty{10}{\celsius} to
+\qty{20}{\celsius}: \verb|\qtyrange| loses its numbers in the
 alt text.
-\mathalt{C H 4 plus two O 2 gives C O 2 plus two H 2 O}%
 \begin{equation}\label{eq:burn} \ce{CH4 + 2O2 -> CO2 + 2H2O} \end{equation}
 %---- Theorems and algorithm --------------------------------------------------
 \subsection{Theorems, proofs and algorithms}
@@ -309,12 +282,11 @@ back, comment out the \verb|\qedsymbol| line in the theorem block of
 % numbers itself instead of using a list counter; the labels are still Lbl.
 % Meets: ISO 32000-2:2020 14.8.4.6 (Caption), 14.8.4.9 (L); Clemson lists.
 \begin{algorithm}[Find the largest value]\label{alg:max}
-Input: the values \mathalt{a sub 1 through a sub n}$a_1,\dots,a_n$. Output: the largest of them.
+Input: the values $a_1,\dots,a_n$. Output: the largest of them.
 \begin{algorithmic}[1]
-  \State \mathalt{m gets a sub 1}$m \gets a_1$
-  \For{\mathalt{i gets 2}$i \gets 2$ to \mathalt{n}$n$} \If{\mathalt{a sub i is greater than
-    m}$a_i > m$} \State \mathalt{m gets a sub i}$m \gets a_i$ \EndIf \EndFor
-  \State \Return \mathalt{m}$m$
+  \State $m \gets a_1$
+  \For{$i \gets 2$ to $n$} \If{$a_i > m$} \State $m \gets a_i$ \EndIf \EndFor
+  \State \Return $m$
 \end{algorithmic}\end{algorithm}
 
 %------------------------------------------------------------------------------

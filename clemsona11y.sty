@@ -13,7 +13,7 @@
 %      \PassOptionsToPackage before it.
 %   3. alt={...} on every informative \includegraphics or tikzpicture
 %      ([artifact] on a decorative one), \tagpdfsetup{table/header-rows={1}}
-%      before each tabular and \mathalt{spoken text} before each formula.
+%      before each tabular.
 %      Build with LuaLaTeX; check with make -f Makefile.a11y check, which runs
 %      verapdf -f ua2 and lists what a person must check by hand.
 %
@@ -276,80 +276,19 @@
 %------------------------------------------------------------------------------
 % MATH
 %------------------------------------------------------------------------------
-% A11Y: MATHEMATICS. Every formula is a Formula with Alt text and its MathML
-% attached as a file (math=af): one content item per formula, a clean tree in
-% Acrobat and PAC. math=full also writes MathML structure elements (the PDF
-% Association's Math BPG direction) at the price of empty spacing tags and one
-% reading-order item per symbol in PDF/UA-1 tools. Both pass veraPDF PDF/UA-2.
+% A11Y: MATHEMATICS. Every formula is a Formula with LaTeX's own Alt text (the
+% formula's source) and its MathML attached as a file (math=af): one content
+% item per formula, a clean tree in Acrobat and PAC. math=full also writes
+% MathML structure elements (the Math BPG direction) at the price of empty
+% spacing tags and one reading-order item per symbol in PDF/UA-1 tools. The
+% kit adds no alt text of its own. Both settings pass veraPDF PDF/UA-2.
 % Meets: ISO 32000-2:2020 14.8.6.3 (MathML); PDF Association BPG Math in PDF 1.0.
 \clemsona@if{\clemsona@math}{full}{%
     \tagpdfsetup{math/setup={mathml-SE,mathml-AF}}%
 }{%
     \tagpdfsetup{math/setup={mathml-AF}}%
 }
-\tagpdfsetup{math/alt/use}% Alt on every Formula; its text is set just below
-
-% A11Y WORKAROUND: FORMULA ALT TEXT. latex-lab-math's Alt is an internal
-% template ("LaTeX formula starts ... ends") with no user interface yet
-% (latex-lab-math.pdf 5.7; tagging-project discussion 717). This math/content
-% plug uses the text of \mathalt{...} written right before a formula, else the
-% LaTeX source, and logs each so the check can list them for a person to read.
-% REMOVE WHEN: the kernel offers a formula alt-text key.
-% Meets: ISO 14289-2:2024 8.2.5.29; ISO 14289-1:2014 7.7 (Alt on Formula).
-\ExplSyntaxOn
-\tl_new:N \g__cly_mathalt_tl
-\NewDocumentCommand \mathalt { m }
-  { \tag_if_active:T { \tl_gset:Nn \g__cly_mathalt_tl {#1} } }
-% \tag_if_active:T skips the measuring passes (a caption's box, a tabularx trial)
-% that run with tagging suspended; a text set there would wait for the next
-% formula in the real pass and land on the wrong one.
-% \clemsona@srcfile is the file LuaTeX is reading, for the log lines below.
-\cs_new:Npn \clemsona@srcfile { \lua_now:n { tex.sprint(-2,~status.filename~or~"") } }
-% A \mathalt with no formula after it would otherwise still be waiting when the
-% next formula is tagged, anywhere later in the document, and give that formula
-% the wrong alt text. The paragraph the text was written in is the end of its
-% reach. Meets: ISO 14289-2:2024 8.2.5.29 (Alt describes its own content).
-\AddToHook { para/after } { \tl_gclear:N \g__cly_mathalt_tl }
-\tl_if_exist:NF \l__math_content_template_tl
-  {
-    \PackageWarningNoLine{clemsona11y}{%
-        latex-lab-math~internals~not~found:~\token_to_str:N \mathalt \c_space_tl text~is~ignored~and^^J%
-        every~formula~keeps~the~kernel's~default~alt~text}
-  }
-\tl_if_exist:NT \l__math_content_template_tl
-  {
-    \tl_set:Nn \l__math_content_template_tl { \exp_not:V \g__math_grabbed_math_tl }
-    \NewTaggingSocketPlug {math/content} {clemsonally}
-      {
-        \tl_if_empty:NTF \g__cly_mathalt_tl
-          {
-            \tl_set:Ne \l__math_content_alt_tl { \l__math_content_template_tl }
-            % The fallback is the LaTeX source. Drop what only shapes the print
-            % (\displaystyle, \label, spacing), say a line break as a pause and
-            % an alignment point as a space (tex.stackexchange 757945 does the
-            % first for \displaystyle).
-            \regex_replace_all:nnN
-              { \c{displaystyle} | \c{textstyle} | \c{label}\{[^\}]*\} | \c{[,;:!] } | \c{quad} | \c{qquad} }
-              { } \l__math_content_alt_tl
-            \regex_replace_all:nnN { \c{\\} } { ;~ } \l__math_content_alt_tl
-            \regex_replace_all:nnN { \& } { ~ } \l__math_content_alt_tl
-            \PackageInfo{clemsona11y}{Formula~without~\token_to_str:N \mathalt
-              \c_colon_str \c_space_tl the~alt~text~is~the~LaTeX~source~in~\clemsona@srcfile}
-          }
-          {
-            \tl_set:Ne \l__math_content_alt_tl
-              { \text_purify:V \g__cly_mathalt_tl }
-            \PackageInfo{clemsona11y}{Formula~alt~text:~\l__math_content_alt_tl
-              \c_space_tl in~\clemsona@srcfile}
-            \tl_gclear:N \g__cly_mathalt_tl
-          }
-        \tl_set:Ne \l__math_content_AF_source_tl { \l__math_texsource_template_tl }
-        \tl_set:Nn \l__math_content_AF_mathml_tl {}
-        \tl_set:Nn \l__math_content_actual_tl {}
-      }
-    \AssignTaggingSocketPlug {math/content} {clemsonally}
-  }
-\ExplSyntaxOff
+\tagpdfsetup{math/alt/use}% LaTeX's own Alt on every Formula
 
 %------------------------------------------------------------------------------
 % HEADINGS
