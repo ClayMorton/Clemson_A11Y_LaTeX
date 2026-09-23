@@ -16,7 +16,7 @@
 %
 % Options -- \usepackage[key=value]{clemsona11y}; * = default. An unknown
 % value stops the build, because a mistyped option is otherwise silent.
-%   fonts      termes* | lm | false   text+math font via fontspec/unicode-math
+%   fonts      lm* | termes | false   text+math font via fontspec/unicode-math
 %   floats     here*   | free         [H] as the default float placement
 %   headings   word*   | kernel       title=H1, chapter=H2 ... or kernel Title
 %   title      h1*     | none         tag the kernel \maketitle title as H1
@@ -99,7 +99,7 @@
 % Options: store each value here, act on it in the block that owns it. Acting
 % at once would let a default load a font package before fonts=false arrived.
 % \clemsona@if{\stored}{wanted}{then}{else} is the \ifx test those blocks use.
-\newcommand*{\clemsona@fonts}{termes}
+\newcommand*{\clemsona@fonts}{lm}
 \newcommand*{\clemsona@floats}{here}
 \newcommand*{\clemsona@headings}{word}
 \newcommand*{\clemsona@title}{h1}
@@ -150,7 +150,7 @@
              Correct the spelling -- or delete the option to use the default --
              and compile again.}%
     \fi}
-\clemsona@check{fonts}{termes,lm,false}
+\clemsona@check{fonts}{lm,termes,false}
 \clemsona@check{floats}{here,free}
 \clemsona@check{headings}{word,kernel}
 \clemsona@check{title}{h1,none}
@@ -163,8 +163,9 @@
 %------------------------------------------------------------------------------
 % fontspec and unicode-math give every glyph a ToUnicode entry, so the text is
 % searchable, copyable and pronounceable, and luamml gets the glyph data it
-% needs to write correct MathML. termes is metric-compatible with Times New
-% Roman. amsmath is named first so \PassOptionsToPackage can still reach it.
+% needs to write correct MathML. lm is LaTeX's own Latin Modern; termes is
+% metric-compatible with Times New Roman. amsmath is named first so
+% \PassOptionsToPackage can still reach it.
 % Meets: ISO 32000-2:2020 14.8.2.6.1; ISO 14289-2:2024 8.4.5.8 (ToUnicode).
 \RequirePackage{amsmath}
 \clemsona@if{\clemsona@fonts}{false}{%
@@ -181,13 +182,16 @@
     % Use \symbf for bold maths.
     \RequirePackage{fontspec}%    OpenType text fonts + Unicode text encoding
     \RequirePackage{unicode-math}% OpenType maths fonts; what luamml needs
-    \clemsona@if{\clemsona@fonts}{lm}{%
-        % fontspec already defaults the text font to Latin Modern Roman.
-        \setmathfont{Latin Modern Math}%
-    }{%
-        % Times-like default, as the Graduate School format requires.
+    \clemsona@if{\clemsona@fonts}{termes}{%
+        % Times-like, as the Graduate School's thesis format asks.
         \setmainfont{TeX Gyre Termes}%      body + headings: Times New Roman clone
         \setmathfont{TeX Gyre Termes Math}% matching maths, full Unicode coverage
+    }{%
+        % Latin Modern, LaTeX's standard face, with all its optical sizes (5 to
+        % 17 pt designs). Acrobat's checker wrongly reports the 17 pt face used
+        % for titles as not extractable; the font is valid (veraPDF, fontTools).
+        \setmainfont{Latin Modern Roman}%
+        \setmathfont{Latin Modern Math}%
     }%
     % A11Y: \strong
     % Map fontspec's \strong to a Strong element through the kernel's inline

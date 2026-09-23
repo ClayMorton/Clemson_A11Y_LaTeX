@@ -103,7 +103,7 @@ go in the same brackets; a misspelt value stops the build.
 
 | Option | Values (default first) | Effect |
 | --- | --- | --- |
-| `fonts` | `termes`, `lm`, `false` | Times clone, Latin Modern, or your own fonts |
+| `fonts` | `lm`, `termes`, `false` | Latin Modern (LaTeX's standard face), a Times clone for the Graduate School's thesis format, or your own fonts |
 | `align` | `ragged`, `justified` | left-aligned text (Clemson's rule) or justified |
 | `links` | `keep`, `hidden` | black text with underlined links, contents entries plain but linked; or no marking |
 | `math` | `af`, `full` | MathML attached to each formula; or also in the tag tree (empty spacing tags in Acrobat) |
@@ -147,8 +147,9 @@ works or is no longer needed.
   (`text` = `P`, `text-unit` = `Part`, `item` = `LI`, `itemlabel` = `Lbl`, `itembody` = `LBody`,
   `quote` = `BlockQuote`, `verbatim` = `Code`, `footnote` = `FENote`, `itemize`, `enumerate`,
   `description` and `list` = `L`). Do not rename them by hand.
-  With `fonts=lm`, Acrobat reports "cannot extract the embedded font" on the 17 pt title face; the
-  file is valid.
+  Acrobat also reports that it "cannot extract the embedded font" LMRoman17, the Latin Modern design
+  used for titles; the font is valid (veraPDF and fontTools both accept it) and the message can be
+  ignored, or avoided with `fonts=termes`.
 - **Kernel choices**, all valid: `BBox` only on figures; `\ref`, `\pageref` and `\eqref` give a bare
   `Link`, only `\cite` adds `Reference`; algorithm steps tag as an unordered list; a nested list sits
   inside its parent item's body; `pagination=typed` adds an empty artifact element per header and footer.
