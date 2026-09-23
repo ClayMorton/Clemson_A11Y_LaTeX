@@ -5,7 +5,9 @@
 %          align=ragged (default) | justified;  package options
 %          floats=here|free, headings=word|kernel,
 %          title=h1|none, links=keep|hidden, pagination=plain|typed,
-%          math=af|full;  anything else (10pt, a4paper, ...) goes to the base class.
+%          math=af|full;  any other key=value goes to the package, which stops
+%          on an unknown key or value; a bare option (10pt, a4paper, ...) goes
+%          to the base class; twocolumn is refused.
 % Defines: \email{addr} (a mailto link whose text is the address) and, with
 %          theorems=true, theorem, lemma, proposition, corollary, definition,
 %          example, remark and algorithm.
@@ -52,8 +54,8 @@
 \DeclareOption{pagination=typed}{\PassOptionsToPackage{pagination=typed}{clemsona11y}}
 \DeclareOption{math=full}{\PassOptionsToPackage{math=full}{clemsona11y}}
 \DeclareOption{math=af}{\PassOptionsToPackage{math=af}{clemsona11y}}
-% Any other key=value option belongs to the package, which errors on a wrong
-% value; a bare option (10pt, a4paper) goes to the base class. align= and
+% Any other key=value option belongs to the package, which errors on an unknown
+% key or value; a bare option (10pt, a4paper) goes to the base class. align= and
 % theorems= are the class's own, so a misspelt value stops the build here
 % instead of vanishing into "Unused global option(s)" in the log.
 \newcommand*{\clemsonacls@route}[1]{%

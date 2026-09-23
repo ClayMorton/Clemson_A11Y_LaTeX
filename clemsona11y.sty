@@ -8,11 +8,14 @@
 %        \DocumentMetadata{lang=en-US, pdfversion=2.0, pdfstandard=ua-2,
 %          tagging=on, check-tagging-status}
 %   2. \usepackage{clemsona11y} as the LAST preamble line; it loads hyperref,
-%      which asks to come after everything else. Give hyperref, amsmath, float
-%      or graphicx your own options with \PassOptionsToPackage before it.
-%   3. \includegraphics[alt={...}] on every informative image ([artifact] on a
-%      decorative one) and \tagpdfsetup{table/header-rows={1}} inside each
-%      table environment. Build with LuaLaTeX, check with verapdf -f ua2.
+%      which asks to come after everything else. Give hyperref, amsmath, float,
+%      graphicx, fontspec or unicode-math your own options with
+%      \PassOptionsToPackage before it.
+%   3. alt={...} on every informative \includegraphics or tikzpicture
+%      ([artifact] on a decorative one), \tagpdfsetup{table/header-rows={1}}
+%      before each tabular and \mathalt{spoken text} before each formula.
+%      Build with LuaLaTeX; check with make -f Makefile.a11y check, which runs
+%      verapdf -f ua2 and lists what a person must check by hand.
 %
 % Options -- \usepackage[key=value]{clemsona11y}; * = default. An unknown
 % value stops the build, because a mistyped option is otherwise silent.
@@ -45,8 +48,8 @@
     \PackageError{clemsona11y}%
         {This document must be compiled with LuaLaTeX}%
         {An accessible (tagged) PDF requires the LuaLaTeX engine.^^J%
-         Command line: run 'latexmk -lualatex yourfile.tex' (or 'make', if the
-         project has a Makefile).^^J%
+         Command line: run 'latexmk -lualatex yourfile.tex', or
+         'make -f Makefile.a11y' in the kit's folder.^^J%
          Overleaf: Menu > Settings > Compiler > LuaLaTeX.^^J%
          TeXShop / TeXworks / VS Code: choose the LuaLaTeX typesetting engine.^^J%
          Tip: the two "magic comment" lines '!TEX program = lualatex' and^^J%
@@ -62,8 +65,9 @@
     \PackageError{clemsona11y}%
         {Your LaTeX is too old to make an accessible (tagged) PDF}%
         {This package needs the LaTeX release of 2026-06-01 or newer.^^J%
-         Install TeX Live 2026 / MacTeX 2026 (https://tug.org/texlive/),^^J%
-         or update what you have: run 'tlmgr update --self --all'.^^J%
+         Install TeX Live 2026 / MacTeX 2026 (https://tug.org/texlive/);^^J%
+         an older year cannot be updated in place. Once 2026 is there,^^J%
+         bring it up to date: run 'sudo tlmgr update --self --all'.^^J%
          Overleaf: Menu > Settings > TeX Live version > 2026 (and Compiler >
          LuaLaTeX).}%
 }
@@ -139,10 +143,11 @@
              use one of: #2}%
             {The option #1 of package clemsona11y accepts only these values:^^J%
              #1 = #2.^^J%
-             You wrote \string\usepackage[#1=\clemsona@value]{clemsona11y}.^^J%
+             You wrote #1=\clemsona@value in the options of
+             \string\documentclass\space or \string\usepackage.^^J%
              Values are lower case and spelled exactly as in the option table
-             at the top of clemsona11y.sty, which also says what each one
-             does.^^J%
+             at the top of clemsona11y.sty or under Options in README.md,
+             which also say what each one does.^^J%
              Correct the spelling -- or delete the option to use the default --
              and compile again.}%
     \fi}
@@ -241,11 +246,11 @@
 % left on -- https://github.com/latex3/tagging-project/issues
 % Meets: Tagged PDF BPG 1.0.1 4.3.1 (Figure and Caption under the container).
 \AddToHook{env/figure/begin}{\par\tagpdfsetup{para/tagging=false}}
-% Price of the line above -- RULE 1: inside a float use only \centering,
-% \includegraphics, tabular, \caption, \label, \tagpdfsetup; center, quote,
-% lists and \[ \] abort with "text para hooks differ". RULE 2: blank line
-% before \begin{figure}/\begin{table}. Loose text in a float becomes an
-% artifact: put a source note in the \caption or in a paragraph after it.
+% Price of the line above -- RULE 1: a float holds only \centering, \caption
+% (above the picture), \label, \includegraphics, tikzpicture, tabular, \hfill,
+% \tagpdfsetup; center, quote, lists and \[ \] abort: "text para hooks differ".
+% RULE 2: blank line before \begin{figure}/\begin{table}. Loose text in a float
+% becomes an artifact: put a source note in the \caption or a paragraph after.
 % Meets: ISO 32000-2:2020 14.8.2.2.2 (artifact marking).
 \AddToHook{env/table/begin}{\par\tagpdfsetup{para/tagging=false}}
 
@@ -308,7 +313,7 @@
 \tl_if_exist:NF \l__math_content_template_tl
   {
     \PackageWarningNoLine{clemsona11y}{%
-        latex-lab-math~internals~not~found:~\string\mathalt~text~is~ignored~and^^J%
+        latex-lab-math~internals~not~found:~\token_to_str:N \mathalt \c_space_tl text~is~ignored~and^^J%
         every~formula~keeps~the~kernel's~default~alt~text}
   }
 \tl_if_exist:NT \l__math_content_template_tl
@@ -320,8 +325,9 @@
           {
             \tl_set:Ne \l__math_content_alt_tl { \l__math_content_template_tl }
             % The fallback is the LaTeX source. Drop what only shapes the print
-            % (\displaystyle, \label, spacing) and say line breaks and alignment
-            % points as pauses, as tex.stackexchange 757945 does for \displaystyle.
+            % (\displaystyle, \label, spacing), say a line break as a pause and
+            % an alignment point as a space (tex.stackexchange 757945 does the
+            % first for \displaystyle).
             \regex_replace_all:nnN
               { \c{displaystyle} | \c{textstyle} | \c{label}\{[^\}]*\} | \c{[,;:!] } | \c{quad} | \c{qquad} }
               { } \l__math_content_alt_tl
@@ -518,14 +524,15 @@
 % writes Scope, ColSpan and RowSpan only as attribute classes (/C) and no
 % /Headers, so Acrobat's Table Editor and PAC show no cell properties. At the
 % end of each tabular this block writes them again as direct /A attributes and
-% adds /Headers with the /ID of every header cell above or left of a cell.
+% adds /Headers with the /ID of the header cells that head the cell: the header
+% block at the top (left) of the table and the nearest one above (left of) it.
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (Headers, Scope, spans); Clemson tables.
 \ExplSyntaxOn
 % Reads testphase internals (\g__tbl_struct_cells_seq, \g__tbl_untagged_
-% cells_prop, \g__tbl_table_cols_tl, the C entry of g__tag_struct_<n>_prop,
-% \__tag_struct_get_id:n, the csname of the Table plug); \socket_set_plug:nnn
-% and \tag_struct_gput:nnn are documented. longtable is not covered. If an
-% internal is gone the guard logs one line and the block does nothing.
+% cells_prop, \g__tbl_table_cols_tl, \g__tbl_struct_table_tl, the C entry of
+% g__tag_struct_<n>_prop, \__tag_struct_get_id:n, the Table plug's csname);
+% \socket_set_plug:nnn and \tag_struct_gput:nnn are documented. No longtable.
+% If an internal is gone the guard warns (the check fails) and skips the block.
 % REMOVE WHEN: latex-lab-table writes Headers and direct attributes itself.
 \bool_new:N \l__hdrs_ok_bool
 \bool_set:Nn \l__hdrs_ok_bool

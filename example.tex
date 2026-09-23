@@ -84,10 +84,12 @@ through five steps.
   \item Declare the header cells of every table before its \verb|\begin{tabular}|.
     \autoref{sec:tables} shows the eight layouts, the one caveat and the
     \verb|\tagpdfsetup| keys each layout needs.
-  \item Build and check with \verb|make -f Makefile.a11y check|, then finish in Acrobat:
-    All tools, Prepare for accessibility, Check for accessibility. A checker cannot judge
-    color, link text, tag names, reading order, tab order or the accuracy of alt text, so
-    do Clemson's six manual checks by hand afterwards; \texttt{README.md} links them.
+  \item Build and check with \verb|make -f Makefile.a11y check|. A script cannot judge
+    everything, so the report ends with six checks by hand: it lists every alt text and
+    every spoken formula with its line for you to read back, then names the tags, the
+    reading order, the links and the use of color. Then finish in Acrobat Pro: All tools,
+    Prepare for accessibility, Check for accessibility; \texttt{README.md} links Clemson's
+    manual checks, which the six are adapted from.
 \end{enumerate}
 
 Text is set ragged right, as Clemson's text guidance asks; pass \verb|align=justified| to
@@ -133,8 +135,8 @@ one link, so a screen reader announces ``Section 3'' and not a bare ``3'', and i
 correct when the text moves. Label anything to point at: see \autoref{sec:math} on
 page~\pageref{sec:math}, \autoref{sec:notation}, \autoref{fig:lab} on page~\pageref{fig:lab},
 \autoref{tab:headerrow}, Equation~\eqref{eq:gauss}, \autoref{alg:max}, \autoref{app:example},
-and a citation with a page number~\cite[p.~3]{knuth1984lp}. Theorem-like blocks share one
-counter, so point at them with \verb|\hyperref[lem:title]{Lemma~\ref*{lem:title}}|:
+and a citation with a page number~\cite[p.~3]{knuth1984lp}. Theorem-like blocks other than
+algorithm share one counter, so point at them with \verb|\hyperref[lem:title]{Lemma~\ref*{lem:title}}|:
 \hyperref[lem:title]{Lemma~\ref*{lem:title}}. Equations keep \verb|\eqref| for the
 parentheses; \verb|\pageref| links the page number alone.
 %---- Lists -------------------------------------------------------------------
@@ -194,7 +196,8 @@ make -f Makefile.a11y check
 Mathematics is written into the PDF twice: as MathML attached to each formula, which lets a
 MathCAT-class reader speak the real structure, and as alt text, which is what most readers
 hear. Write \verb|\mathalt{spoken text}| immediately before a formula to set that alt text;
-without it the alt text is the bare LaTeX source, including any \verb|\label|. Say the
+without it the alt text is the LaTeX source, with only \verb|\label|, \verb|\displaystyle|
+and spacing commands taken out, and the check warns about the formula. Say the
 formula as you would read it aloud in class and name every letter and symbol the page
 shows, so that a listener could write it down. The class
 option \verb|math=full| also writes the MathML into the tag tree, which PDF/UA-2 readers can
@@ -205,7 +208,7 @@ and every symbol as its own reading-order item, so this file keeps the default.
 \mathalt{e to the power i pi, plus one, equals zero}%
 Inline mathematics sits in the sentence: $e^{i\pi} + 1 = 0$. A displayed equation takes
 a \verb|\label| so that it can be cited:
-\mathalt{The integral from minus infinity to infinity of e to the minus x squared d x,
+\mathalt{the integral from minus infinity to infinity of e to the minus x squared, d x,
 equals the square root of pi}%
 \begin{equation}\label{eq:gauss}
   \int_{-\infty}^{\infty} e^{-x^2}\,dx = \sqrt{\pi}

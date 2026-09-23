@@ -12,14 +12,14 @@ all: build
 
 # help: what each target does, in the order a first-time user needs them.
 help:
-	@echo "make -f Makefile.a11y ...        (add TARGET=name to work on name.tex instead of main.tex)"
+	@echo "make -f $(MK) ...        (add TARGET=name to work on name.tex; now: $(TARGET).tex)"
 	@echo "  requirements   test the TeX install: LuaLaTeX, latexmk, LaTeX 2026-06-01 or newer"
 	@echo "  example        build the worked example (example.tex -> example.pdf) and check it"
-	@echo "  build          build main.tex -> main.pdf (also what plain 'make -f Makefile.a11y' does)"
+	@echo "  build          build $(TARGET).tex -> $(TARGET).pdf (also what plain 'make -f $(MK)' does)"
 	@echo "  check          build quietly, run the automatic checks, print what to check by hand"
-	@echo "  open           build and open main.pdf"
-	@echo "  clean          remove main's build files (.aux, .log, .toc ...), keep main.pdf"
-	@echo "  cleanall       clean, and remove main.pdf too"
+	@echo "  open           build and open $(TARGET).pdf"
+	@echo "  clean          remove $(TARGET)'s build files (.aux, .log, .toc ...), keep $(TARGET).pdf"
+	@echo "  cleanall       clean, and remove $(TARGET).pdf too"
 	@echo "  cleanex        remove everything the example produced, example.pdf included"
 	@echo "  help           this list"
 
@@ -110,9 +110,9 @@ check:
 	  elif [ "$$nalt" -eq 0 ]; then echo "   OK    formulas: none"; \
 	  else echo "   OK    formulas: $$nalt, every one with \\mathalt spoken text"; fi; \
 	tw=`awk '/Package tag(pdf)? Warning|latex-lab[^:]*Warning|(Package|Class) clemsona11y Warning/{p=1; print; next} p && /^\(/{print; next} {p=0}' $$log | grep -v 'Alternative text for graphic is missing\|^(tag[a-z]*)  *Using .* instead' | uniq`; \
-	if [ -n "$$tw" ]; then echo "   FAIL  tags: LaTeX's tagging reported a problem (README, Packages by field, lists the usual causes):"; \
+	if [ -n "$$tw" ]; then echo "   FAIL  tags: LaTeX's tagging or the kit warned (README: Packages by field; After a LaTeX update for a clemsona11y warning):"; \
 	    echo "$$tw" | sed 's/^/           /'; fail=1; \
-	  else echo "   OK    tags: LaTeX's tagging reported no problem"; fi; \
+	  else echo "   OK    tags: no warning from LaTeX's tagging or the kit"; fi; \
 	if ! grep -q 'Status report of the tagging support' $$log; then \
 	  echo "   SKIP  packages: no status report; keep check-tagging-status in DocumentMetadata"; skip=1; \
 	else bad=`sed -n '/Status report of the tagging support/,$$p' $$log | sed -n '/1\. Unsupported/,/3\. Partially/p' | grep -E '\.(sty|cls|tex)$$' | grep -v 'float\.sty' | tr -d ' ' | tr '\n' ' '`; \
@@ -146,17 +146,18 @@ check:
 	echo "      content order."; \
 	echo "   5. Links: the link text names its destination; press Tab through them in order"; \
 	echo "      (any viewer)."; \
-	echo "   6. Color: nothing is said by color alone; colored text or charts keep a contrast"; \
-	echo "      of 4.5:1 (WebAIM's contrast checker; the kit's black text passes)."; \
-	echo "   No Acrobat Pro? Items 2, 5 and 6 need none, and Acrobat Reader's View > Read Out"; \
-	echo "   Loud reads the alt texts in reading order. Items 1, 3, 4 and the checker need Pro."; \
+	echo "   6. Color: nothing is said by color alone; colored text keeps a contrast of 4.5:1,"; \
+	echo "      chart lines and shapes 3:1 (WebAIM's contrast checker; the kit's black text passes)."; \
+	echo "   No Acrobat Pro? Items 1, 2, 5 and 6 need none (the texts are printed above), and"; \
+	echo "   Acrobat Reader's View > Read Out Loud reads the alt texts in reading order. Items 3,"; \
+	echo "   4 and the checker need Pro."; \
 	echo "   Then: Acrobat Pro > All tools > Prepare for accessibility > Check for accessibility,"; \
 	echo "   and Clemson's manual-check guide, with screenshots:"; \
 	echo "   https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/manual-checks.html"; \
 	echo "================================================================================"; \
 	if [ $$fail -ne 0 ]; then echo " RESULT: FAIL. Fix the lines marked FAIL and run the check again."; exit 1; \
-	  elif [ $$skip -ne 0 ]; then echo " RESULT: passed, but a check was skipped (see SKIP): run veraPDF or Acrobat's checker."; \
-	  elif [ $$warn -ne 0 ]; then echo " RESULT: passed with warnings. Read the lines marked WARN, then do the six checks."; \
+	  elif [ $$warn -ne 0 ]; then echo " RESULT: automatic checks passed with warnings. Read the lines marked WARN, then do the six checks."; \
+	  elif [ $$skip -ne 0 ]; then echo " RESULT: automatic checks passed, but a step was skipped (see SKIP). The six checks above are yours."; \
 	  else echo " RESULT: automatic checks passed. The six checks above are yours."; fi
 
 open: build

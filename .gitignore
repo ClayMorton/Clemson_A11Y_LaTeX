@@ -13,6 +13,7 @@
 *.xmpi
 *.ent
 *-luamml-mathml.html
+*-verapdf.html
 main.pdf
 example.pdf
 a11y-fmt-check.*

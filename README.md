@@ -150,9 +150,11 @@ you type it.
    The check builds the document again quietly, then prints a report in two parts. The first
    part, "Checked automatically", is what a script can verify. It tests that the document builds,
    that every picture has alt text, that every formula has its spoken text, that no reference
-   prints as `??`, that LaTeX's tagging raised no warning and that you load no package LaTeX
-   cannot tag yet. It also gives veraPDF's PDF/UA-2 verdict. Each line is marked `OK`, `WARN`,
-   `FAIL` or `SKIP`, and the report ends with a `RESULT` line. A `FAIL` line names what to fix in
+   prints as `??`, that neither LaTeX's tagging nor the kit's own guards raised a warning, and
+   that you load no package LaTeX cannot tag yet. It also gives veraPDF's PDF/UA-2 verdict. Each line is marked `OK`, `WARN`,
+   `FAIL` or `SKIP`, and the report ends with a `RESULT` line (after a `FAIL`, make adds a line of
+   its own ending in `Error 1` or `Error 2`; that is make reporting the failed check, not a second
+   problem). A `FAIL` line names what to fix in
    the source. Fix it and run the check again, which rebuilds the document. A `WARN` line is
    something to look at. A `SKIP` line means a step could not run, because veraPDF is not
    installed or `check-tagging-status` was taken out of `\DocumentMetadata`.
@@ -209,11 +211,12 @@ check tells you where it is missing.
    `unicode-math` or `hyperref`; the kit loads all six. If one of them had options, move them
    into a `\PassOptionsToPackage{options}{package}` line above the class or package line. Delete
    `inputenc`, `fontenc` and font packages such as `times`, `mathptmx`, `newtxtext`, `newtxmath`
-   or `lmodern`, because the kit sets Latin Modern itself and those packages would quietly switch
-   the text to a different font. Delete `babel`; the `lang` key in `\DocumentMetadata` already
+   or `lmodern`, because the kit sets Latin Modern itself through fontspec and unicode-math, and
+   those packages would override that setup (`lmodern`, for one, keeps the text in Latin Modern but
+   redeclares the maths fonts as the older Type 1 ones). Delete `babel`; the `lang` key in `\DocumentMetadata` already
    sets the language. If you switched to `\documentclass{clemsona11y}`, also delete `amsthm`,
    `enotez` and every `\newtheorem` for theorem, lemma, proposition, corollary, definition,
-   example or remark, since the class defines them.
+   example, remark or algorithm, since the class defines them.
 
    Then look up every other package you load in the table under "Packages by field". Each row
    of that table is one field: "Use" lists what tags correctly there, "Avoid" what does not, and
@@ -262,12 +265,13 @@ Makefile. It works on `main.tex` unless you add `TARGET=name` for `name.tex`.
 | --- | --- |
 | `make -f Makefile.a11y requirements` | tests the TeX install: LuaLaTeX, latexmk and a LaTeX of 2026-06-01 or newer |
 | `make -f Makefile.a11y example` | builds the worked example, `example.tex` into `example.pdf`, and runs the check on it |
-| `make -f Makefile.a11y` | builds your document, `main.tex` into `main.pdf`, showing the full latexmk output |
+| `make -f Makefile.a11y` (or `... build`) | builds your document, `main.tex` into `main.pdf`, showing the full latexmk output |
 | `make -f Makefile.a11y check` | builds quietly, runs the automatic checks and prints the list of what to check by hand |
 | `make -f Makefile.a11y open` | builds and opens `main.pdf` |
 | `make -f Makefile.a11y clean` | removes the build files (`.aux`, `.log`, `.toc` and so on) and keeps `main.pdf` |
 | `make -f Makefile.a11y cleanall` | removes the build files and `main.pdf` |
 | `make -f Makefile.a11y cleanex` | removes everything the example produced, `example.pdf` included |
+| `make -f Makefile.a11y help` | prints this list |
 
 ## How to write great alt text
 
