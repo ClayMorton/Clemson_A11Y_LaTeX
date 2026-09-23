@@ -16,7 +16,7 @@ need. `Makefile.a11y` builds and checks either document. The text is set in Lati
 standard face, and the kit has no option to change that.
 
 ```
-clemsona11y.cls  clemsona11y.sty  main.tex  example.tex  references.bib  README.md  Makefile.a11y  resources/
+clemsona11y.cls  clemsona11y.sty  main.tex  example.tex  references.bib  README.md  upstream.md  Makefile.a11y  resources/
 ```
 
 ## What you need
@@ -118,7 +118,7 @@ you type it.
 
    Cross-references use `\autoref{label}`, which makes the whole phrase ("Section 3", "Figure 2")
    the link. Lemmas, corollaries and the other theorem-like blocks share the theorem counter, so
-   `\autoref` would call each of them a Theorem; point at those with
+   `\autoref` has no name for them and prints only the number; point at those with
    `\hyperref[label]{Lemma~\ref*{label}}`, as `example.tex` does. Email addresses use
    `\email{name@clemson.edu}`.
 
@@ -331,6 +331,54 @@ stops the build rather than being ignored.
 | `pagination` | `plain`, `typed` | plain page-number artifacts, or typed ones for PDF/UA-1 checkers |
 | `title` | `h1`, `none` | tag the title that LaTeX's own `\maketitle` prints as H1; or tag no title, for a class that prints its own title page, whose title line you then tag yourself (the HEADINGS block of `clemsona11y.sty` shows how) |
 | `theorems` | `true`, `false` | theorem, lemma, proposition, corollary, definition, example, remark, algorithm |
+
+## What the kit adds and changes
+
+Everything below is done by `clemsona11y.cls` and `clemsona11y.sty`; the source of each item
+sits under the `%----` banner named in the last column. `upstream.md` lists which of these are
+stop-gaps for gaps in LaTeX's tagging code and how to contribute them, so that the kit can
+shrink as LaTeX catches up.
+
+Commands and environments the kit adds:
+
+| Command | What it does | Where |
+| --- | --- | --- |
+| `\email{addr}` | a `mailto:` link whose visible text is the address | class, LINKS AND EMAIL |
+| `theorem`, `lemma`, `proposition`, `corollary`, `definition`, `example`, `remark` | amsthm environments on one shared counter, their labels tagged `Span`; off with `theorems=false` | class, THEOREMS |
+| `algorithm` | a theorem-like block with an optional title, `\begin{algorithm}[Title]`, for an `algorithmic` body; it is not a float | class, THEOREMS |
+| `\endnote{...}`, `\printendnotes` | from `enotez`, which the class loads and configures | class, ENDNOTES |
+| the `\documentclass` options | `align`, `theorems`, `floats`, `headings`, `title`, `links`, `pagination`, `math`; a wrong value stops the build | class, OPTIONS; package, OPTIONS |
+
+Everything else an author writes is plain LaTeX: `\includegraphics[alt={...}]`,
+`\tagpdfsetup{table/header-rows={1}}`, `\autoref`, `\strong`, `\caption[short]{long}` are the
+kernel's, `graphicx`'s, `hyperref`'s and `fontspec`'s own commands.
+
+Behaviour the kit changes, compared with a plain `article`, `report` or `book`:
+
+| Behaviour | Plain LaTeX | With the kit | Where |
+| --- | --- | --- | --- |
+| Engine and release | any | LuaLaTeX and LaTeX 2026-06-01 or newer; the build stops otherwise, and also when `\DocumentMetadata` is missing or tagging is off | package, TOOLCHAIN GUARDS |
+| Fonts | Computer Modern, Type 1 | Latin Modern through `fontspec` and `unicode-math`, small caps from Latin Modern Roman Caps; no option to change it | package, FONTS |
+| Text alignment | justified | ragged right, in theorem bodies, proofs and lists too (`align=justified` restores) | class, TEXT ALIGNMENT |
+| Floats | placed by LaTeX, tagged at the end of the tree | placed where written (`[H]`; `floats=free` restores) and tagged where written; the container is `Aside`; paragraph tagging is off inside a float, which limits what a float may hold | package, FLOATS |
+| Headings | title `Title`, `\section` H1 | title is the only H1, chapters H2, sections H2 (article) or H3 (report, book), and so on down (`headings=kernel` restores) | package, HEADINGS |
+| Links | colored boxes | black text, underline drawn by the viewer from the border style, none in the contents and lists; link boxes padded below the text; the footnote mark's link box sized to the raised numeral (`links=hidden` removes all marking) | package, LINKS AND BOOKMARKS, FOOTNOTES |
+| Link descriptions | none | every link annotation carries a generic `/Contents` string for PDF/UA-1 checkers | package, LINK DESCRIPTIONS |
+| `\autoref` names | hyperref's defaults | "Section", "Figure", "Table", "Equation", "Appendix", "Algorithm", "Chapter" | package, AUTOREF NAMES |
+| Bookmarks | none for the front matter | numbered, open, three levels deep; the window shows the document title; contents, lists and abstract get entries | package, LINKS AND BOOKMARKS; class, FRONT-MATTER BOOKMARKS |
+| Caption numbers, contents numbers, footnote marks and labels, theorem labels | tagged `Lbl` | tagged `Span`, so Acrobat's list rule stays quiet | package, LABELS AS SPAN; class, THEOREMS |
+| Footnotes | note without a type; 8 pt text | `NoteType /Footnote`; note text 9 pt, raised marks 7 pt | package, FOOTNOTES; class, NOTE TEXT SIZE |
+| Endnotes | not available | `enotez` with a link both ways, a tagged list, roman marks, "Notes" in the contents | class, ENDNOTES |
+| Tables | `Scope` and spans only as attribute classes, no `/Headers` | `Scope`, `ColSpan`, `RowSpan` as direct attributes and `/Headers` with the IDs of the header cells on every cell | package, TABLE CELLS |
+| Formulas | MathML off | MathML attached to every formula (`math=full` also puts it in the tag tree); LaTeX's own alt text | package, MATH |
+| `\strong` | a font switch | tagged `Strong` | package, FONTS |
+| Abstract | `BlockQuote` with a plain-text heading | a `Sect` with an H2 heading and a bookmark | class, ABSTRACT |
+| Proofs | end with an open square | end with the word QED | class, THEOREMS |
+| Pictures | found beside the `.tex` file | found in `resources/` first (`\graphicspath`) | class, PACKAGE AND PICTURES |
+| Page numbers | artifacts | artifacts; `pagination=typed` marks them `/Pagination` for PDF/UA-1 checkers | package, PAGE NUMBERS |
+| `twocolumn` | allowed | refused, because two columns break the reading order | class, OPTIONS |
+| Long URLs | break only at `/` and `.` | break at hyphens too | class, BASE PACKAGES |
+| A renamed tag name in a new LaTeX release | silently unmapped | a `Package clemsona11y Warning`, which fails the check | package, ROLE MAPPING GUARD |
 
 ## Packages by field
 
