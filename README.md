@@ -1,7 +1,7 @@
 # clemsona11y kit
 
 LaTeX to accessible PDF in one folder. `clemsona11y.cls` and `clemsona11y.sty` do the work; the
-output is a tagged PDF 2.0 that passes PDF/UA-2 and PDF/A-4f. `example.tex` is the worked example
+output is a tagged PDF 2.0 that passes PDF/UA-2. `example.tex` is the worked example
 of every kind of content, built by the rules in Clemson's
 [accessibility concepts](https://www.clemson.edu/accessibility/digital/concepts/); `main.tex` is the
 blank starter for your own document.
@@ -16,7 +16,7 @@ clemsona11y.cls  clemsona11y.sty  main.tex  example.tex  references.bib  README.
 - LuaLaTeX (pdfLaTeX and XeLaTeX are refused: no MathML)
 - `make` (macOS: the Xcode Command Line Tools, `xcode-select --install`; Windows: use WSL). Without
   it, `latexmk -lualatex main.tex` builds, but the checks below need `make`.
-- [veraPDF](https://verapdf.org/software/), optional, for the automated PDF/UA-2 and PDF/A-4f checks;
+- [veraPDF](https://verapdf.org/software/), optional, for the automated PDF/UA-2 check;
   it needs Java, and the folder holding the `verapdf` script must be on PATH
 
 ## Quick start
@@ -128,4 +128,4 @@ works or is no longer needed.
 - **Viewers:** link underlines come from the annotation border style, which Acrobat draws and macOS
   Preview does not; the link text names its destination everywhere. Note text is 9 pt, raised marks 7 pt.
 
-veraPDF `--flavour ua2` and `--flavour 4f` are authoritative.
+veraPDF `--flavour ua2` is authoritative.

@@ -11,14 +11,10 @@
 % First block of every accessible document, above \documentclass. lang sets
 % /Lang; pdfstandard=ua-2 gives PDF 2.0 + the PDF/UA-2 flag; check-tagging-status
 % appends a package report to the .log that `make -f Makefile.a11y check` reads.
-% pdfstandard=a-4f adds archiving: an embedded sRGB output intent and the Print
-% flag on every link annotation, so the underline survives printing. It empties
-% the document information dictionary, so the title travels in XMP alone.
-% Meets: ISO 14289-2:2024 8.11 (metadata); ISO 19005-4:2020 (PDF/A-4f).
+% Meets: ISO 14289-2:2024 8.11 (metadata).
 \DocumentMetadata{
   lang        = en-US,
   pdfstandard = ua-2,
-  pdfstandard = a-4f,
   tagging     = on,
   check-tagging-status,
 }

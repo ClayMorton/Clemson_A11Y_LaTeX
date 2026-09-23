@@ -32,12 +32,9 @@ check: build
 	@echo "-- package status (sections 1-3 of the report in $(TARGET).log; float.sty here is a known false alarm) --"
 	@sed -n '/Status report of the tagging support/,$$p' $(TARGET).log | sed -n '/1\. Unsupported/,/4\. Compatible/p' | grep -v '^ *$$' | grep -v '4\. Compatible' || true
 	@if command -v verapdf >/dev/null; then \
-	    fail=0; flavours="ua2"; grep -q 'a-4f' $(TARGET).tex && flavours="ua2 4f"; \
-	    for fl in $$flavours; do \
-	        out=`verapdf --flavour $$fl --format text $(TARGET).pdf 2>/dev/null | tail -1`; \
-	        case "$$out" in PASS*) echo "OK: veraPDF $$fl PASS";; *) echo "FAIL: veraPDF $$fl: $$out"; fail=1;; esac; \
-	    done; exit $$fail; \
-	  else echo "veraPDF not found on PATH: install it from https://verapdf.org/software/ and add its folder to PATH (PDF/UA-2 and PDF/A-4f checks skipped)"; fi
+	    out=`verapdf --flavour ua2 --format text $(TARGET).pdf 2>/dev/null | tail -1`; \
+	    case "$$out" in PASS*) echo "OK: veraPDF ua2 PASS";; *) echo "FAIL: veraPDF ua2: $$out"; exit 1;; esac; \
+	  else echo "veraPDF not found on PATH: install it from https://verapdf.org/software/ and add its folder to PATH (PDF/UA-2 check skipped)"; fi
 	@echo "Last step: Acrobat > All tools > Prepare for accessibility > Check for accessibility"
 	@echo "  https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/"
 
