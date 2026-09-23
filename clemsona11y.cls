@@ -1,5 +1,5 @@
 % clemsona11y.cls -- accessible (tagged PDF/UA-2) class for papers and reports.
-% Usage:   \DocumentMetadata{...}      (first line of the .tex file; see main.tex)
+% Usage:   \DocumentMetadata{...}      (first line of the .tex file; see example.tex)
 %          \documentclass[options]{clemsona11y}
 % Options: article (default) | report | book;  theorems=false;
 %          align=ragged (default) | justified;  package options

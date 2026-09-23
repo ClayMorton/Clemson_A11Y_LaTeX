@@ -1,38 +1,51 @@
 # clemsona11y kit
 
 LaTeX to accessible PDF in one folder. `clemsona11y.cls` and `clemsona11y.sty` do the work; the
-output is a tagged PDF 2.0 that passes PDF/UA-2 and PDF/A-4f. `main.tex` is a worked example of
-every kind of content, built by the rules in Clemson's
-[accessibility concepts](https://www.clemson.edu/accessibility/digital/concepts/).
+output is a tagged PDF 2.0 that passes PDF/UA-2 and PDF/A-4f. `example.tex` is the worked example
+of every kind of content, built by the rules in Clemson's
+[accessibility concepts](https://www.clemson.edu/accessibility/digital/concepts/); `main.tex` is the
+blank starter for your own document.
 
 ```
-clemsona11y.cls  clemsona11y.sty  main.tex  references.bib  README.md  Makefile.a11y  resources/
+clemsona11y.cls  clemsona11y.sty  main.tex  example.tex  references.bib  README.md  Makefile.a11y  resources/
 ```
 
 ## Requirements
 
 - TeX Live 2026 (MacTeX 2026 on macOS), updated with `sudo tlmgr update --self --all`
 - LuaLaTeX (pdfLaTeX and XeLaTeX are refused: no MathML)
-- [veraPDF](https://verapdf.org/software/), optional, for the automated PDF/UA-2 and PDF/A-4f checks
+- `make` (macOS: the Xcode Command Line Tools, `xcode-select --install`; Windows: use WSL). Without
+  it, `latexmk -lualatex main.tex` builds, but the checks below need `make`.
+- [veraPDF](https://verapdf.org/software/), optional, for the automated PDF/UA-2 and PDF/A-4f checks;
+  it needs Java, and the folder holding the `verapdf` script must be on PATH
 
 ## Quick start
 
 1. **Edit `main.tex`.** Keep the `\DocumentMetadata{...}` block above `\documentclass`; replace the
-   title, authors and content. Pictures go in `resources/`.
+   title, authors and content. Pictures go in `resources/` (only `\includegraphics` looks there;
+   `references.bib` and `\input` files stay beside `main.tex`). To add a figure,
+   a table, a formula or a note, find it in `example.tex` by its `%----` banner and copy the
+   block (and its `\usepackage` line from the PACKAGES block, if it needs one).
 2. **Tag as you write.**
    - Pictures: `\includegraphics[alt={what it shows}]{file}`; decorative ones get `artifact`.
    - Tables: `\tagpdfsetup{table/header-rows={1}}` and/or `table/header-columns={1}` before
      `\begin{tabular}`; `\caption` above the table.
+   - Inside a figure or table: only `\centering`, `\includegraphics`, `tabular`, `\caption`, `\label`
+     and `\tagpdfsetup`. A `center` environment, a list or `\[ \]` there stops the build; loose text
+     drops out of the tags, so a source note goes in the caption or in a paragraph after the float.
    - Formulas: `\mathalt{spoken text}` right before each one, inline ones too.
    - Links: `\autoref{label}` for cross-references, `\email{name@clemson.edu}` for addresses.
-3. **Build:** `make -f Makefile.a11y`. One editor pass is not enough (it prints `??` and leaves
-   links empty); the `% !BIB` lines at the top of `main.tex` make TeXShop and VS Code run the cycle.
+3. **Build:** `make -f Makefile.a11y` builds `main.tex`. One editor pass is not enough (it prints
+   `??` and leaves links empty). VS Code runs the whole cycle from the `% !TEX` and `% !BIB` lines at
+   the top of `example.tex` (copy the `% !BIB` pair into `main.tex` once it cites something); TeXShop
+   typesets once per click, so there run Typeset, BibTeX, Typeset, Typeset.
 4. **Check:** `make -f Makefile.a11y check` (log, veraPDF), then Acrobat's accessibility checker and
    Clemson's [six manual checks](https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/manual-checks.html).
 
+`make -f Makefile.a11y example` builds and checks the worked example (`example.tex` -> `example.pdf`);
 `make -f Makefile.a11y requirements` tests the TeX install; `TARGET=paper` builds `paper.tex`.
 
-## What `main.tex` shows
+## What `example.tex` shows
 
 | Area | Contents |
 | --- | --- |
@@ -43,11 +56,13 @@ clemsona11y.cls  clemsona11y.sty  main.tex  references.bib  README.md  Makefile.
 | Tables | every layout in Clemson's [tables guide](https://www.clemson.edu/accessibility/digital/concepts/tables.html): header row, header column, both, two-level and merged headers, merged cells, one table per group, notes outside, no empty cells, a layout grid left untagged |
 | Odds and ends | an artifact rule, a phrase in another language, an abbreviation written out, QED as a proof ending (one line in the class) |
 
-Each block carries a short comment that says why it is written that way and which standard it meets.
+Every example sits under a `%----` banner line that labels it, so searching the source for `%----`
+steps from one to the next, and each carries a short comment that says why it is written that way
+and which standard it meets. `clemsona11y.cls` and `clemsona11y.sty` are divided the same way.
 
 ## Already have a project?
 
-- **Your own Makefile:** keep it; run `make -f Makefile.a11y check` after your build, or copy the
+- **Your own Makefile:** keep it; run `make -f Makefile.a11y TARGET=paper check` after your build, or copy the
   `check` target. No Makefile: rename `Makefile.a11y` to `Makefile`.
 - **Your own class** (article, report or book based): keep it; put the `\DocumentMetadata` block first
   and `\usepackage{clemsona11y}` last. Journal classes (IEEEtran, revtex, elsarticle, ...) are not
@@ -96,7 +111,8 @@ formula alt text, the footnote-mark link box, the footnote `NoteType`, and the `
 keep Acrobat's list rule quiet). Each is marked `A11Y WORKAROUND` with a `REMOVE WHEN` line, checks
 that the kernel piece it needs still exists, and otherwise does nothing and writes a
 `Package clemsona11y Warning`, which fails `make -f Makefile.a11y check`. After `tlmgr update`, build
-`main.tex` once: a clean check means every workaround still works or is no longer needed.
+`example.tex` once (`make -f Makefile.a11y example`): a clean check means every workaround still
+works or is no longer needed.
 
 ## What the checkers still say
 
