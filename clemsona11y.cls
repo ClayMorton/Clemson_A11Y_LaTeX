@@ -220,9 +220,13 @@
 % matter. \pdfbookmark is hyperref's documented command and is emitted before
 % each heading, so the entry lands on the right page. The abstract gets one in
 % its own definition above. Meets: Tagged PDF BPG 1.0.1 7.2 (outlines).
-\AddToHook{cmd/tableofcontents/before}{\pdfbookmark[1]{\contentsname}{clemsona.toc}}
-\AddToHook{cmd/listoffigures/before}{\pdfbookmark[1]{\listfigurename}{clemsona.lof}}
-\AddToHook{cmd/listoftables/before}{\pdfbookmark[1]{\listtablename}{clemsona.lot}}
+% With chapters the heading starts a new page after the hook, so the page is
+% turned first, or the bookmark would point at the page before its heading.
+\newcommand*{\clemsonacls@bookmarkpage}{\ifdefined\chapter
+  \if@openright\cleardoublepage\else\clearpage\fi\fi}
+\AddToHook{cmd/tableofcontents/before}{\clemsonacls@bookmarkpage\pdfbookmark[1]{\contentsname}{clemsona.toc}}
+\AddToHook{cmd/listoffigures/before}{\clemsonacls@bookmarkpage\pdfbookmark[1]{\listfigurename}{clemsona.lof}}
+\AddToHook{cmd/listoftables/before}{\clemsonacls@bookmarkpage\pdfbookmark[1]{\listtablename}{clemsona.lot}}
 
 %------------------------------------------------------------------------------
 % LINKS AND EMAIL

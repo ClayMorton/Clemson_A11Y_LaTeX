@@ -374,9 +374,9 @@
 %------------------------------------------------------------------------------
 % FOOTNOTES
 %------------------------------------------------------------------------------
-% A11Y WORKAROUND: FOOTNOTE MARK LINK BOX. hyperref's fnmark/link plug wraps
-% the whole mark box, so the link box is the line's and the underline lands
-% under the baseline, far from the raised number. This plug runs hyperref's
+% A11Y WORKAROUND: FOOTNOTE MARK LINK BOX. latex-lab-footnotes' fnmark/link
+% plug wraps the whole mark, so the link box is the line's and the underline
+% lands under the baseline, far from the raised number. This plug runs that
 % plug inside the raised box (kernel-style marks) or in its own box, so the
 % underline sits under the numeral. Calls the plug by its ltsockets csname.
 % REMOVE WHEN: latex-lab-footnotes sizes the link to the mark. Meets: WCAG 2.4.4.
@@ -395,7 +395,7 @@
             \AssignSocketPlug{fnmark/link}{clemsonally}%
         \else
             \PackageWarningNoLine{clemsona11y}{%
-                hyperref's footnote link plug was not found: footnote marks^^J%
+                latex-lab's footnote link plug was not found: footnote marks^^J%
                 keep the line-height link box (underline below the line)}%
         \fi}%
 }{}
