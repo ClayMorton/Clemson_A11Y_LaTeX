@@ -1,8 +1,7 @@
 # Makefile.a11y -- build and check an accessible PDF.   make -f Makefile.a11y [target]
-# Targets: all (default), build, requirements, check, open, clean, cleanall, example.
-# TARGET=main is your document (main.tex -> main.pdf). The worked example is
-# example.tex: `make -f Makefile.a11y example` builds and checks it, and
-# `make -f Makefile.a11y TARGET=example open` (or any target) works on it too.
+# `make -f Makefile.a11y help` lists the targets. TARGET=main is your document
+# (main.tex -> main.pdf); TARGET=name works on name.tex instead. The worked
+# example has its own targets: example (build and check) and cleanex.
 TARGET  ?= main
 MK       = $(firstword $(MAKEFILE_LIST))
 # max_print_line keeps every log line whole, so `check` can read back the spoken
@@ -10,6 +9,19 @@ MK       = $(firstword $(MAKEFILE_LIST))
 LATEXMK  = max_print_line=10000 latexmk -lualatex -interaction=nonstopmode -halt-on-error
 
 all: build
+
+# help: what each target does, in the order a first-time user needs them.
+help:
+	@echo "make -f Makefile.a11y ...        (add TARGET=name to work on name.tex instead of main.tex)"
+	@echo "  requirements   test the TeX install: LuaLaTeX, latexmk, LaTeX 2026-06-01 or newer"
+	@echo "  example        build the worked example (example.tex -> example.pdf) and check it"
+	@echo "  build          build main.tex -> main.pdf (also what plain 'make -f Makefile.a11y' does)"
+	@echo "  check          build quietly, run the automatic checks, print what to check by hand"
+	@echo "  open           build and open main.pdf"
+	@echo "  clean          remove main's build files (.aux, .log, .toc ...), keep main.pdf"
+	@echo "  cleanall       clean, and remove main.pdf too"
+	@echo "  cleanex        remove everything the example produced, example.pdf included"
+	@echo "  help           this list"
 
 # build: latexmk runs every time and decides for itself. Its own record
 # (.fdb_latexmk) tells it when nothing changed, and then it returns at once;
@@ -154,11 +166,17 @@ open: build
 example:
 	@$(MAKE) --no-print-directory -f $(MK) TARGET=example check
 
+# clean: the build files of $(TARGET); cleanall: its PDF too; cleanex: the same
+# for the example, so the folder holds only your own work again.
 clean:
 	@latexmk -c $(TARGET).tex >/dev/null 2>&1 || true
-	@rm -f $(TARGET)-luamml-mathml.html $(TARGET).bbl $(TARGET).run.xml $(TARGET).xmpi
+	@rm -f $(TARGET)-luamml-mathml.html $(TARGET)-verapdf.html $(TARGET).bbl $(TARGET).run.xml \
+	       $(TARGET).xmpi $(TARGET).ent $(TARGET).synctex.gz "$(TARGET).synctex(busy)"
 
 cleanall: clean
 	@rm -f $(TARGET).pdf
 
-.PHONY: all build requirements check open clean cleanall example
+cleanex:
+	@$(MAKE) --no-print-directory -f $(MK) TARGET=example cleanall
+
+.PHONY: all help build requirements check open clean cleanall cleanex example
