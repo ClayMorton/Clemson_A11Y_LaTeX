@@ -336,6 +336,14 @@
         \tl_if_empty:NTF \g__cly_mathalt_tl
           {
             \tl_set:Ne \l__math_content_alt_tl { \l__math_content_template_tl }
+            % The fallback is the LaTeX source. Drop what only shapes the print
+            % (\displaystyle, \label, spacing) and say line breaks and alignment
+            % points as pauses, as tex.stackexchange 757945 does for \displaystyle.
+            \regex_replace_all:nnN
+              { \c{displaystyle} | \c{textstyle} | \c{label}\{[^\}]*\} | \c{[,;:!] } | \c{quad} | \c{qquad} }
+              { } \l__math_content_alt_tl
+            \regex_replace_all:nnN { \c{\\} } { ;~ } \l__math_content_alt_tl
+            \regex_replace_all:nnN { \& } { ~ } \l__math_content_alt_tl
             \PackageInfo{clemsona11y}{Formula~without~\token_to_str:N \mathalt
               \c_colon_str \c_space_tl the~alt~text~is~the~LaTeX~source~in~\clemsona@srcfile}
           }
