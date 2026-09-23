@@ -190,7 +190,9 @@
         % Latin Modern, LaTeX's standard face, with all its optical sizes (5 to
         % 17 pt designs). Acrobat's checker wrongly reports the 17 pt face used
         % for titles as not extractable; the font is valid (veraPDF, fontTools).
-        \setmainfont{Latin Modern Roman}%
+        % Its small capitals live in a font of their own, so \textsc needs it
+        % named; the letters stay lowercase in the text layer.
+        \setmainfont{Latin Modern Roman}[SmallCapsFont={Latin Modern Roman Caps}]%
         \setmathfont{Latin Modern Math}%
     }%
     % A11Y: \strong
