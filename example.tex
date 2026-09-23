@@ -4,6 +4,10 @@
 % !BIB TS-program = bibtex
 % example.tex -- the worked example; write your own document in main.tex.
 % Build: make -f Makefile.a11y example
+
+%------------------------------------------------------------------------------
+% METADATA AND CLASS
+%------------------------------------------------------------------------------
 % First block of every accessible document, above \documentclass. lang sets
 % /Lang; pdfstandard=ua-2 gives PDF 2.0 + the PDF/UA-2 flag; check-tagging-status
 % appends a package report to the .log that `make -f Makefile.a11y check` reads.
@@ -20,9 +24,9 @@
 }
 \documentclass{clemsona11y}
 
-
-% The packages below are all compatible with tagging. --------------------------
-
+%------------------------------------------------------------------------------
+% PACKAGES
+%------------------------------------------------------------------------------
 \usepackage{booktabs}   % rules for the tables below; optional
 % The packages for the examples below. None appears in section 1 (unsupported) or
 % 2 (incompatible) of the tagging status report, and each produces Formula, list
@@ -36,8 +40,9 @@
 % \emergencystretch lets TeX loosen such a line instead (typography, not tagging).
 \setlength{\emergencystretch}{2em}
 
-% ------------------------------------------------------------------------------
-
+%------------------------------------------------------------------------------
+% TITLE, ABSTRACT, CONTENTS
+%------------------------------------------------------------------------------
 % pdftitle: doubled braces keep commas in one title. pdfauthor: commas between names.
 \title[pdftitle={{Accessible LaTeX, quickly}}]{Accessible LaTeX, quickly}
 \author[pdfauthor={First Author, Second Author}]{First Author and Second Author}
@@ -60,6 +65,10 @@ is written the way it is.
 % short title. Meets: ISO 32000-2:2020 14.8.4.6 (TOC, TOCI).
 \listoffigures
 \listoftables
+
+%------------------------------------------------------------------------------
+% HOW TO USE THIS FILE
+%------------------------------------------------------------------------------
 \section{How to use this file}
 Copy the whole kit folder. Write your document in \texttt{main.tex}, the blank starter,
 and build it with \verb|make -f Makefile.a11y check|; \verb|make -f Makefile.a11y example|
@@ -89,11 +98,16 @@ Text is set ragged right, as Clemson's text guidance asks; pass \verb|align=just
 \verb|\mathalt{spoken text}| immediately before a formula to set what a screen reader says
 about it. \texttt{README.md} has the full instructions, the class options and the list of
 packages to use and to avoid in each field.
+
+%------------------------------------------------------------------------------
+% TEXT EXAMPLES
+%------------------------------------------------------------------------------
 \section{Text}
 \label{sec:text}
 This section shows the text that carries its own tags: emphasis, notes, links,
 citations, cross-references, lists, quotations, special characters and code.
 
+%---- Emphasis, footnote, endnote ---------------------------------------------
 Ordinary paragraphs need nothing. Use \verb|\emph| for \emph{emphasis} and \verb|\strong| for
 \strong{important text}; both are tagged, while \verb|\textbf| and \verb|\underline| only change
 how letters are drawn and say nothing to a screen reader.\footnote{A footnote sits at the foot
@@ -101,6 +115,7 @@ of its page. It is tagged as a note (FENote); its mark links to the note, and th
 cross-references mark and note (Ref) so a PDF/UA-2 reader can return.} Long asides belong in
 an endnote instead.\endnote{An endnote is collected and printed with the others near the end
 of the document, after the appendices and before the works cited.}
+%---- Links, citations --------------------------------------------------------
 \subsection{Links}
 A link carries its own text, so name the destination rather than writing ``click here'' or
 ``more''. Link text stays black here, and the underline comes from the link annotation's
@@ -114,6 +129,7 @@ individual character of it. Name the file type when a link opens a document, as 
 manual (PDF)}, and write an email address as its own link with the class command
 \verb|\email|: \email{first.last@clemson.edu}. Citations are links
 too~\cite{knuth1984,lamport1994}.
+%---- Cross-references --------------------------------------------------------
 \subsection{Cross-references}
 Write \verb|\autoref{sec:math}| rather than ``the section above'': the whole phrase becomes
 one link, so a screen reader announces ``Section 3'' and not a bare ``3'', and it stays
@@ -124,6 +140,7 @@ and a citation with a page number~\cite[p.~3]{knuth1984lp}. Theorem-like blocks 
 counter, so point at them with \verb|\hyperref[lem:title]{Lemma~\ref*{lem:title}}|:
 \hyperref[lem:title]{Lemma~\ref*{lem:title}}. Equations keep \verb|\eqref| for the
 parentheses; \verb|\pageref| links the page number alone.
+%---- Lists -------------------------------------------------------------------
 \subsection{Lists}
 Bulleted, numbered and description lists are tagged as lists, with a label and a body
 for every item. Keep nesting shallow; two levels is usually enough.
@@ -147,6 +164,7 @@ for every item. Keep nesting shallow; two levels is usually enough.
   \item[Alt text] What a picture shows and why it is there, in one or two sentences.
   \item[Header cell] A cell that names the row or the column it belongs to.
 \end{description}
+%---- Quotations --------------------------------------------------------------
 \subsection{Quotations}
 A quotation longer than a line goes in the \texttt{quote} environment, which is tagged
 BlockQuote so a reader hears where the quotation starts and ends:
@@ -154,6 +172,7 @@ BlockQuote so a reader hears where the quotation starts and ends:
   Tagging writes down what each part of a document is, so that a reader who
   never sees the page still meets the same structure.
 \end{quote}
+%---- Special characters, text styles -----------------------------------------
 \subsection{Special characters and text styles}
 Type the characters LaTeX reserves with a backslash: 100\%, R\&D, \#1. Write an en dash between
 numbers (pages 10--20), an em dash for a break in a sentence---like this one---and quotation
@@ -162,12 +181,17 @@ marks as ``paired'' quotes. A tie, \verb|Figure~1|, keeps a number with its word
 \texttt{typewriter text} marks a file name and \textsc{small caps} an initialism. Color
 carries no meaning here: the text is black throughout, the chart uses one shade of gray, and
 colored ink would still need a contrast of 4.5:1 for text and 3:1 for a graphic.
+%---- Code --------------------------------------------------------------------
 \subsection{Code}
 A command inside a sentence goes in \verb|\verb|, as it does throughout this
 file. A block of code goes in \texttt{verbatim}, which is tagged as code:
 \begin{verbatim}
 make -f Makefile.a11y check
 \end{verbatim}
+
+%------------------------------------------------------------------------------
+% MATH EXAMPLES
+%------------------------------------------------------------------------------
 \section{Mathematics}
 \label{sec:math}
 Mathematics is written into the PDF twice: as MathML attached to each formula, which lets a
@@ -178,6 +202,7 @@ option \verb|math=full| also writes the MathML into the tag tree, which PDF/UA-2
 navigate; Acrobat and PAC, which check PDF/UA-1, then list its spacing elements as empty tags
 and every symbol as its own reading-order item, so this file keeps the default.
 
+%---- Inline and display math -------------------------------------------------
 \mathalt{e to the power i pi, plus one, equals zero}%
 Inline mathematics sits in the sentence: $e^{i\pi} + 1 = 0$. A displayed equation takes
 a \verb|\label| so that it can be cited:
@@ -203,6 +228,7 @@ over k squared is at most pi squared over six}%
   f(x) = \begin{cases} x^2 & x \ge 0 \\ -x & x < 0 \end{cases}, \qquad
   \sum_{k=1}^{n} \frac{1}{k^2} \le \frac{\pi^2}{6}.
 \end{equation}
+%---- Equation groups ---------------------------------------------------------
 \subsection{Groups of equations}
 \texttt{subequations} numbers a group with a letter after the number, as in
 \eqref{eq:group-a} and~\eqref{eq:group-b} below; \texttt{gather} centers lines that do
@@ -216,6 +242,7 @@ with its own alt text, and \verb|\eqref| links to the number.
 Equations~\eqref{eq:group-a} and~\eqref{eq:group-b} are the two members of the group.
 \mathalt{x equals one; y equals two}%
 \begin{gather} x = 1 \\ y = 2 \end{gather}
+%---- Long formula (multline) -------------------------------------------------
 % multline splits one formula that is too long for a line: the first part sits
 % at the left margin and the continuation at the right. The numbered form makes
 % tagpdf warn "structure with label 0 is unknown" on every run, so the starred
@@ -228,6 +255,7 @@ the left margin and the rest at the right:
   a_1 + a_2 + a_3 + a_4 + a_5 + a_6 + a_7 + a_8 + a_9 + a_{10} \\
   + b_1 + b_2 + b_3 + b_4 + b_5 + b_6 + b_7 + b_8 + b_9 + b_{10} = s
 \end{multline*}
+%---- Chemistry, units, bra-ket -----------------------------------------------
 \subsection{Chemistry, units and other notation}
 \label{sec:notation}
 Write chemistry with \verb|\ce| from \texttt{mhchem}, numbers and units with \verb|\qty| and
@@ -254,6 +282,7 @@ quantities, \mathalt{10 degrees Celsius}\qty{10}{\celsius} to
 alt text.
 \mathalt{Methane plus two O 2 gives C O 2 plus two H 2 O}%
 \begin{equation}\label{eq:burn} \ce{CH4 + 2O2 -> CO2 + 2H2O} \end{equation}
+%---- Theorems and algorithm --------------------------------------------------
 \subsection{Theorems, proofs and algorithms}
 The class defines theorem, lemma, proposition, corollary, definition, example, remark
 and algorithm, so \verb|\newtheorem| is not needed:
@@ -281,11 +310,16 @@ Input: the values \mathalt{a 1 through a n}$a_1,\dots,a_n$. Output: the largest 
     m}$a_i > m$} \State \mathalt{m gets a sub i}$m \gets a_i$ \EndIf \EndFor
   \State \Return $m$
 \end{algorithmic}\end{algorithm}
+
+%------------------------------------------------------------------------------
+% FIGURE EXAMPLES
+%------------------------------------------------------------------------------
 \section{Figures and images}
 Four cases cover almost every picture in a document: a picture that carries
 information, a picture made of several panels, a picture of words, and decoration.
 Complex pictures follow in \autoref{sec:longdesc}.
 
+%---- Picture with alt text ---------------------------------------------------
 Every informative picture needs \verb|alt={...}|. Write what the picture shows and why it is
 in the document, in one or two sentences, as if describing it to a friend. Do not write the
 file name, and do not repeat the caption: a reader gets both. Clemson's pattern for people is
@@ -303,6 +337,7 @@ reader in Cooper Library''; no picture in this kit shows people, so the pattern 
   \includegraphics[width=0.5\linewidth,alt={Coiled gray network cables with blue connectors, hung in even rows on a beige pegboard wall.}]{cables}
 \end{figure}
 
+%---- Two panels --------------------------------------------------------------
 A figure can hold several pictures. Give each one its own \verb|\includegraphics| and its own
 alt text, and write one caption that names the panels. \texttt{subcaption} and \texttt{subfig}
 are not compatible with tagging, so lay the panels out with \verb|\hfill|, as here.
@@ -318,6 +353,7 @@ are not compatible with tagging, so lay the panels out with \verb|\hfill|, as he
   \includegraphics[width=0.33\linewidth,trim=160 0 0 0,clip,alt={Panel (b): the right half of the same wall, four more columns of coils.}]{cables}
 \end{figure}
 
+%---- Short caption -----------------------------------------------------------
 A caption that runs to three lines would fill the List of Figures. Give \verb|\caption| a short
 title in brackets: the long form is printed with the figure, and the short form goes into the list.
 
@@ -331,6 +367,7 @@ title in brackets: the long form is printed with the figure, and the short form 
   \includegraphics[width=0.35\linewidth,alt={Coiled gray network cables in even rows on a beige pegboard wall, the same photograph as above at a smaller size.}]{cables}
 \end{figure}
 
+%---- tikz drawing ------------------------------------------------------------
 A diagram drawn in the document is a picture too. \texttt{tikz} takes the same
 \verb|alt| key, so the drawing is tagged Figure with alt text and needs no export step.
 
@@ -346,6 +383,7 @@ A diagram drawn in the document is a picture too. \texttt{tikz} takes the same
   \end{tikzpicture}
 \end{figure}
 
+%---- Image of text, decorative image -----------------------------------------
 A picture of words is not the same case. Real text is always better, so set words as text
 wherever the picture can be redrawn. WCAG allows an image of text only where the presentation
 is essential, which in practice means a logo or a scanned original; the picture below stands
@@ -355,8 +393,8 @@ themselves, and a reader hears the words. A picture that carries no information 
 
 % actualtext={...} gives a picture of words the words themselves; artifact marks
 % a picture that carries nothing, so it is skipped. The picture below stands in
-% for a logo, the one case WCAG 2.1 1.4.5 exempts; anything else set as words in
-% a picture has to be redrawn as text. The artifact sits in its own centered
+% for a logo, which WCAG 2.1 1.4.5 counts as essential; words in a picture whose
+% look is not essential are redrawn as text. The artifact sits in its own centered
 % line with paragraph tagging off: a paragraph holding only an artifact would be
 % an empty tag. Meets: ISO 32000-2:2020 14.9.4 (ActualText); WCAG 2.1 1.4.5.
 {\centering\vspace{1ex}\includegraphics[height=0.8cm,actualtext={Clemson University}]{text-image}\par}
@@ -367,6 +405,7 @@ themselves, and a reader hears the words. A picture that carries no information 
 \noindent The first image above is a picture of words, so a screen reader says ``Clemson
 University'' instead of naming a file. The rule below it is decoration: it is marked as
 an artifact and is not in the tag tree at all.
+%---- Chart, description, data table ------------------------------------------
 \subsection{Complex images and long descriptions}
 \label{sec:longdesc}
 A chart, a map or a diagram carries more than one sentence of meaning. Give it a short
@@ -409,6 +448,7 @@ many as Aiken. \autoref{tab:chartdata} lists the same numbers.
     Myrtle Beach & 1500 \\ \bottomrule
   \end{tabular}
 \end{table}
+%---- Long description in appendix --------------------------------------------
 % The other pattern: the caption names the appendix and the appendix entry names
 % the figure, so a reader can follow the link either way. \ref is not used inside
 % alt, because alt is written to the PDF as a plain string.
@@ -418,6 +458,7 @@ many as Aiken. \autoref{tab:chartdata} lists the same numbers.
     network store. Full description in \autoref{app:desc}}\label{fig:wall}
   \includegraphics[width=0.3\linewidth,alt={Photograph of the cable wall. Full description in the appendix Extended image descriptions.}]{cables}
 \end{figure}
+%---- Rule, language, abbreviation, color -------------------------------------
 \subsection{Decorative rules, other languages and abbreviations}
 Four small things that come up in any paper; the first two need a command, shown after the list.
 % A rule drawn inside a paragraph is decoration, so it is marked as an artifact.
@@ -453,6 +494,10 @@ Four small things that come up in any paper; the first two need a command, shown
 \UseTaggingSocket{inline/begin}{tag=Span,lang=fr-FR}%
 tout de suite\UseTaggingSocket{inline/end}
 \end{verbatim}
+
+%------------------------------------------------------------------------------
+% TABLE EXAMPLES
+%------------------------------------------------------------------------------
 \section{Tables}
 \label{sec:tables}
 A table is accessible when a reader can tell which cells are headers and what each header
@@ -467,6 +512,7 @@ thesis.
 % span; notes stay outside the table; avoid empty cells; never nest tables.
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, Scope); Tagged PDF BPG 1.0.1 4.2.6.2.
 
+%---- Table: header row -------------------------------------------------------
 % 1. Simple table, header row: every cell in row 1 is a TH with Scope=Column.
 \begin{table}\centering
   \caption{Simple table: the first row is the header (column scope)}\label{tab:headerrow}
@@ -477,6 +523,7 @@ thesis.
     Beta  & 18 & 60\% \\ \bottomrule
   \end{tabular}
 \end{table}
+%---- Table: header column ----------------------------------------------------
 % 2. Simple table, header column: every cell in column 1 is a TH with Scope=Row.
 \begin{table}\centering
   \caption[Simple table: the first column is the header]{Simple table: the first
@@ -489,6 +536,7 @@ thesis.
     Std.\ dev. & 0.6 & 0.5 & 0.7 \\ \bottomrule
   \end{tabular}
 \end{table}
+%---- Table: header row and column --------------------------------------------
 % 3. Header row and header column: the top-left cell gets Scope=Both.
 \begin{table}\centering
   \caption{Header row and header column (the corner cell has both scopes)}
@@ -499,6 +547,7 @@ thesis.
     Median     & 4.0 & 4.5 & 3.9 \\ \bottomrule
   \end{tabular}
 \end{table}
+%---- Table: two-level, merged headers ----------------------------------------
 % 4. Complex table, multi-level header: two header rows; \multicolumn cells get
 % ColSpan automatically. table/multirow=2 makes the corner cell span both rows,
 % so the blank cell under it is not an empty header (leave that cell empty).
@@ -518,6 +567,7 @@ thesis.
     Proposed & 0.91 & 0.86 & 0.88 & 0.81 \\ \bottomrule
   \end{tabular}
 \end{table}
+%---- Table: merged cells -----------------------------------------------------
 % 5. Complex table, merged data and header cells: a row header spanning two rows
 % (table/multirow=2, RowSpan=2) and a data cell spanning two columns (ColSpan=2).
 % A cell spanning rows AND columns takes the key inside the \multicolumn text:
@@ -535,6 +585,7 @@ thesis.
               & S4 & \multicolumn{2}{c}{not measured} \\ \bottomrule
   \end{tabular}
 \end{table}
+%---- Table: one per group ----------------------------------------------------
 % 6. Headers outside the first row. A group row ("Fall semester") in the middle
 % of a table is a header row too (table/header-rows={1,2,5}, one \multicolumn
 % cell per group), but the /Headers the package writes under a second group
@@ -558,6 +609,7 @@ thesis.
     MATH 102 & 88  & 80  \\ \bottomrule
   \end{tabular}
 \end{table}
+%---- Table: note outside, no empty cells -------------------------------------
 % 7. Title and notes outside the table; no empty data cells. The \caption is the
 % title and its short form is what the List of Tables prints; a note is a paragraph
 % after the table, not a row inside it; a cell with no value says so ("n/a").
@@ -573,11 +625,13 @@ thesis.
 \end{table}
 \noindent Note: the South site opened in 2025, so it has no 2024 value.
 
+%---- Long tables (caveat) ----------------------------------------------------
 % The caveat, not a layout: a table that runs over a page break. longtable typesets
 % its caption as a table row, tagged as a header cell rather than a Caption, so
 % split a long table into page-sized tables, each with its own \caption. A wide
 % table turned sideways is not shown: lscape and pdflscape are untested here.
 
+%---- Layout grid, untagged ---------------------------------------------------
 The grid of names below holds no data and no headers: it only puts two names side by side. It
 is not a table, so table tagging is switched off for it and a screen reader reads the names
 as plain text rather than announcing rows and columns. Better still, lay such text out without
@@ -596,6 +650,10 @@ a \texttt{tabular}.
 \end{tabular}\par
 \endgroup
 \noindent Never nest a table inside a table; split it into two tables instead.
+
+%------------------------------------------------------------------------------
+% FOOTNOTE AND ENDNOTE EXAMPLES
+%------------------------------------------------------------------------------
 \section{Footnotes and endnotes}
 A footnote belongs at the foot of the page it is read on; an endnote is collected and printed
 with the others near the end. A footnote is tagged as a note with a two-way reference to its
@@ -614,6 +672,11 @@ footnote in the file; its mark is the arabic 2.} and an endnote in the same plac
 text, with \verb|\endnote{...}|.\endnote{The second endnote. Inside a note, write
 commands with \texttt{\textbackslash texttt}, because \texttt{\textbackslash verb} reads
 its own text and cannot sit inside the argument of another command.}
+
+%------------------------------------------------------------------------------
+% APPENDIX EXAMPLES
+%------------------------------------------------------------------------------
+%---- Appendix A: table, figure -----------------------------------------------
 \appendix
 % In the article class \appendix letters the sections but leaves floats numbered
 % straight through. \counterwithin adds the section letter and restarts the count,
@@ -641,6 +704,7 @@ other section. Tables and figures in an appendix are tagged exactly as in the bo
   \caption{A figure in an appendix, numbered A.1}
   \includegraphics[width=0.35\linewidth,alt={Coiled gray network cables on a beige pegboard wall, shown again here as an example of a figure inside an appendix.}]{cables}
 \end{figure}
+%---- Appendix B: image descriptions ------------------------------------------
 \section{Extended image descriptions}
 \label{app:desc}
 This appendix holds the descriptions that are too long to sit beside their figures.
@@ -654,6 +718,9 @@ connectors at the ends of each cable hang below the coil. The rows are evenly sp
 coils are of much the same size, so the wall reads as a store of unused cable rather than as
 equipment in service.
 
+%------------------------------------------------------------------------------
+% ENDNOTES AND BIBLIOGRAPHY
+%------------------------------------------------------------------------------
 % The endnotes are printed after the appendices and before the works cited, where
 % a reader looks for them. \printendnotes also adds "Notes" to the contents.
 \printendnotes
