@@ -204,22 +204,22 @@
 \def\clemsonacls@tmp{ragged}
 \ifx\clemsonacls@align\clemsonacls@tmp
   \AtBeginDocument{\clemsonacls@ragged}
-  % Two blocks set their own alignment after \begin{document}: proof (its
-  % template justifies it) and a plain list in a theorem, which inherits the
-  % theorem block's justify para instance (itemize does not). \EditInstance is
-  % the kernel's documented template command, but the instance names are
-  % latex-lab's and can change with a kernel release: re-check after updates.
+  % Some blocks set their own alignment after \begin{document}: proof (its
+  % template justifies it), and lists and quotes inside a theorem, which
+  % inherit the theorem block's justify para instance (itemize does not).
+  % \EditInstance is the kernel's documented template command, but the instance
+  % names are latex-lab's and can change with a release: re-check after updates.
   % Meets: Clemson text concept.
   \IfInstanceExistsTF{captionedtext}{proof}
     {\EditInstance{captionedtext}{proof}{body-decls=\clemsonacls@ragged}}
     {\ClassWarningNoLine{clemsona11y}{Instance captionedtext/proof not found:
       proofs stay justified}}
-  % enumerate and description inside a theorem inherit the justify too and
-  % are not fixed yet (kit bug, upstream.md section 5).
-  \IfInstanceExistsTF{blockenv}{list}
-    {\EditInstance{blockenv}{list}{para-instance=}}
-    {\ClassWarningNoLine{clemsona11y}{Instance blockenv/list not found: lists
-      inside theorems stay justified}}
+  \@for\clemsonacls@tmp:=list,enumerate,description,quote,quotation\do{%
+    \edef\clemsonacls@edit{\noexpand\IfInstanceExistsTF{blockenv}{\clemsonacls@tmp}
+      {\noexpand\EditInstance{blockenv}{\clemsonacls@tmp}{para-instance=}}
+      {\noexpand\ClassWarningNoLine{clemsona11y}{Instance blockenv/\clemsonacls@tmp
+        \space not found: that block inside a theorem stays justified}}}%
+    \clemsonacls@edit}
 \fi
 
 %------------------------------------------------------------------------------
