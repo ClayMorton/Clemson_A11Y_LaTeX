@@ -93,10 +93,12 @@
 %------------------------------------------------------------------------------
 % THEOREMS
 %------------------------------------------------------------------------------
-% Theorems use amsthm, with the label ("Lemma 2") tagged Span instead of Lbl.
-% Acrobat's checker applies its list rule (Lbl only inside LI) to every Lbl.
-% Span is valid for a label.
-% Meets: ISO/TS 32005 (structure nesting); Tagged PDF BPG 1.0.1 4.2.4.
+% Theorems use amsthm. Each head ("Lemma 2.") is tagged Caption, the first
+% child of the theorem's Sect, so in PDF 2.0 it captions its own theorem. The
+% number is Span, not Lbl: Acrobat's list rule flags every Lbl outside a list
+% item. For P heads, add \AssignStructureRole{block/theorem-like/caption}{P}.
+% Meets: ISO 32000-2:2020 14.8.4.8.4, Annex L; ISO/TS 32005; Tagged PDF BPG
+%        1.0.1 4.2.4 (Lbl), 4.2.7 (Span).
 \ifx\clemsonacls@theorems\@empty\else
 \def\clemsonacls@tmp{true}\ifx\clemsonacls@theorems\clemsonacls@tmp
   \RequirePackage{amsthm}

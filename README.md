@@ -113,11 +113,14 @@ Applications > Utilities). `sudo` asks for your Mac password and shows nothing w
    headers and ignores the presentation role.
 
    Put the caption of every figure and table above the picture or tabular, because the tags are
-   written in that order. Leave a blank line before `\begin{figure}` and `\begin{table}`. Inside
-   the environment use only `\centering`, `\includegraphics`, `tikzpicture`, `tabular`, `\hfill`,
-   `\caption`, `\label` and `\tagpdfsetup`. A `center` environment, a list or `\[ \]` inside a
-   float stops the build. Text inside a float, other than the caption, is dropped from the tags,
-   so put a source note in the caption or in the paragraph after the float.
+   written in that order. Leave a blank line before `\begin{figure}` and `\begin{table}`, and one
+   before a theorem, proof or other theorem-like block that directly follows a list, a displayed
+   formula or another environment set off from the text, such as `quote`, `center`, `flushright`,
+   `verse`, `tabbing` or `verbatim`. Inside a float use only `\centering`, `\includegraphics`,
+   `tikzpicture`, `tabular`, `\hfill`, `\caption`, `\label` and `\tagpdfsetup`. A `center`
+   environment, a list or `\[ \]` inside a float stops the build. Text inside a float, other than
+   the caption, is dropped from the tags, so put a source note in the caption or in the paragraph
+   after the float.
 
    Use `\autoref{label}` for cross-references; it makes the whole phrase ("Section 3", "Figure 2")
    the link. Lemmas, corollaries and the other theorem-like blocks share the theorem counter, so
@@ -250,9 +253,11 @@ tells you where it is missing.
    ```
 
    Expect the first build of an older document to stop. The usual cause is a `center`
-   environment, a list or `\[ \]` inside a `figure` or `table`. LaTeX reports it only at
-   `\end{document}`, as "text para hooks differ", without naming the float, so search every
-   float for them. Step 4 of "Starting from scratch" says what a float may hold. Once the
+   environment, a list or `\[ \]` inside a `figure` or `table`; the other is a theorem, proof or
+   algorithm right after a list, a display or another such environment, with no blank line
+   before it. LaTeX reports both only at `\end{document}`, as "text para hooks differ", without
+   naming the place, so search every float, and the line before every theorem and proof. Step 4
+   of "Starting from scratch" says what a float may hold. Once the
    document builds, the `FAIL` and `WARN` lines of the check are the to-do list: pictures without
    alt text, references that print as `??`, packages LaTeX cannot tag, and any other warning
    from LaTeX's tagging. The check cannot see two things, so do them yourself: give every table
@@ -370,6 +375,7 @@ Behavior the kit changes, compared with a plain `article`, `report` or `book`:
 | Endnotes | not available | `enotez` with a link both ways, a tagged list, roman marks, "Notes" in the contents | class, ENDNOTES |
 | Tables | `Scope` and spans only as attribute classes, no `/Headers` | `Scope`, `ColSpan`, `RowSpan` as direct attributes and `/Headers` with the IDs of the header cells on every cell | package, TABLE CELLS |
 | Formulas | MathML off | MathML attached to every formula (`math=full` also puts it in the tag tree); LaTeX's own alt text; the MathML file is found even when the file name has a comma | package, MATH |
+| List items | each item body `LBody > Part > P` | the item's text straight in `LBody` as `P`, a nested list or formula next to it, in `itemize`, `enumerate`, `description`, `list`, `trivlist` and the bibliography; footnote text, theorem, proof and quote bodies and minipage paragraphs inside an item drop their `Part` too | package, LIST ITEMS |
 | `\strong` | a font switch | tagged `Strong` | package, FONTS |
 | Abstract | `BlockQuote` with a plain-text heading | a `Sect` with an H2 heading and a bookmark | class, ABSTRACT |
 | Proofs | end with an open square | end with the word QED | class, THEOREMS |
@@ -386,7 +392,7 @@ Behavior the kit changes, compared with a plain `article`, `report` or `book`:
 | `unicode-math`, `amsthm` (both loaded), `braket` | `amssymb`, `bm`, `thmtools`, `ntheorem`, `tikz-cd` | not tagged, or clash with unicode-math |
 | `mhchem` (`$\ce{H2O}$`) | `chemfig`, `chemformula`, `chemmacros` | draw structures as pictures with alt text |
 | `siunitx` or `physics` (not both) | `\qtyrange` | loses its numbers in the alt text |
-| `algpseudocode`, `verbatim`, `fancyvrb` | `listings`, `minted`, `algorithm2e`, `algorithm` | not tagged; the class defines `algorithm` |
+| `algpseudocode`, `verbatim` | `listings`, `minted`, `algorithm2e`, `algorithm`, `fancyvrb`, `verbatim*` | not tagged, or the text loses its spaces (`fancyvrb` also stops the build with two `Verbatim` blocks in a row); the class defines `algorithm` |
 | `booktabs`, `tabularx` | `tabularray`, `nicematrix`, `multirow`, `caption`, `subcaption` | replace the table or caption code |
 | `tikz` with `[alt={...}]` | `pgfplots` | export plots as pictures with alt text |
 | `enotez` (loaded) | `endnotes` | no link from mark to note |
@@ -444,8 +450,36 @@ embedded font" for LMRoman17, the Latin Modern design used for titles. The font 
 Some of what a checker lists is LaTeX's own choice and is valid as it is. `BBox` appears only on
 figures. In the text, `\ref`, `\pageref`, `\eqref` and `\autoref` produce a plain `Link`, while
 `\cite` wraps its link in a `Reference`, as each contents and list entry does. Algorithm steps
-are tagged as an unordered list. A nested list sits inside the body of its parent item. With
-`pagination=typed`, every header and footer gets an empty artifact element.
+are tagged as an unordered list. With `pagination=typed`, every header and footer gets an empty
+artifact element.
+
+A list item's body holds its text as `P`, one per paragraph, with a nested list or a formula
+next to it. Acrobat's own tagging and Clemson's remediation guide put one-line item text straight
+into `LBody`; both forms are valid (ISO 32000-2 Annex L), and the `P` keeps the paragraphs of a
+longer item apart. A nested list sits in its parent item's body, as Clemson's guide shows. ISO
+32000-2 14.8.4.8.2 allows a list there, but counts a list as a sub-list only when it is a direct
+child of its parent `L`, or of a `Div` that belongs to that `L`; a list inside `LBody` is not part
+of the hierarchy. LaTeX's list code has no option to write that form.
+
+Each theorem, lemma, proof and algorithm is tagged `theorem-like`, which the role map turns into
+`Sect`, and its head, such as "Theorem 1.", is that block's first child, tagged `Caption`. In PDF
+2.0 a caption belongs to the element that holds it (ISO 32000-2 14.8.4.8.4), so the head names its
+own theorem and is not linked to any figure. It is not a heading on purpose: PDF/UA-2 forbids `H`,
+and `H1` to `H6` would put every lemma and proof in the heading list. To tag the heads as plain
+paragraphs instead, add `\AssignStructureRole{block/theorem-like/caption}{P}` after
+`\documentclass`. Leave a blank line before a theorem-like block or a proof that directly follows
+a list, quote, quotation, verse, center, flushleft, flushright, tabbing, verbatim or displayed
+math; without it the build stops with "text para hooks differ", a LaTeX bug (tagging-project
+issues 1402 and 1415) fixed for the next release.
+
+`\verb` text is tagged `Code`, and each line of a `verbatim` block is a `codeline`, `Sub` in PDF
+2.0 and `Span` in the PDF 1.7 role map that Acrobat reads. `Code` is a PDF 1.7 standard type that
+PDF 2.0 keeps as standard (ISO 32000-2 14.8.6.1) and PDF/UA-2 accepts. NVDA does not announce it,
+and the Tagged PDF BPG 1.0.1 (4.2.11) does not expect screen readers to. NVDA reads the characters
+at the listener's punctuation level: at the default level, Some, it skips a backslash, braces and
+brackets, which it speaks at Most or All, or when the listener reads by character. The same BPG
+clause asks tools that reflow or convert the page not to justify the code or tidy its white
+space, and says the tag does not promise usable code when the text is extracted.
 
 Link underlines come from the annotation's border style, which Acrobat draws and macOS Preview
 does not. Readers in Preview still know where a link goes, because the link text names its
