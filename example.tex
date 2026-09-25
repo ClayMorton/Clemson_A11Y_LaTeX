@@ -620,23 +620,28 @@ thesis.
 % own \caption. A wide table turned sideways is not shown: lscape and pdflscape
 % are untested here.
 
-%---- Layout grid, untagged ---------------------------------------------------
-The grid of names below holds no data and no headers: it only puts two names side by side. It
-is not a table, so table tagging is switched off for it and a screen reader reads the names
-as plain text rather than announcing rows and columns. Better still, lay such text out without
-a \texttt{tabular}.
+%---- Side by side, not a table -----------------------------------------------
+Two names side by side are not a table: they hold no data and no headers, and Clemson's tables
+guide says to use tables for data, not for layout. A \texttt{tabular} is also read row by row:
+with both names in its first row and both universities in its second, a screen reader reads
+``First Author Second Author Clemson University Clemson University''. Put each author in a
+\texttt{minipage} instead, as below, and each name is read with its own university. A
+\texttt{tabular} kept for layout gets \verb|\tagpdfsetup{table/tagging=false}| inside a
+group; it is then not announced as a table, but it is still read row by row.
 
-% 8. A layout grid is not a data table, so table tagging is off for it: no
-% Table, TH or TD is written and the words stay ordinary text. Acrobat fails a
-% Table without headers and ignores the PDF 2.0 presentation role. Keep
-% table/tagging=false inside a group; left open, it untags every later table.
-% Meets: ISO 32000-2:2020 14.8.4.8 (Table); Clemson tables concept.
-\begingroup\centering
-\tagpdfsetup{table/tagging=false}%
-\begin{tabular}{cc}
-  First Author & Second Author \\
-  Clemson University & Clemson University
-\end{tabular}\par
+% 8. Side-by-side text: each author is a minipage, tagged Div and read to its
+% end before the next. Paragraph tagging is off in the group, so no empty P;
+% keep both \par (else the para hooks differ). Other text there is an artifact.
+% Layout tabular: table/tagging=false in a group (left open, it untags later
+% tables); l/c/r only (p nests P in P). Acrobat fails a presentation Table.
+% Meets: ISO 32000-2:2020 14.8.2.5.1; Tagged PDF BPG 1.0.1 3.5, 4.2.6.2.
+\par\begingroup\tagpdfsetup{para/tagging=false}\centering
+\begin{minipage}[t]{0.4\linewidth}\centering
+  First Author\\ Clemson University
+\end{minipage}\hspace{1em}%
+\begin{minipage}[t]{0.4\linewidth}\centering
+  Second Author\\ Clemson University
+\end{minipage}\par
 \endgroup
 \noindent Never nest a table inside a table; split it into two tables instead.
 

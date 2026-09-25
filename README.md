@@ -101,9 +101,16 @@ Applications > Utilities). `sudo` asks for your Mac password and shows nothing w
    skips it. A `tikz` drawing takes the same key: `\begin{tikzpicture}[alt={...}]`.
 
    Mark the header cells of every table with `\tagpdfsetup{table/header-rows={1}}`,
-   `\tagpdfsetup{table/header-columns={1}}` or both, on the line before `\begin{tabular}`. A
-   `tabular` that only lines up text, with no data in it, gets
-   `\begingroup\tagpdfsetup{table/tagging=false}` ... `\endgroup` around it instead.
+   `\tagpdfsetup{table/header-columns={1}}` or both, on the line before `\begin{tabular}`. Do not
+   line text up with a `tabular`: it is read row by row, so two authors over two universities are
+   read name, name, university, university. Put each block in a `minipage`, inside
+   `\par\begingroup\tagpdfsetup{para/tagging=false}` ... `\par\endgroup`, as `example.tex` does
+   under "Side by side, not a table". Without the group, LaTeX leaves an empty paragraph tag
+   before, between and after the minipages. Inside the group, text outside the minipages is
+   dropped from the tags. A `tabular` that has to stay for layout gets
+   `\begingroup\tagpdfsetup{table/tagging=false}` ... `\endgroup` around it, with `l`, `c` and `r`
+   columns only. `table/tagging=presentation` does not help, because Acrobat fails a table without
+   headers and ignores the presentation role.
 
    Put the caption of every figure and table above the picture or tabular, because the tags are
    written in that order. Leave a blank line before `\begin{figure}` and `\begin{table}`. Inside
@@ -299,7 +306,7 @@ no tool can judge them for you.
 | Text | emphasis, footnote, endnote, links, citations, every kind of cross-reference, lists (nested, lettered, description), block quote, special characters, code |
 | Mathematics | inline and display math, `align`, `subequations`, `gather`, `multline*`, matrices, cases, chemistry, units, bra-ket, theorems, proofs, an algorithm; MathML on every formula |
 | Pictures | alt text, two panels, a `tikz` diagram, an image of text, a decorative image, a chart with its description and data table, a long description in an appendix linked both ways |
-| Tables | every layout in Clemson's [tables guide](https://www.clemson.edu/accessibility/digital/concepts/tables.html): header row, header column, both, two-level and merged headers, merged cells, one table per group, notes outside, no empty cells, a layout grid left untagged |
+| Tables | every layout in Clemson's [tables guide](https://www.clemson.edu/accessibility/digital/concepts/tables.html): header row, header column, both, two-level and merged headers, merged cells, one table per group, notes outside, no empty cells, two authors side by side without a table |
 | Other | an artifact rule, a phrase in another language, an abbreviation written out, QED as a proof ending (one line in the class) |
 
 The class and package files use the same three-line banners, so a search for `%----` steps
