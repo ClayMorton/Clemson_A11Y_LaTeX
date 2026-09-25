@@ -65,8 +65,9 @@ endef
 export A11Y_SCAN
 
 # check: builds quietly, then runs what a script can verify (errors, alt text
-# present, tagging warnings, package report, veraPDF PDF/UA-2) and prints the
-# list a person must check by hand. For the full latexmk output, use `build`.
+# present, MathML attached, tagging warnings, package report, veraPDF PDF/UA-2)
+# and prints the list a person must check by hand. For the full latexmk
+# output, use `build`.
 check:
 	@fail=0; warn=0; skip=0; log=$(TARGET).log; tex=$(TARGET).tex; built=0; \
 	$(LATEXMK) -silent $(TARGET).tex >/dev/null 2>&1 && built=1; \
@@ -102,6 +103,21 @@ check:
 	if [ -z "$$noalt$$ph" ]; then \
 	  if [ "$$npic" -eq 0 ]; then echo "   OK    pictures: none"; \
 	  else echo "   OK    pictures: $$npic, every one with alt text"; fi; fi; \
+	mfound=`sed -n 's/^==> \([0-9][0-9]*\) math fragments found.*/\1/p' $$log | tail -1`; \
+	matt=`sed -n 's/^==> \([0-9][0-9]*\) MathML AF attached.*/\1/p' $$log | tail -1`; \
+	mmiss=`grep -c 'mathml missing for hash' $$log`; \
+	if [ -n "$$matt" ]; then \
+	  if [ "$$mfound" = 0 ]; then echo "   OK    formulas: none"; \
+	  elif [ "$$matt" = "$$mfound" ]; then echo "   OK    formulas: $$mfound, every one with MathML attached"; \
+	  elif [ "$$matt" = 0 ]; then echo "   FAIL  formulas: none of $$mfound has MathML attached (a stale MathML file, or"; \
+	       echo "         math/mathml/AF=false); run 'make -f $(MK) TARGET=$(TARGET) clean' and check again"; fail=1; \
+	  else echo "   WARN  formulas: $$matt of $$mfound have MathML attached; the 'mathml missing' lines"; \
+	       echo "         in $$log give the hash of each formula without it"; warn=1; fi; \
+	elif grep -q 'luamml has been disabled' $$log; then echo "   FAIL  formulas: MathML is off (luamml has been disabled); remove the"; \
+	  echo "         math/mathml/luamml/load=false setting from the preamble"; fail=1; \
+	elif [ "$$mmiss" -gt 0 ]; then echo "   FAIL  formulas: no MathML is attached. LaTeX did not find its MathML file; the"; \
+	  echo "         'mathml file' lines in $$log name the files it looked for"; fail=1; \
+	else echo "   OK    formulas: none"; fi; \
 	tw=`awk '/Package tag(pdf)? Warning|latex-lab[^:]*Warning|(Package|Class) clemsona11y Warning/{p=1; print; next} p && /^\(/{print; next} {p=0}' $$log | grep -v 'Alternative text for graphic is missing\|^(tag[a-z]*)  *Using .* instead' | uniq`; \
 	if [ -n "$$tw" ]; then echo "   FAIL  tags: LaTeX's tagging or the kit warned (README: Packages by field; After a LaTeX update for a clemsona11y warning):"; \
 	    echo "$$tw" | sed 's/^/           /'; fail=1; \
