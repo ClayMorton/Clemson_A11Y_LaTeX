@@ -16,7 +16,7 @@ banner names each example in a section, so you can search the file for the one y
 face, and there is no option to change that.
 
 ```
-clemsona11y.cls  clemsona11y.sty  main.tex  example.tex  references.bib  README.md  upstream.md  Makefile.a11y  resources/
+clemsona11y.cls  clemsona11y.sty  main.tex  example.tex  references.bib  README.md  Makefile.a11y  resources/
 ```
 
 ## What you need
@@ -327,9 +327,9 @@ value stops the build instead of being ignored.
 ## What the kit adds and changes
 
 `clemsona11y.cls` and `clemsona11y.sty` do everything below. The code for each item is under the
-`%----` banner named in the last column. `upstream.md` lists the items that work around gaps in LaTeX's tagging code and how to
-contribute each fix to LaTeX. When a LaTeX release includes a fix, the kit's workaround for it
-can be deleted.
+`%----` banner named in the last column. The items that work around gaps in LaTeX's tagging
+code carry an `A11Y WORKAROUND` comment with a `REMOVE WHEN` condition; when a LaTeX release
+meets it, the block can be deleted.
 
 Commands and environments the kit adds:
 
