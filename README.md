@@ -141,14 +141,15 @@ Applications > Utilities). `sudo` asks for your Mac password and shows nothing w
 
    The check rebuilds the document quietly and prints a report in two parts. The first part,
    "Checked automatically", covers what a script can verify: the document builds, every picture
-   has alt text, no reference prints as `??`, neither LaTeX's tagging nor the kit's own guards
-   raised a warning, and you load no package LaTeX cannot tag yet. It also gives veraPDF's
-   PDF/UA-2 verdict. Each line is marked `OK`, `WARN`, `FAIL` or `SKIP`, and the report ends with
-   a `RESULT` line. After a `FAIL`, make adds its own line ending in `Error 1` or `Error 2`; that
-   is make reporting the failed check, not a second problem. A `FAIL` line names what to fix in
-   the source. Fix it and run the check again, which rebuilds the document. A `WARN` line is
-   something to look at. A `SKIP` line means a step could not run because veraPDF is not
-   installed or `check-tagging-status` was removed from `\DocumentMetadata`.
+   has alt text, every formula has its MathML attached, no reference prints as `??`, neither
+   LaTeX's tagging nor the kit's own guards raised a warning, and you load no package LaTeX
+   cannot tag yet. It also gives veraPDF's PDF/UA-2 verdict. Each line is marked `OK`, `WARN`,
+   `FAIL` or `SKIP`, and the report ends with a `RESULT` line. After a `FAIL`, make adds its own
+   line ending in `Error 1` or `Error 2`; that is make reporting the failed check, not a second
+   problem. A `FAIL` line names what to fix in the source. Fix it and run the check again, which
+   rebuilds the document. A `WARN` line is something to look at. A `SKIP` line means a step could
+   not run because veraPDF is not installed or `check-tagging-status` was removed from
+   `\DocumentMetadata`.
 
    The second part, "Check by hand", covers what only a person can judge. It prints every alt
    text with its line number so you can read them back, then lists what to look at in the PDF:
@@ -284,7 +285,8 @@ shows this under "Chart, description, data table"). A rule or an ornament that c
 meaning gets `artifact` instead of alt text, and the screen reader skips it.
 
 Formulas need nothing from you. LaTeX writes the MathML for each formula and uses the formula's
-source as its alt text. The kit adds no alt text of its own.
+source as its alt text. The kit adds no alt text of its own. The check counts the formulas that
+got their MathML and fails when none did.
 
 The check prints every alt text in the document with its line number. Read them back yourself;
 no tool can judge them for you.
@@ -360,7 +362,7 @@ Behavior the kit changes, compared with a plain `article`, `report` or `book`:
 | Footnotes | note without a type; 8 pt text | `NoteType /Footnote`; note text 9 pt, raised marks 7 pt | package, FOOTNOTES; class, NOTE TEXT SIZE |
 | Endnotes | not available | `enotez` with a link both ways, a tagged list, roman marks, "Notes" in the contents | class, ENDNOTES |
 | Tables | `Scope` and spans only as attribute classes, no `/Headers` | `Scope`, `ColSpan`, `RowSpan` as direct attributes and `/Headers` with the IDs of the header cells on every cell | package, TABLE CELLS |
-| Formulas | MathML off | MathML attached to every formula (`math=full` also puts it in the tag tree); LaTeX's own alt text | package, MATH |
+| Formulas | MathML off | MathML attached to every formula (`math=full` also puts it in the tag tree); LaTeX's own alt text; the MathML file is found even when the file name has a comma | package, MATH |
 | `\strong` | a font switch | tagged `Strong` | package, FONTS |
 | Abstract | `BlockQuote` with a plain-text heading | a `Sect` with an H2 heading and a bookmark | class, ABSTRACT |
 | Proofs | end with an open square | end with the word QED | class, THEOREMS |
@@ -401,15 +403,18 @@ each with its own caption.
 
 ## After a LaTeX update
 
-LaTeX's tagging code is still in development, and the package works around four gaps in the
+LaTeX's tagging code is still in development, and the package works around five gaps in the
 current release: the empty paragraph LaTeX would otherwise wrap around the picture or tabular in
-a float, the clickable area of a footnote mark, the type of each footnote, and the attributes
-that tie each table cell to its headers and record its spans. Each one is marked
-`A11Y WORKAROUND` in `clemsona11y.sty`, with a `REMOVE WHEN` line that names the LaTeX change
-that will make it unnecessary. All but the float fix first check that the part of LaTeX they
-patch still exists. If it is gone, the workaround turns itself off and writes a
-`Package clemsona11y Warning`, which fails the check. The package's tag renamings, including the
-`Span` labels, are guarded the same way.
+a float, the MathML file LaTeX cannot find when the document's file name contains a comma, the
+clickable area of a footnote mark, the type of each footnote, and the attributes that tie each
+table cell to its headers and record its spans. Each one is marked `A11Y WORKAROUND` in
+`clemsona11y.sty`, with a `REMOVE WHEN` line that names the LaTeX change that will make it
+unnecessary. The footnote and table fixes first check that the part of LaTeX they patch still
+exists. If it is gone, the workaround turns itself off and writes a `Package clemsona11y
+Warning`, which fails the check. The package's tag renamings, including the `Span` labels, are
+guarded the same way. The MathML fix sets a documented key, so a LaTeX release that drops the
+key stops the build with an error, and the check's formulas line fails when no MathML was
+attached.
 
 After every `tlmgr update`, run `make -f Makefile.a11y example` once, or run the check on your
 own document if the project has no `example.tex`. A clean result means the parts of LaTeX the
