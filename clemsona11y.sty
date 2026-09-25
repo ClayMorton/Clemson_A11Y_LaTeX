@@ -273,6 +273,73 @@
 \clemsona@role{fnote/note/label}{Span}    % "1" before a footnote -> Span
 
 %------------------------------------------------------------------------------
+% LIST ITEMS
+%------------------------------------------------------------------------------
+% A list item's text goes into its LBody as P; a nested list or display
+% formula becomes a sibling of that P. LaTeX wraps every paragraph in its
+% para/semantic structure, role-mapped to Part, so each item read
+% LBody > Part > P. For a one-paragraph item that Part wraps what LBody
+% already wraps, and Acrobat and Clemson's tag guide read Part as a chapter.
+% Meets: ISO 32000-2:2020 Annex L (P in LBody); Tagged PDF BPG 1.0.1 4.2.5.2.
+\newif\ifclemsona@listseen
+\newif\ifclemsona@itemhook
+\def\clemsona@level{-1}
+\def\clemsona@setlevel{\global\clemsona@listseentrue
+  \edef\clemsona@level{\the\currentgrouplevel}}
+\@namedef{clemsona@list@itemize}{}
+\@namedef{clemsona@list@enumerate}{}
+\@namedef{clemsona@list@description}{}
+\@namedef{clemsona@list@list}{}
+\@namedef{clemsona@list@trivlist}{}
+\@namedef{clemsona@list@thebibliography}{}
+\IfSocketExistsTF{tagsupport/para/semantic/begin}{%
+  % item/before runs just after the LI opens. noop, a plug every socket has,
+  % is latex-lab's documented switch for the Part. It is assigned locally, in
+  % the environments named above and at their own group level only: a bare
+  % \list in a macro has no group, and an \item inside a group of its own
+  % ({\small \item ...}, \foreach, \multido) would lose the plug before its
+  % paragraph ends; the Part end would then close the LBody and stop.
+  \AddToHook{item/before}{%
+    \global\clemsona@itemhooktrue
+    \ifcsname clemsona@list@\@currenvir\endcsname
+      \ifnum\currentgrouplevel=\clemsona@level\relax
+        \AssignTaggingSocketPlug{para/semantic/begin}{noop}%
+        \AssignTaggingSocketPlug{para/semantic/end}{noop}%
+      \fi
+    \fi}%
+  \AddToHook{env/itemize/begin}{\clemsona@setlevel}%
+  \AddToHook{env/enumerate/begin}{\clemsona@setlevel}%
+  \AddToHook{env/description/begin}{\clemsona@setlevel}%
+  \AddToHook{env/list/begin}{\clemsona@setlevel}%
+  \AddToHook{env/trivlist/begin}{\clemsona@setlevel}%
+  \AddToHook{env/thebibliography/begin}{\clemsona@setlevel}%
+  % Everything typeset inside an item runs under noop too: footnote text,
+  % theorem, proof and quote bodies and minipage paragraphs lose their Part,
+  % p-column cells their Div. A float is the exception: it gets the kernel
+  % plugs back, so RULE 1 (FLOATS) still stops the build there instead of
+  % writing a center or quote in the float as an artifact. These two hooks
+  % must run after the FLOATS block's \par hook, hence their place here.
+  \AddToHook{env/figure/begin}{%
+    \AssignTaggingSocketPlug{para/semantic/begin}{kernel}%
+    \AssignTaggingSocketPlug{para/semantic/end}{kernel}}%
+  \AddToHook{env/table/begin}{%
+    \AssignTaggingSocketPlug{para/semantic/begin}{kernel}%
+    \AssignTaggingSocketPlug{para/semantic/end}{kernel}}%
+  % A renamed hook would drop the code above without a message. If a list
+  % ran and the hook never did, say so at the end of the run.
+  \AddToHook{enddocument/info}{%
+    \ifclemsona@listseen\ifclemsona@itemhook\else
+      \PackageWarningNoLine{clemsona11y}{%
+        latex-lab's item/before hook did not run:^^J%
+        list items keep the Part around their text}%
+    \fi\fi}%
+}{%
+  \PackageWarningNoLine{clemsona11y}{%
+    LaTeX's para/semantic tagging sockets were not found:^^J%
+    list items keep the Part around their text}%
+}
+
+%------------------------------------------------------------------------------
 % MATH
 %------------------------------------------------------------------------------
 % math=af attaches each formula's MathML as a file: one content item per
