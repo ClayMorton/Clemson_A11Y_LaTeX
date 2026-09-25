@@ -290,6 +290,13 @@
 % every Formula gets LaTeX's own Alt text, the formula's source. The kit adds
 % no alt text of its own.
 \tagpdfsetup{math/alt/use}%
+% A11Y WORKAROUND: MATHML FILE NAME. LaTeX reads each formula's MathML back
+% from <job>-luamml-mathml.html, written on the previous run, but expands the
+% job name into a comma list, so a name with a comma is split and no formula
+% gets its MathML attached. Here \jobname stays unexpanded and is not split.
+% REMOVE WHEN: latex-lab-math keeps the job name whole in its default list.
+% Meets: ISO 32000-2:2020 14.8.6.3 (MathML).
+\tagpdfsetup{math/mathml/sources={\jobname-mathml,\jobname-luamml-mathml}}
 
 %------------------------------------------------------------------------------
 % HEADINGS
