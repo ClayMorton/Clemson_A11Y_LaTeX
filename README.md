@@ -101,13 +101,17 @@ Applications > Utilities). `sudo` asks for your Mac password and shows nothing w
    skips it. A `tikz` drawing takes the same key: `\begin{tikzpicture}[alt={...}]`.
 
    Mark the header cells of every table with `\tagpdfsetup{table/header-rows={1}}`,
-   `\tagpdfsetup{table/header-columns={1}}` or both, on the line before `\begin{tabular}`. Do not
-   line text up with a `tabular`: it is read row by row, so two authors over two universities are
-   read name, name, university, university. Put each block in a `minipage`, inside
-   `\par\begingroup\tagpdfsetup{para/tagging=false}` ... `\par\endgroup`, as `example.tex` does
-   under "Side by side, not a table". Without the group, LaTeX leaves an empty paragraph tag
-   before, between and after the minipages. Inside the group, text outside the minipages is
-   dropped from the tags. A `tabular` that has to stay for layout gets
+   `\tagpdfsetup{table/header-columns={1}}` or both, on the line before `\begin{tabular}`. Use a
+   `tabular` for data only. Clemson's
+   [reading-order guide](https://www.clemson.edu/accessibility/digital/guides/word/reading-order.html)
+   gives two patterns for text set side by side: tabs read left to right, then the next line;
+   columns read top to bottom, then left to right. A `tabular` reads like tabs, row by row, so two
+   authors over two universities are read name, name, university, university. Side-by-side
+   `minipage` blocks read like columns, each block to its end: put each block in a `minipage`,
+   inside `\par\begingroup\tagpdfsetup{para/tagging=false}` ... `\par\endgroup`, as
+   `example.tex` does under "Side by side, not a table". Without the group, LaTeX leaves an empty
+   paragraph tag before, between and after the minipages. Inside the group, text outside the
+   minipages is dropped from the tags. A `tabular` that has to stay for layout gets
    `\begingroup\tagpdfsetup{table/tagging=false}` ... `\endgroup` around it, with `l`, `c` and `r`
    columns only. `table/tagging=presentation` does not help, because Acrobat fails a table without
    headers and ignores the presentation role.
