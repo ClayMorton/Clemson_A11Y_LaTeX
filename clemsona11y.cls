@@ -125,7 +125,7 @@
   % caption as plain text and raises tagpdf warnings. This environment gets a
   % tagged Caption, a Span label and a counter for \ref. Put the steps in an
   % algorithmic body (algpseudocode).
-  % Meets: ISO 32000-2:2020 14.8.4.6 (Caption); Tagged PDF BPG 1.0.1 4.2.4.
+  % Meets: ISO 32000-2:2020 14.8.4.8.4 (Caption); Tagged PDF BPG 1.0.1 4.1.3.
   \newtheorem{algorithm}{Algorithm}
   \theoremstyle{remark}
   \newtheorem{remark}[theorem]{Remark}
@@ -176,7 +176,7 @@
 % list-style=description tags the list L/LI/Lbl/LBody, totoc=auto puts "Notes"
 % in the table of contents, and counter-format=roman keeps endnote marks apart
 % from the arabic footnote marks on the same page.
-% Meets: ISO 32000-2:2020 14.8.4.7 (Link); Tagged PDF BPG 1.0.1 4.2.9 (lists).
+% Meets: ISO 32000-2:2020 14.8.4.7 (Link); Tagged PDF BPG 1.0.1 4.2.5 (lists).
 \RequirePackage{enotez}
 \setenotez{backref=true, list-style=description, totoc=auto,
   counter-format=roman}

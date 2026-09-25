@@ -59,12 +59,12 @@ is written the way it is.
 \end{abstract}
 % The table of contents is tagged TOC, with one TOCI per entry, and each entry
 % links to its heading.
-% Meets: ISO 32000-2:2020 14.8.4.6; Tagged PDF BPG 1.0.1 7.1.
+% Meets: ISO 32000-2:2020 Annex M (TOC, TOCI); Tagged PDF BPG 1.0.1 4.1.4.
 \tableofcontents
 % The list of figures and the list of tables are tagged and linked the same
 % way. Each entry is the short title from \caption[Short title]{Long caption},
 % or the whole caption if there is no short title.
-% Meets: ISO 32000-2:2020 14.8.4.6 (TOC, TOCI).
+% Meets: ISO 32000-2:2020 Annex M (TOC, TOCI); Tagged PDF BPG 1.0.1 4.1.4.
 \listoffigures
 \listoftables
 
@@ -159,7 +159,7 @@ for every item. Keep nesting shallow; two levels is usually enough.
 % label= is the kernel's own list key, so there is no need for enumitem, which
 % is incompatible with tagging. Any label built from \alph, \arabic, \roman or
 % \Alph works, and the label is still tagged Lbl.
-% Meets: ISO 32000-2:2020 14.8.4.9; Clemson lists.
+% Meets: ISO 32000-2:2020 14.8.4.8.2; Clemson lists.
 \begin{enumerate}[label=(\alph*)]
   \item Lettered items come from \verb|[label=(\alph*)]|, a kernel key.
   \item The letters are labels, not typed-in text.
@@ -286,7 +286,7 @@ back, comment out the \verb|\qedsymbol| line in the theorem block of
 % aborts the build. This gives a tagged Caption and a label \ref can reach. The
 % steps are an unordered list because algpseudocode prints the step numbers
 % itself instead of using a list counter. The labels are still Lbl.
-% Meets: ISO 32000-2:2020 14.8.4.6 (Caption), 14.8.4.9 (L); Clemson lists.
+% Meets: ISO 32000-2:2020 14.8.4.8.4 (Caption), 14.8.4.8.2 (L); Clemson lists.
 \begin{algorithm}[Find the largest value]\label{alg:max}
 Input: the values $a_1,\dots,a_n$. Output: the largest of them.
 \begin{algorithmic}[1]
@@ -344,7 +344,7 @@ title in brackets: the long form is printed with the figure, and the short form 
 
 % \caption[short]{long}: the long form is printed here and the short one goes
 % into the list.
-% Meets: Tagged PDF BPG 1.0.1 4.2.6 (Caption); ISO 32000-2:2020 14.8.4.6.
+% Meets: Tagged PDF BPG 1.0.1 4.1.3 (Caption); ISO 32000-2:2020 14.8.4.8.4.
 \begin{figure}\centering
   \caption[A short title for the List of Figures]{A caption long enough to be
     worth shortening: the same cable wall printed at a smaller size, with the
@@ -721,7 +721,7 @@ equipment in service.
 
 % The bibliography heading is a starred section, so \phantomsection puts a link
 % target here and \addcontentsline lists it in the contents.
-% Meets: ISO 32000-2:2020 14.8.4.6.
+% Meets: ISO 32000-2:2020 14.8.4.5 (headings); Tagged PDF BPG 1.0.1 4.1.4.
 \phantomsection
 \addcontentsline{toc}{section}{\refname}
 \bibliographystyle{plain}
