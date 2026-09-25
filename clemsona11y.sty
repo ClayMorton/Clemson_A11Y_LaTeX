@@ -340,6 +340,31 @@
 }
 
 %------------------------------------------------------------------------------
+% CODE LINES
+%------------------------------------------------------------------------------
+% A11Y WORKAROUND: CODE LINES. latex-lab tags each verbatim line with the
+% justify class though it prints flush left. A copy of the justify instance
+% keeps the layout and writes TextAlign Start; the raggedright instance would
+% move where a code line too long for the page breaks at a hyphen.
+% REMOVE WHEN: latex-lab's verbatim instances drop the justify class.
+% Meets: Tagged PDF BPG 1.0.1 4.2.11 (code is not justified).
+\IfInstanceExistsTF{para}{justify}{%
+  \DeclareInstanceCopy{para}{clemsona-code}{justify}%
+  \EditInstance{para}{clemsona-code}{para-attr-class=raggedright}%
+  \@for\clemsona@tmp:=verbatim,verbatim*,alltt,alltt*\do{%
+    \edef\clemsona@edit{\noexpand\IfInstanceExistsTF{blockenv}{\clemsona@tmp}
+      {\noexpand\EditInstance{blockenv}{\clemsona@tmp}%
+        {para-instance=clemsona-code}}
+      {\noexpand\PackageWarningNoLine{clemsona11y}{Instance
+        blockenv/\clemsona@tmp\space not found: its code lines stay
+        tagged Justify}}}%
+    \clemsona@edit}%
+}{%
+  \PackageWarningNoLine{clemsona11y}{Instance para/justify not found:
+    code lines stay tagged Justify}%
+}
+
+%------------------------------------------------------------------------------
 % MATH
 %------------------------------------------------------------------------------
 % math=af attaches each formula's MathML as a file: one content item per
