@@ -1,0 +1,151 @@
+% clemson.sty: accessible (tagged, PDF/UA-2) LaTeX in one package.
+% Clemson University, CCIT Internal Operations, ADA Compliance Team.
+%
+% What you write; the package cannot do these for you (details in README.md):
+%   1. % !TEX program = lualatex  on the first line, so editors pick LuaLaTeX.
+%   2. \DocumentMetadata{lang=en-US, pdfstandard=ua-2, tagging=on,
+%        tagging-setup={math/setup={mathml-SE,mathml-AF}},
+%        check-tagging-status}
+%      above \documentclass. It turns tagging on and names the standard.
+%   3. \usepackage{clemson} as the LAST \usepackage line; it loads hyperref.
+%   4. alt={...} on every \includegraphics and tikzpicture, and the header rows
+%      or columns of every tabular (\tagpdfsetup{table/header-rows={1}}).
+% What the package does: stops the build unless LuaLaTeX, LaTeX 2026-06-01 or
+% newer and \DocumentMetadata with tagging are in use; loads unicode-math so
+% every formula gets MathML; tags \strong as Strong; keeps each figure and
+% table in the tag tree where it is written; keeps the MathML attached when
+% the file name holds a comma; tags babel's language switches; loads hyperref
+% with black underlined links. Everything else is LaTeX's own tagging:
+% headings, lists, tables, floats, footnotes, theorems, the bibliography.
+% Meets: ISO 14289-2:2024 (PDF/UA-2), checked with veraPDF; see README.md.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{clemson}[2026/09/26 v2.0 Accessible LaTeX (Clemson A11Y)]
+
+%------------------------------------------------------------------------------
+% TOOLCHAIN GUARDS
+%------------------------------------------------------------------------------
+% An untagged PDF looks normal and fails the accessibility check later, and
+% LaTeX writes one without a word: pdfstandard=ua-2 alone does not turn tagging
+% on.
+% So the build stops, and no PDF is written, unless the LaTeX release can tag,
+% the engine is LuaLaTeX (the only one that writes MathML), \DocumentMetadata
+% is present and tagging is active when the document starts. tagging=draft
+% passes that test and skips the tag tree, so the end of the run warns.
+% Meets: ISO 14289-2:2024 6.2 (Marked), 8.2.1 (structure), 8.2.5.29 (MathML).
+\RequirePackage{iftex}
+\RequireLuaTeX
+\ExplSyntaxOn
+\msg_new:nnn { clemson } { old-latex }
+  { LaTeX~2026-06-01~or~newer~is~required.~Install~TeX~Live~2026~(MacTeX~2026),
+    ~then~run~'sudo~tlmgr~update~--self~--all'. }
+\msg_new:nnn { clemson } { no-metadata }
+  { Put~the~\string\DocumentMetadata{...}~block~above~\string\documentclass\c_space_tl ;
+    ~README.md~shows~it. }
+\msg_new:nnn { clemson } { not-tagged }
+  { PDF~tagging~is~not~active.~Put~tagging=on~in~the~\string\DocumentMetadata\c_space_tl block~above~\string\documentclass\c_space_tl and~remove~tagging=off~or~tagging=draft. }
+\msg_new:nnn { clemson } { draft }
+  { tagging=draft:~this~PDF~has~NO~tag~tree~and~is~not~accessible.~Remove~
+    draft~from~\string\DocumentMetadata\c_space_tl before~you~share~it. }
+\IfFormatAtLeastTF { 2026-06-01 } { } { \msg_fatal:nn { clemson } { old-latex } }
+\IfDocumentMetadataF { \msg_fatal:nn { clemson } { no-metadata } }
+\AddToHook { begindocument }
+  { \tag_if_active:F { \msg_fatal:nn { clemson } { not-tagged } } }
+\AddToHook { enddocument/end }
+  { \tag_if_active:F { \msg_warning:nn { clemson } { draft } } }
+\ExplSyntaxOff
+
+%------------------------------------------------------------------------------
+% FONTS AND MATH
+%------------------------------------------------------------------------------
+% LuaLaTeX already sets Latin Modern in Unicode (TU) encoding, with its small
+% caps and optical sizes, so no font command is needed. unicode-math is the
+% tagging project's math setup on LuaLaTeX: with it every formula gets MathML.
+% It loads fontspec and amsmath. Do not load amssymb or bm after it; write
+% \symbf{v}, \symbfit{v} and \symcal{A} for bold and script letters. A
+% document that loads lua-unicode-math first keeps it.
+% Meets: ISO 14289-2:2024 8.2.5.29.1 (MathML); 8.4.5.8 (ToUnicode).
+\IfPackageLoadedTF{lua-unicode-math}{}{\RequirePackage{unicode-math}}
+% \strong (fontspec) is tagged Strong through the kernel's inline socket, the
+% way LaTeX tags \emph as Em; \textbf only changes the letters, so bold used
+% for meaning is lost to a screen reader. Keep it to words in a sentence; the
+% LINKS block lets it sit in a heading without breaking the bookmark.
+% Meets: WCAG 2.1 SC 1.3.1 (failure F2: meaning carried by appearance alone).
+\AddToHook{cmd/strong/before}{\leavevmode\UseTaggingSocket{inline/begin}{tag=Strong}}
+\AddToHook{cmd/strong/after}{\UseTaggingSocket{inline/end}}
+
+%------------------------------------------------------------------------------
+% FLOATS
+%------------------------------------------------------------------------------
+% LaTeX tags every figure and table as an Aside with its Caption first, and by
+% default defers those structures into figures and tables sections at the end
+% of the tree, its choice for PDF 1.7 readers that show an Aside as a Note.
+% Clemson wants each figure read where the text cites it, so float/here, a
+% documented key, keeps the structure at the source position. Where the
+% picture prints is a layout choice; README.md shows [H] placement.
+% Meets: WCAG 2.1 SC 1.3.2 (meaningful sequence); Tagged PDF BPG 1.0.1 3.7.
+\tagpdfsetup{float/here}
+
+%------------------------------------------------------------------------------
+% MATHML FILE NAME
+%------------------------------------------------------------------------------
+% A11Y WORKAROUND. LaTeX expands the job name into its comma list of MathML
+% files, so a file name with a comma is split ("mathml file a does not exist")
+% and no formula gets its MathML, with no error. Only then, the list is set
+% again with \jobname left unexpanded, at begindocument/before so that a
+% \tagpdfsetup{math/setup=...} later in the preamble cannot undo it.
+% REMOVE WHEN: latex-lab-math.ltx braces \c_sys_jobname_str in that list.
+% Meets: ISO 14289-2:2024 8.2.5.29.1 (MathML for every formula).
+\ExplSyntaxOn
+\AddToHook { begindocument/before }
+  {
+    \str_if_in:NnT \c_sys_jobname_str { , }
+      {
+        \tagpdfsetup { math/mathml/sources = { \jobname-mathml , \jobname-luamml-mathml } }
+        \PackageInfo { clemson } { job~name~holds~a~comma:~MathML~file~list~set~again }
+      }
+  }
+\ExplSyntaxOff
+
+%------------------------------------------------------------------------------
+% LANGUAGES (only when babel is loaded)
+%------------------------------------------------------------------------------
+% A11Y WORKAROUND. babel hyphenates but writes no /Lang. Its "foreign" hook
+% wraps the argument of \foreignlanguage in a Span with the kernel's inline
+% socket. Its afterextras hook runs at every language switch: it sets tagpdf's
+% text/lang key for another language, so each element opened in otherlanguage
+% or after \selectlanguage carries /Lang, and clears it for the main language,
+% which the catalog /Lang already names. The l3text line keeps \foreignlanguage
+% out of bookmark and /T strings. Recipe: babel discussion 357, the tagging
+% project's max-moritz example. \foreignlanguage then holds one paragraph.
+% REMOVE WHEN: babel or tagpdf writes the language tag itself (news 25.13).
+% Meets: WCAG 2.1 SC 3.1.2 (language of parts); ISO 32000-2:2020 14.9.2.
+\ExplSyntaxOn
+\AddToHook { package/babel/after }
+  {
+    \AddBabelHook { clemson } { foreign }
+      { \BabelWrapText { \UseTaggingSocket { inline/begin } { tag=Span , lang=\BCPdata{tag} }
+          ##1 \UseTaggingSocket { inline/end } } }
+    \AddToHook { babel/*/afterextras }
+      {
+        \cs_if_eq:NNTF \localename \mainlocalename
+          { \tagpdfsetup { text/lang = } }
+          { \tagpdfsetup { text/lang = \BCPdata{tag} } }
+      }
+    \text_declare_purify_equivalent:Nn \foreignlanguage { \use_ii:nn }
+  }
+\ExplSyntaxOff
+
+%------------------------------------------------------------------------------
+% LINKS
+%------------------------------------------------------------------------------
+% hyperref, loaded last, makes every \ref, \cite, \href and contents entry a
+% link annotation, which LaTeX encloses in a Link or Reference element with a
+% structure destination and /Tabs /S. Link text stays black and the viewer
+% draws a black underline from the annotation's border style, so no link is
+% marked by color alone. \hypersetup{hidelinks} in a document removes it.
+% The last line lets \strong sit in a heading without breaking its bookmark.
+% Meets: ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3; WCAG 2.1 SC 1.4.1.
+\RequirePackage{hyperref}
+\hypersetup{pdfborderstyle={/S/U/W 1},allbordercolors=black,pdfborder={0 0 0}}
+\pdfstringdefDisableCommands{\let\strong\@firstofone}
+\endinput

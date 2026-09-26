@@ -1,7 +1,8 @@
 % !TEX program = lualatex
 % !TEX TS-program = lualatex
-% main.tex: your document. Build and check it with
-%   make -f Makefile.a11y check
+
+% main.tex: your document. Build it with latexmk -lualatex main.tex and check
+% it with make -f Makefile.a11y check, or verapdf --flavour ua2 main.pdf.
 % example.tex has every kind of content, tagged and explained. Find the block
 % you need by its banner line (search for "%----") and copy it here.
 
@@ -9,40 +10,80 @@
 % METADATA AND CLASS
 %------------------------------------------------------------------------------
 % Keep this block above \documentclass: it turns tagging on and names the
-% standard. Meets: ISO 14289-2:2024 8.11 (metadata).
+% standard. Meets: ISO 14289-2:2024 8.11 (metadata), 8.2.5.29 (MathML).
 \DocumentMetadata{
-  lang        = en-US,
-  pdfstandard = ua-2,
-  tagging     = on,
+  % The language of the whole PDF, written to /Lang. Phrases in another
+  % language are marked in the text; example.tex shows how.
+  lang          = en-US,
+  % Declares PDF/UA-2, the accessibility standard for PDF 2.0. veraPDF checks
+  % the file against it with --flavour ua2.
+  pdfstandard   = ua-2,
+  % Turns tagging on. Without it LaTeX writes an untagged PDF and says
+  % nothing; the clemson package stops the build instead.
+  tagging       = on,
+  % Writes the MathML of every formula as structure elements (Acrobat, NVDA)
+  % and as an attached file (Foxit, Firefox). The LaTeX default is the file.
+  tagging-setup = {math/setup={mathml-SE,mathml-AF}},
+  % Appends a report on the loaded packages to the end of main.log; sections
+  % 1 and 2 name packages to replace.
   check-tagging-status,
 }
-% Use [report] for chapters. [book] also works, but book has no abstract, so
-% delete the abstract below. Clemson's text concept prefers left-aligned text,
-% so align=ragged is the default; align=justified overrides it. README.md lists
-% the other options. A misspelled key=value option stops the build.
-\documentclass{clemsona11y}
+% Use report for chapters (\chapter becomes H1, \section H2). book works too
+% but has no abstract, so delete the abstract below.
+\documentclass{article}
 
 %------------------------------------------------------------------------------
 % PACKAGES
 %------------------------------------------------------------------------------
-% The class already loads amsmath, amsthm, graphicx, hyperref, enotez, fontspec
-% and unicode-math. Add only what you use; README.md ("Packages by field")
-% says which packages tag correctly and which to avoid.
-\usepackage{booktabs}  % \toprule, \midrule and \bottomrule in tables
+% Add only what you use; README.md ("Packages by field") says which packages
+% tag correctly and which to avoid. The commented lines are the blocks from
+% example.tex; uncomment the ones your document needs.
+\usepackage{graphicx}          % \includegraphics[alt={...}]{name}
+\graphicspath{{resources/}}    % pictures live in resources/ next to this file
+\usepackage{booktabs}          % \toprule, \midrule and \bottomrule in tables
 
-%------------------------------------------------------------------------------
-% PICTURES
-%------------------------------------------------------------------------------
-% Put every figure and image in the resources/ folder next to this file.
-% \includegraphics[alt={...}]{name} finds it there by file name. LaTeX looks
-% there only for pictures: references.bib and any \input file stay next to
-% main.tex. The example's pictures are there too; example.tex still needs them.
+% Theorems: LaTeX tags each one as theorem-like with a Caption and a Lbl.
+% \usepackage{amsthm}
+% \newtheorem{theorem}{Theorem}
+% \newtheorem{lemma}[theorem]{Lemma}
+
+% Endnotes: the mark links to the note and the note's number links back.
+% \usepackage{enotez}
+% \setenotez{backref=true, list-style=description, totoc=auto,
+%   counter-format=roman}
+
+% Floats printed where they are written; the \par lines end the paragraph
+% before an [H] float, which can otherwise put its Caption outside the float.
+% \usepackage{float}
+% \floatplacement{figure}{H}
+% \floatplacement{table}{H}
+% \AddToHook{env/figure/begin}{\par}
+% \AddToHook{env/table/begin}{\par}
+
+% Other languages: babel hyphenates them and the clemson package writes their
+% language tags. The main language comes from lang= above; list the others.
+% \usepackage[french]{babel}
+
+% The kit's package, last: it loads hyperref, which must come after every
+% other package.
+\usepackage{clemson}
+
+% Acrobat's checker (PDF/UA-1) reports every caption and theorem number (Lbl)
+% outside a list as "Lbl and LBody - Failed", a false positive. Uncomment
+% these to get Span instead; veraPDF passes either way.
+% \AssignStructureRole{float/figure/label}{Span}
+% \AssignStructureRole{float/table/label}{Span}
+% \AssignStructureRole{block/theorem-like/label}{Span}
+
+% Left-aligned text, as Clemson's text concept prefers. Delete for justified.
+\AtBeginDocument{\raggedright\setlength{\parindent}{1.5em}}
 
 %------------------------------------------------------------------------------
 % TITLE AND ABSTRACT
 %------------------------------------------------------------------------------
 % pdftitle and pdfauthor set the PDF metadata. The doubled braces keep a comma
 % from splitting the title. Separate the names in pdfauthor with commas.
+% LaTeX tags the printed title as the Title element and \section as H1.
 \title[pdftitle={{Title of the document}}]{Title of the document}
 \author[pdfauthor={First Author, Second Author}]{First Author and Second Author}
 \date{\today}
@@ -73,13 +114,14 @@ table; \texttt{example.tex} shows both.
 %------------------------------------------------------------------------------
 % ENDNOTES AND BIBLIOGRAPHY
 %------------------------------------------------------------------------------
-% \printendnotes prints the endnotes written with \endnote. Uncomment the four
-% bibliography lines once something is cited; with no \cite they print an
-% empty References heading. Entries go in references.bib. make runs BibTeX.
-% VS Code runs it once you add "% !BIB program = bibtex" and
-% "% !BIB TS-program = bibtex" under line 2. In TeXShop, run Typeset, BibTeX,
-% Typeset, Typeset by hand.
-\printendnotes
+% \printendnotes prints the endnotes written with \endnote; uncomment it
+% together with the enotez lines above. Uncomment the four bibliography lines
+% once something is cited; with no \cite they print an empty References
+% heading. Entries go in references.bib; latexmk runs BibTeX. VS Code runs it
+% once you add "% !BIB program = bibtex" and "% !BIB TS-program = bibtex"
+% under line 2. In TeXShop, run Typeset, BibTeX, Typeset, Typeset by hand.
+
+% \printendnotes
 % \phantomsection
 % \addcontentsline{toc}{section}{\refname}  % report/book: {chapter}{\bibname}
 % \bibliographystyle{plain}
