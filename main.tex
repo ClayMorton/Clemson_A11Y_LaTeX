@@ -2,7 +2,7 @@
 % !TEX TS-program = lualatex
 
 % main.tex: your document. Build it with latexmk -lualatex main.tex and check
-% it with make -f Makefile.a11y check, or verapdf --flavour ua2 main.pdf.
+% it with verapdf --flavour ua2 main.pdf and the log lines README.md names.
 % example.tex has every kind of content, tagged and explained. Find the block
 % you need by its banner line (search for "%----") and copy it here.
 
@@ -60,13 +60,14 @@
 % \AddToHook{env/figure/begin}{\par}
 % \AddToHook{env/table/begin}{\par}
 
-% Other languages: babel hyphenates them and the clemson package writes their
-% language tags. The main language comes from lang= above; list the others.
-% \usepackage[french]{babel}
 
 % The kit's package, last: it loads hyperref, which must come after every
-% other package.
+% other package, and babel with the main language from lang= above.
 \usepackage{clemson}
+
+% Other languages: one \babelprovide line each, after the package. babel
+% hyphenates them and the package writes their language tags.
+% \babelprovide[import]{french}
 
 % Acrobat's checker (PDF/UA-1) reports every caption and theorem number (Lbl)
 % outside a list as "Lbl and LBody - Failed", a false positive. Uncomment

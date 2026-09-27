@@ -7,14 +7,14 @@ LaTeX 2026-06-01 writes such files itself once tagging is turned on. This folder
 Clemson author needs to do that:
 
 ```
-clemson.sty  main.tex  example.tex  references.bib  README.md  Makefile.a11y  resources/
+clemson.sty  main.tex  example.tex  references.bib  README.md  resources/
 ```
 
 `clemson.sty` is the package. `main.tex` is the starter to write in. `example.tex` is the worked
 example: every kind of content, tagged, with a comment on each block that says why it is written
 that way and which clause it meets; comment lines that start with `%----` name the blocks. It
-cites `references.bib` and shows the pictures in `resources/`. `Makefile.a11y` builds and checks
-either document. The package needs LuaLaTeX and LaTeX 2026-06-01 or newer and stops otherwise.
+cites `references.bib` and shows the pictures in `resources/`. The package needs LuaLaTeX and LaTeX
+2026-06-01 or newer and stops otherwise.
 
 ## What you need
 
@@ -39,10 +39,7 @@ Applications > Utilities). `sudo` asks for your Mac password and shows nothing w
    and add its folder to your PATH (on a Mac, an `export PATH=...` line in `~/.zshrc`). The check
    needs a version that accepts `--flavour ua2`; 1.30 does.
 
-3. **make** (optional). On a Mac it comes with the Xcode Command Line Tools
-   (`xcode-select --install`); on Ubuntu and in WSL, `sudo apt install make`.
-
-4. **Adobe Acrobat Pro** for the part of the check done by hand. The free Acrobat Reader cannot
+3. **Adobe Acrobat Pro** for the part of the check done by hand. The free Acrobat Reader cannot
    show tags or reading order.
 
 Overleaf: choose the LuaLaTeX compiler and the Rolling TeX Live option in the compiler settings.
@@ -86,17 +83,16 @@ loads hyperref, which must follow every other package. `pdftitle` and `pdfauthor
 a screen reader announces when the file opens (ISO 14289-2:2024 8.11); the doubled braces keep a
 comma in the title from splitting it, and the names in `pdfauthor` are separated by commas.
 
-Build with `latexmk -lualatex main.tex` or `make -f Makefile.a11y`; check with
-`make -f Makefile.a11y check` or `verapdf --flavour ua2 main.pdf`. `latexmk` repeats LuaLaTeX and
-BibTeX until every reference and link is resolved; a single run leaves `??` in the text and
-formulas without MathML, and `main.tex` says how VS Code and TeXShop run the extra passes. For a
-file with another name add `TARGET=name` (no `.tex`) to each `make` line.
+Build with `latexmk -lualatex main.tex`. `latexmk` repeats LuaLaTeX and BibTeX until every
+reference and link is resolved; a single run leaves `??` in the text and formulas without MathML,
+and `main.tex` says how VS Code and TeXShop run the extra passes. Then check with
+`verapdf --flavour ua2 main.pdf` and the log commands under "Checking".
 
 What the package does: it stops the build unless LuaLaTeX, LaTeX 2026-06-01 or newer and
 `\DocumentMetadata` with tagging are in use; loads unicode-math, so every formula gets MathML; tags
 `\strong` as Strong; keeps each figure and table in the tag tree where it is written; keeps the
-MathML attached when the file name holds a comma; tags babel's language switches when babel is
-loaded; and loads hyperref with black underlined links. What it cannot do for you: the `% !TEX`
+MathML attached when the file name holds a comma; loads babel and tags its language switches;
+and loads hyperref with black underlined links. What it cannot do for you: the `% !TEX`
 line, the `\DocumentMetadata` block, `alt={...}` on every picture, and the header rows or columns
 of every table. Everything else is LaTeX's own tagging, and the package has no options. The next
 section gives, for each kind of content, the rule, the reason and the `%----` banner in
@@ -238,25 +234,27 @@ Banners: "Links, citations", "Cross-references".
 
 `lang=en-US` in `\DocumentMetadata` sets the language of the whole PDF, which is all PDF/UA-2
 checks. WCAG 2.1 3.1.2 also wants each phrase in another language marked (ISO 32000-2:2020
-14.9.2), and babel hyphenates but writes no such tag. So write `\usepackage[french]{babel}` with
-the other languages only (the main one comes from `lang`; repeating it as an option earns a
-warning), and the package's LANGUAGES block does the rest: its hooks wrap every `\foreignlanguage`
-phrase in a Span with its language and give every `otherlanguage` block or `\selectlanguage`
-switch its language through tagpdf's `text/lang` key. The recipe comes from babel discussion 357
-and the tagging project's max-moritz example; a later babel or tagpdf release may write the tag
-itself, and the block says when it can go. The main language gets no tag of its own, since the
+14.9.2), and babel hyphenates but writes no such tag. The package therefore loads babel itself,
+with the main language taken from `lang`, and adds the tag: after `\usepackage{clemson}`, add each
+other language with `\babelprovide[import]{french}`, and the package's hooks wrap every
+`\foreignlanguage` phrase in a Span with its language and give every `otherlanguage` block or
+`\selectlanguage` switch its language through tagpdf's `text/lang` key. (A document that already
+loads babel with options, `\usepackage[french]{babel}`, keeps that line before the package; after
+the package it is an option clash.) The recipe comes from babel discussion 357 and the tagging
+project's max-moritz example; a later babel or tagpdf release may write the tag itself, and the
+block says when it can go. The main language gets no tag of its own, since the
 catalog `Lang` already names it, so an English document with one French phrase carries a language
 tag on that phrase only. With these hooks `\foreignlanguage` holds one paragraph at most; longer
 passages go in `otherlanguage`, with a blank line before `\begin{otherlanguage}` and after
 `\end{otherlanguage}`, or the neighboring English paragraph joins the block. A heading inside the
 block gives its whole section the block's language, so keep such a section inside the block up to
 the next heading. To switch back by hand, use the main language's babel name, which the log prints
-in its "Passing ... to babel" line (`american` for `en-US`). Without babel, the kernel's inline
-socket tags a phrase:
-`\UseTaggingSocket{inline/begin}{tag=Span,lang=fr}` ... `{inline/end}`. polyglossia is not
-supported by the package; it writes no tag either, and the kernel's `cmd/` and `env/` hooks with a
-hand-written tag are the way to tag it. The check lists `french.ldf` as incompatible; that entry
-is stale (issue 932, closed in May 2026). Banner: "Rule, language, abbreviation, color".
+in its "Passing ... to babel" line (`american` for `en-US`). For a language that has no
+`\babelprovide` line, the kernel's inline socket tags a phrase, without hyphenation for it:
+`\UseTaggingSocket{inline/begin}{tag=Span,lang=fr}` ... `{inline/end}`. polyglossia cannot be
+loaded together with babel, so it cannot be used with the package. The status report at the end of
+the log lists `french.ldf` as incompatible; that entry is stale (issue 932, closed in May 2026).
+Banner: "Rule, language, abbreviation, color".
 
 ### Code
 
@@ -313,21 +311,22 @@ scaling it scales the type inside.
 
 ## Checking
 
-`make -f Makefile.a11y check` rebuilds quietly, reads the log and prints one line per test, each
-marked `OK`, `WARN`, `FAIL` or `SKIP`: `build` (a LaTeX error, quoted), `references` (something
-prints as `??`), `pictures` (every `\includegraphics` has `alt` or `artifact`; tikz drawings are
-not counted), `formulas` (the number found equals the number with MathML attached), `tags` (no
-warning from LaTeX's tagging or from the package), `packages` (nothing in sections 1 and 2 of the
-`check-tagging-status` report, except `float.sty`, which the example loads for `[H]`), and
-`PDF/UA-2` (veraPDF's verdict, `SKIP` when veraPDF is not on PATH). The `RESULT` line at the end
-reads `FAIL. Fix the FAIL lines and check again.` (make then adds its own `Error 1` line),
-`automatic checks passed with warnings`, `automatic checks passed; a step was skipped`, or
-`automatic checks passed. The five checks by hand are yours.` Without make:
+Four commands cover what a program can check. Run them after `latexmk -lualatex main.tex`:
 
 ```
 verapdf --flavour ua2 --format text main.pdf
-grep -n -A2 '^!\|Package tagpdf Warning\|mathml missing\|luamml has been' main.log
+grep -n -A2 '^!\|Package tagpdf Warning\|Package clemson\|Alternative text for graphic' main.log
+grep -n '^==>\|mathml missing\|luamml has been' main.log
+grep -n -A14 'Status report of the tagging support' main.log
 ```
+
+The second command lists LaTeX errors, warnings from LaTeX's tagging code and from the package,
+and every `\includegraphics` without `alt` or `artifact` (a tikz drawing without `alt` is silent,
+so search the source for `tikzpicture` as well). The third prints the MathML statistics:
+`math fragments found` and `MathML AF attached` must be equal, and any `mathml missing` line means
+the MathML file is stale, so build again. The fourth prints the `check-tagging-status` report;
+sections 1 and 2 name packages to replace (`float.sty` is listed for two commands the example does
+not use).
 
 The first line of veraPDF's output says PASS or FAIL and names the ISO 14289-2 clause of each
 failed rule. veraPDF passes a picture whose alt text is only its file name, so the five checks by
@@ -391,18 +390,18 @@ font, and the font passes every veraPDF font rule.
 | `graphicx`, `tikz` with `alt={...}`; `float` for `[H]` with the two `\par` hooks; `placeins` | `pgfplots`, `wrapfig`, `pdfpages`, `floatrow`, `\newfloat` and `\restylefloat` from `float`, `titlesec` | incompatible or unsupported; export a plot as a picture with alt text; `float` is listed incompatible for those two commands only; `titlesec` stops tagging and writes no PDF |
 | the kernel's `label=` key | `enumitem` | the package cannot be loaded under tagging; its syntax is built in |
 | `\footnote`; `enotez` for endnotes | `endnotes`, `postnotes` | `endnotes` gives no link from mark to note; `postnotes` does not build under LaTeX 2026-06-01; `enotez` is partially compatible |
-| `babel`, tagged by the package (`babel-english` compatible, `babel-spanish` partial) | `polyglossia` | not supported by the package: it writes no language tag and is unchecked; the kernel's `cmd/` and `env/` hooks with a hand-written tag work |
+| `babel` (loaded by the package; add languages with `\babelprovide[import]{...}`; `babel-english` compatible, `babel-spanish` partial) | `polyglossia` | cannot be loaded together with babel, so it cannot be used with the package |
 | `multicol`, `geometry`, `fancyhdr`, `microtype`, `setspace`, `parskip`, `natbib`, `bookmark`; `biblatex`, `cleveref` (after `amsmath`), `csquotes`, `acronym` (all four partial) | `memoir`; journal classes (`IEEEtran`, `revtex4-2`, `llncs`); `beamer`; `glossaries` | listed incompatible or unsupported, and `glossaries` unchecked; send a journal the copy built with its own class; write an abbreviation out in the text |
 
 For any other package, look it up at <https://latex3.github.io/tagging-project/tagging-status/>;
-a package that is not listed has not been checked, and the `packages` line of the check names any
-package you load that the list marks unsupported or currently incompatible.
+a package that is not listed has not been checked, and the `check-tagging-status` report at the end
+of the log names any package you load that the list marks unsupported or currently incompatible.
 
 ## Bringing an existing document over
 
 Work on a copy of the project.
 
-1. Copy `clemson.sty` and `Makefile.a11y` next to the document's main `.tex` file.
+1. Copy `clemson.sty` next to the document's main `.tex` file.
 2. Put the two `% !TEX` lines and the `\DocumentMetadata{...}` block from `main.tex` at the very
    top, above `\documentclass`. Without the block, tagging is off.
 3. Switch the engine everywhere: `pdflatex` becomes `lualatex` and `latexmk -pdf` becomes
@@ -410,8 +409,10 @@ Work on a copy of the project.
 4. Delete the lines that load `fontspec`, `unicode-math`, `hyperref`, `inputenc`, `fontenc`,
    `lmodern`, `amssymb` and `bm`, and font packages such as `times` or `newtxmath`; the package
    loads the first three, and the rest clash with unicode-math or the Unicode font setup.
-   hyperref options go in `\hypersetup{...}` after `\usepackage{clemson}`. Keep the rest,
-   including `babel`, `graphicx`, `amsmath` and `amsthm`. Add `\usepackage{clemson}` as the last
+   hyperref options go in `\hypersetup{...}` after `\usepackage{clemson}`. The package loads
+   babel, so a `\usepackage[...]{babel}` line stays only if it comes before the package; delete
+   `polyglossia`. Keep the rest, including `graphicx`, `amsmath` and `amsthm`. Add
+   `\usepackage{clemson}` as the last
    `\usepackage` line and the `pdftitle` and `pdfauthor` brackets to `\title` and `\author`. A
    class of your own built on `article`, `report` or `book` can stay; journal classes are listed
    incompatible.
@@ -419,8 +420,9 @@ Work on a copy of the project.
    `\bm{x}` replaced by `\symbfit{x}`, and each `subfigure` rebuilt like "Two panels".
 6. Build, then check. The first build of an older document often stops with "text para hooks
    differ"; the cause is a theorem, proof or abstract right after a list, display or `center`
-   with no blank line before it. Then the `FAIL` lines are the to-do list. The check cannot see
-   two things, so do them yourself: give every data table its `\tagpdfsetup` header line, and
+   with no blank line before it. Then the veraPDF output and the log lines under "Checking" are
+   the to-do list. No program can see two things, so do them yourself: give every data table its
+   `\tagpdfsetup` header line, and
    move every caption above its picture or tabular. Finish with the five checks by hand.
 
 ## After a LaTeX update
@@ -432,8 +434,9 @@ switches (until babel or tagpdf writes the tag itself). The two `\par` hook line
 placement in `example.tex` and `main.tex` cover a gap that a later release may close. Everything
 else is LaTeX's own tagging; the table keys `table/header-rows`, `table/header-columns` and
 `table/multirow` are marked preliminary in the latex-lab table documentation. After every
-`tlmgr update`, run `make -f Makefile.a11y example` once; a clean `RESULT` line means the release
-still builds and validates the whole example. When something changes, read `changes.txt` in TeX
+`tlmgr update`, build `example.tex` once and run veraPDF on it; a PASS and a log without tagging
+warnings mean the release still builds and validates the whole example. When something changes, read
+`changes.txt` in TeX
 Live's `doc/latex/latex-lab/` folder and the status page. The 2026-11-01 release renames the tags
 Acrobat shows (`text` to `text-block`, `text-unit` to `semantic-para`, section numbers to
 `heading-number` with role Lbl) and makes `\rule` an artifact by itself.

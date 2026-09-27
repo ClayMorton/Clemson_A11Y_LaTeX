@@ -5,7 +5,7 @@
 
 % example.tex: the worked example. Write your own document in main.tex.
 % Build: latexmk -lualatex example.tex
-% Check: make -f Makefile.a11y example, or verapdf --flavour ua2 example.pdf
+% Check: verapdf --flavour ua2 example.pdf, and the log lines README.md names
 
 %------------------------------------------------------------------------------
 % METADATA AND CLASS
@@ -82,19 +82,19 @@
 \floatplacement{table}{H}
 \AddToHook{env/figure/begin}{\par}
 \AddToHook{env/table/begin}{\par}
-% babel hyphenates the other languages of the document; the main language
-% comes from lang= in \DocumentMetadata, so babel gets the others only. babel
-% writes no language tag by itself: the clemson package adds one to every
-% \foreignlanguage phrase (one paragraph at most) and to every otherlanguage
-% block or \selectlanguage switch. Meets: WCAG 2.1 3.1.2 (language of parts).
-\usepackage[french]{babel}
 % A long \verb string or URL cannot be hyphenated and can run into the margin.
 % \emergencystretch lets TeX loosen that line instead. This is for typography
 % and has no effect on tagging.
 \setlength{\emergencystretch}{2em}
 % The kit's package, last: it loads hyperref, which must come after every
-% other package. It also loads unicode-math, so every formula gets MathML.
+% other package. It also loads unicode-math, so every formula gets MathML,
+% and babel, with the main language taken from lang= in \DocumentMetadata.
 \usepackage{clemson}
+% Other languages come after the package, one \babelprovide line each. babel
+% hyphenates them; the package writes their language tags: every
+% \foreignlanguage phrase (one paragraph at most) and every otherlanguage
+% block or \selectlanguage switch. Meets: WCAG 2.1 3.1.2 (language of parts).
+\babelprovide[import]{french}
 % LaTeX tags caption and theorem numbers Lbl, as PDF/UA-2 and the Tagged PDF
 % BPG expect. Acrobat's checker (PDF/UA-1) reports every Lbl outside a list as
 % "Lbl and LBody - Failed", a false positive. Uncomment to get Span instead.
@@ -152,8 +152,8 @@ is written the way it is.
 %------------------------------------------------------------------------------
 \section{How to use this file}
 Copy the whole kit folder. Write your document in \texttt{main.tex}, the blank starter,
-and build it with \verb|latexmk -lualatex main.tex|; \verb|make -f Makefile.a11y check|
-builds and checks it, and \verb|make -f Makefile.a11y example| builds this file. Every
+and build it with \verb|latexmk -lualatex main.tex|; \verb|latexmk -lualatex example.tex|
+builds this file. Every
 example here is marked in the source by a banner comment line (\verb|%----|) that names
 it, so search \texttt{example.tex} for the one you need and copy the block, with its
 \verb|\usepackage| line from the PACKAGES block if it has one. Then work through five
@@ -173,7 +173,7 @@ steps.
     \autoref{sec:tables} shows the eight layouts, the one caveat and the
     \verb|\tagpdfsetup| keys each layout needs.
   \item Build with \verb|latexmk -lualatex main.tex| and check with
-    \verb|make -f Makefile.a11y check| or \verb|verapdf --flavour ua2 main.pdf|. A
+    \verb|verapdf --flavour ua2 main.pdf| and the log lines \texttt{README.md} names. A
     script cannot judge everything, so finish with five checks by hand: read every alt
     text back, then look at the tags, the reading order, the links and the use of color
     in Acrobat Pro: All tools, Prepare for accessibility, Check for accessibility.
@@ -274,7 +274,7 @@ file. A block of code goes in \texttt{verbatim}, which is tagged as code. Each l
 verbatim block is tagged as a code line; a screen reader with symbol pronunciation set to
 ``all'' reads the punctuation.
 \begin{verbatim}
-make -f Makefile.a11y check
+verapdf --flavour ua2 main.pdf
 \end{verbatim}
 
 %------------------------------------------------------------------------------
@@ -565,8 +565,8 @@ Four small things that come up in any paper; the first two need a command, shown
     \tagmcbegin{tag=text} and the sentence carries on after it.
   % A foreign phrase needs its own /Lang so a screen reader changes voice.
   % babel writes none; the clemson package wraps every \foreignlanguage phrase
-  % in a Span with lang=fr, and babel hyphenates it as French. Without babel,
-  % the kernel's inline socket (the one \emph uses) does the same in English:
+  % in a Span with lang=fr, and babel hyphenates it as French. The kernel's
+  % inline socket (the one \emph uses) does the same without a language switch:
   % \UseTaggingSocket{inline/begin}{tag=Span,lang=fr}...{inline/end}.
   % Meets: ISO 32000-2:2020 14.9.2 (Lang); WCAG 2.1 3.1.2 (language of parts).
   \item[A phrase in another language] The French for ``right away'' is
