@@ -2,7 +2,8 @@
 % !TEX TS-program = lualatex
 
 % main.tex: your document. Build it with latexmk -lualatex main.tex and check
-% it with verapdf --flavour ua2 main.pdf and the log lines README.md names.
+% it with verapdf --flavour ua2 --format text main.pdf and the log lines
+% README.md names.
 % example.tex has every kind of content, tagged and explained. Find the block
 % you need by its banner line (search for "%----") and copy it here.
 
@@ -24,8 +25,8 @@
   % Writes the MathML of every formula as structure elements (Acrobat, NVDA)
   % and as an attached file (Foxit, Firefox). The LaTeX default is the file.
   tagging-setup = {math/setup={mathml-SE,mathml-AF}},
-  % Appends a report on the loaded packages to the end of main.log; sections
-  % 1 and 2 name packages to replace.
+  % Appends a report on the loaded packages near the end of main.log;
+  % sections 1 and 2 name packages to replace.
   check-tagging-status,
 }
 % Use report for chapters (\chapter becomes H1, \section H2). book works too
@@ -99,9 +100,13 @@ One paragraph that says what the document is about.
 %------------------------------------------------------------------------------
 % CONTENTS AND LISTS
 %------------------------------------------------------------------------------
-% Uncomment the ones the document needs.
+% Uncomment the ones the document needs. The \pdfbookmark line before each
+% gives its heading a bookmark (with report or book, put \clearpage first).
+% \pdfbookmark[1]{\contentsname}{toc}
 % \tableofcontents
+% \pdfbookmark[1]{\listfigurename}{lof}
 % \listoffigures
+% \pdfbookmark[1]{\listtablename}{lot}
 % \listoftables
 
 %------------------------------------------------------------------------------

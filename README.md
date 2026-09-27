@@ -33,11 +33,11 @@ Applications > Utilities). `sudo` asks for your Mac password and shows nothing w
    On Windows, work inside WSL (Ubuntu). There and on Linux, install TeX Live 2026 with the
    installer from tug.org, not with `apt`, whose TeX Live is years too old.
 
-2. **Java and veraPDF** (optional). veraPDF checks a PDF against the PDF/UA-2 rules a program can
-   check; without it the check skips that step and says so. Install a Java runtime (for example
+2. **Java and veraPDF**. veraPDF checks a PDF against the PDF/UA-2 rules a program can
+   check. Install a Java runtime (for example
    Temurin from adoptium.net), run the installer from [verapdf.org](https://verapdf.org/software/)
-   and add its folder to your PATH (on a Mac, an `export PATH=...` line in `~/.zshrc`). The check
-   needs a version that accepts `--flavour ua2`; 1.30 does.
+   and add its folder to your PATH (on a Mac, an `export PATH=...` line in `~/.zshrc`). Use a
+   version that accepts `--flavour ua2`; 1.30 does.
 
 3. **Adobe Acrobat Pro** for the part of the check done by hand. The free Acrobat Reader cannot
    show tags or reading order.
@@ -86,7 +86,7 @@ comma in the title from splitting it, and the names in `pdfauthor` are separated
 Build with `latexmk -lualatex main.tex`. `latexmk` repeats LuaLaTeX and BibTeX until every
 reference and link is resolved; a single run leaves `??` in the text and formulas without MathML,
 and `main.tex` says how VS Code and TeXShop run the extra passes. Then check with
-`verapdf --flavour ua2 main.pdf` and the log commands under "Checking".
+`verapdf --flavour ua2 --format text main.pdf` and the log commands under "Checking".
 
 What the package does: it stops the build unless LuaLaTeX, LaTeX 2026-06-01 or newer and
 `\DocumentMetadata` with tagging are in use; loads unicode-math, so every formula gets MathML; tags
@@ -144,14 +144,15 @@ cell. A `tabular` kept for layout goes inside a group with
 `=div`; `=false` suits only `l`, `c` and `r` columns, and any of the three left open changes the
 tables that follow. LaTeX writes Scope as attribute classes, which veraPDF checks; Acrobat's Table
 Editor shows "scope none" for them (tagging-project issue 1324), and Acrobat's checker reports a
-presentation table under its Headers rule. Banners: the eight "Table:" blocks.
+presentation table under its Headers rule. Banners: the seven "Table:" blocks and "Side by side,
+not a table".
 
 ### Figures and tables in the text
 
 LaTeX tags each `figure` and `table` as an Aside whose first child is the Caption, but by default
 it defers those structures to the end of the tree, its choice for PDF 1.7 readers that show an
 Aside as a Note. The package sets `float/here`, so each structure stays where the float is
-written, next to the text that cites it (WCAG 2.1 1.3.2; Tagged PDF BPG 1.0.1 3.7). To print
+written, next to the text that cites it (WCAG 2.1 1.3.2; Tagged PDF BPG 1.0.1 3.2.2). To print
 floats where they are written as well, copy
 the five `float` lines from the PACKAGES block of `example.tex`: `\usepackage{float}`, two
 `\floatplacement` lines and two `\AddToHook{env/.../begin}{\par}` lines. The `\par` lines end the
@@ -175,7 +176,8 @@ its syntax is built in. Each item body holds its text as `LBody > Part > P`; tha
 LaTeX tags every formula as a Formula and writes its MathML itself, which is what ISO 14289-2:2024
 8.2.5.29.1 asks; the package loads unicode-math so that happens on LuaLaTeX. The MathML is written
 on the first run and read back on the next, so a document needs two runs; `latexmk` does that, and
-the log ends with `==> N math fragments found` and `==> N MathML AF attached`, which must match.
+near its end the log reports `==> N math fragments found` and `==> N MathML AF attached`, which
+must match.
 The `math/setup` key in `\DocumentMetadata` chooses the form: `mathml-SE` puts the MathML into the
 tag tree as structure elements, `mathml-AF` attaches it as a file. The tagging project's screen
 reader recordings show Acrobat with NVDA reading the structure elements, and Foxit with NVDA and
@@ -212,7 +214,8 @@ rules 8.2.5.14). With the default `10pt` option footnote text is 8 pt; Clemson's
 to avoid sizes under 9 points, and the `11pt` class option gives 9 pt notes with 11 pt body text.
 LaTeX has no endnote support. `enotez`, listed partially compatible, gives a link both ways and a
 tagged list; the PACKAGES block of `example.tex` configures it. The `endnotes` package gives no
-link from mark to note. Banners: "Emphasis, footnote, endnote" and the FOOTNOTE AND ENDNOTE block.
+link from mark to note. Banners: "Emphasis, footnote, endnote" and the FOOTNOTE AND ENDNOTE EXAMPLES
+section.
 
 ### Links and bookmarks
 
@@ -224,7 +227,8 @@ underline comes from the annotation's border style, so no link is marked by colo
 viewer. `\hypersetup{hidelinks}` after the package removes it. Name the destination in the link
 text, never "click here"; give an email address as its own link,
 `\href{mailto:name@clemson.edu}{name@clemson.edu}`. `\autoref{sec:x}` links the whole phrase and
-prints "section 2"; `\renewcommand*\sectionautorefname{Section}` capitalizes it. The headings of
+prints "section 2"; to capitalize it, put `\renewcommand*\sectionautorefname{Section}` inside
+`\AddToHook{begindocument/end}{...}`, because babel resets the name when the document starts. The headings of
 `\tableofcontents`, `\listoffigures` and `\listoftables` get no bookmark; write
 `\pdfbookmark[1]{\contentsname}{toc}` on the line before, level 1 in `article` and in `report`,
 and add `\clearpage` first only in `report` or `book`, where the heading starts a new page.
@@ -240,20 +244,25 @@ other language with `\babelprovide[import]{french}`, and the package's hooks wra
 `\foreignlanguage` phrase in a Span with its language and give every `otherlanguage` block or
 `\selectlanguage` switch its language through tagpdf's `text/lang` key. (A document that already
 loads babel with options, `\usepackage[french]{babel}`, keeps that line before the package; after
-the package it is an option clash.) The recipe comes from babel discussion 357 and the tagging
+the package it is an option clash. The main language still comes from `lang`, so French is then a
+secondary language, not the document's.) The recipe comes from babel discussion 357 and the tagging
 project's max-moritz example; a later babel or tagpdf release may write the tag itself, and the
 block says when it can go. The main language gets no tag of its own, since the
 catalog `Lang` already names it, so an English document with one French phrase carries a language
 tag on that phrase only. With these hooks `\foreignlanguage` holds one paragraph at most; longer
 passages go in `otherlanguage`, with a blank line before `\begin{otherlanguage}` and after
-`\end{otherlanguage}`, or the neighboring English paragraph joins the block. A heading inside the
+`\end{otherlanguage}`. Without the first, the block's opening paragraph joins the English paragraph
+before it and loses its language tag; without the second, the English text after the block joins
+the block and is tagged with its language. Both build without a warning. A heading inside the
 block gives its whole section the block's language, so keep such a section inside the block up to
 the next heading. To switch back by hand, use the main language's babel name, which the log prints
 in its "Passing ... to babel" line (`american` for `en-US`). For a language that has no
 `\babelprovide` line, the kernel's inline socket tags a phrase, without hyphenation for it:
-`\UseTaggingSocket{inline/begin}{tag=Span,lang=fr}` ... `{inline/end}`. polyglossia cannot be
-loaded together with babel, so it cannot be used with the package. The status report at the end of
-the log lists `french.ldf` as incompatible; that entry is stale (issue 932, closed in May 2026).
+`\UseTaggingSocket{inline/begin}{tag=Span,lang=fr}` ... `{inline/end}`. polyglossia cannot be used
+with the package: loaded after it, it warns that babel and polyglossia are exclusive and tags
+nothing; loaded before it, the build stops. With the `\usepackage[french]{babel}` form, the status
+report in the log lists `french.ldf` as incompatible; that entry is stale (issue 932, closed in May
+2026), and the `\babelprovide` form loads no `.ldf` file at all.
 Banner: "Rule, language, abbreviation, color".
 
 ### Code
@@ -317,15 +326,16 @@ Four commands cover what a program can check. Run them after `latexmk -lualatex 
 verapdf --flavour ua2 --format text main.pdf
 grep -n -A2 '^!\|Package tagpdf Warning\|Package clemson\|Alternative text for graphic' main.log
 grep -n '^==>\|mathml missing\|luamml has been' main.log
-grep -n -A14 'Status report of the tagging support' main.log
+sed -n '/Status report of the tagging support/,/3\. Partially/p' main.log
 ```
 
 The second command lists LaTeX errors, warnings from LaTeX's tagging code and from the package,
 and every `\includegraphics` without `alt` or `artifact` (a tikz drawing without `alt` is silent,
 so search the source for `tikzpicture` as well). The third prints the MathML statistics:
 `math fragments found` and `MathML AF attached` must be equal, and any `mathml missing` line means
-the MathML file is stale, so build again. The fourth prints the `check-tagging-status` report;
-sections 1 and 2 name packages to replace (`float.sty` is listed for two commands the example does
+the MathML file is stale, so build again. The fourth prints sections 1 and 2 of the
+`check-tagging-status` report, which name packages to replace (`float.sty` is listed for two
+commands the example does
 not use).
 
 The first line of veraPDF's output says PASS or FAIL and names the ISO 14289-2 clause of each
@@ -366,7 +376,7 @@ font, and the font passes every veraPDF font rule.
 | Headings H1 to H6, bookmarks, linked contents | LaTeX 2026-06-01 with hyperref | ISO 32000-2:2020 14.8.4.5, Annex M; Tagged PDF BPG 1.0.1 4.1.4 |
 | Lists L, LI, Lbl, LBody | LaTeX 2026-06-01 | ISO 32000-2:2020 14.8.4.8.2 |
 | Tables TH, TD, Scope, spans | LaTeX 2026-06-01, from the author's keys | ISO 32000-2:2020 14.8.4.8.3 |
-| Floats as Aside with Caption first; structure kept where written | LaTeX 2026-06-01; clemson.sty (`float/here`) | ISO 32000-2:2020 14.8.4.8.4; WCAG 2.1 1.3.2; Tagged PDF BPG 1.0.1 3.7 |
+| Floats as Aside with Caption first; structure kept where written | LaTeX 2026-06-01; clemson.sty (`float/here`) | ISO 32000-2:2020 14.8.4.8.4; WCAG 2.1 1.3.2; Tagged PDF BPG 1.0.1 3.2.2 |
 | Figure with Alt, ActualText or artifact | LaTeX 2026-06-01, from the author's keys | ISO 32000-2:2020 14.8.4.8.5, 14.9.4 |
 | Formula with MathML, kept when the file name holds a comma | LaTeX 2026-06-01 with unicode-math; clemson.sty | ISO 14289-2:2024 8.2.5.29.1 |
 | Theorems as Sect with Caption and Lbl | LaTeX 2026-06-01 | ISO 32000-2:2020 14.8.4.8.4 |
@@ -405,7 +415,7 @@ Work on a copy of the project.
 2. Put the two `% !TEX` lines and the `\DocumentMetadata{...}` block from `main.tex` at the very
    top, above `\documentclass`. Without the block, tagging is off.
 3. Switch the engine everywhere: `pdflatex` becomes `lualatex` and `latexmk -pdf` becomes
-   `latexmk -lualatex`, in a Makefile or an editor setting.
+   `latexmk -lualatex`, in the project's own build script or editor setting.
 4. Delete the lines that load `fontspec`, `unicode-math`, `hyperref`, `inputenc`, `fontenc`,
    `lmodern`, `amssymb` and `bm`, and font packages such as `times` or `newtxmath`; the package
    loads the first three, and the rest clash with unicode-math or the Unicode font setup.
@@ -427,11 +437,12 @@ Work on a copy of the project.
 
 ## After a LaTeX update
 
-Three things in the kit are tied to a LaTeX or babel version, and each carries a `REMOVE WHEN`
-line. The package's two blocks marked `A11Y WORKAROUND` in `clemson.sty` reset the MathML file
+Three things in the kit are tied to a LaTeX or babel version. The two blocks marked
+`A11Y WORKAROUND` in `clemson.sty` each carry a `REMOVE WHEN` line: they reset the MathML file
 list when the file name holds a comma (only then, with a documented key) and tag babel's language
-switches (until babel or tagpdf writes the tag itself). The two `\par` hook lines beside `[H]`
-placement in `example.tex` and `main.tex` cover a gap that a later release may close. Everything
+switches (until babel or tagpdf writes the tag itself). The third, the two `\par` hook lines beside
+`[H]` placement in `example.tex` and `main.tex`, covers a gap that a later release may close.
+Everything
 else is LaTeX's own tagging; the table keys `table/header-rows`, `table/header-columns` and
 `table/multirow` are marked preliminary in the latex-lab table documentation. After every
 `tlmgr update`, build `example.tex` once and run veraPDF on it; a PASS and a log without tagging

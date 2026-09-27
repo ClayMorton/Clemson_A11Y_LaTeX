@@ -5,7 +5,8 @@
 
 % example.tex: the worked example. Write your own document in main.tex.
 % Build: latexmk -lualatex example.tex
-% Check: verapdf --flavour ua2 example.pdf, and the log lines README.md names
+% Check: verapdf --flavour ua2 --format text example.pdf, then the log lines
+% that README.md names
 
 %------------------------------------------------------------------------------
 % METADATA AND CLASS
@@ -101,6 +102,12 @@
 % \AssignStructureRole{float/figure/label}{Span}
 % \AssignStructureRole{float/table/label}{Span}
 % \AssignStructureRole{block/theorem-like/label}{Span}
+% \autoref names its target; hyperref's default for a section is "section".
+% babel resets those names when the document starts, so the change goes in
+% a begindocument/end hook, and "Section" is what the link then reads.
+\AddToHook{begindocument/end}{%
+  \renewcommand*{\sectionautorefname}{Section}%
+  \renewcommand*{\subsectionautorefname}{Section}}
 
 % Clemson's text concept prefers left-aligned text (WCAG 1.4.8 is AAA, not
 % required). LaTeX writes TextAlign Start on those paragraphs; theorem and
@@ -173,7 +180,8 @@ steps.
     \autoref{sec:tables} shows the eight layouts, the one caveat and the
     \verb|\tagpdfsetup| keys each layout needs.
   \item Build with \verb|latexmk -lualatex main.tex| and check with
-    \verb|verapdf --flavour ua2 main.pdf| and the log lines \texttt{README.md} names. A
+    \verb|verapdf --flavour ua2 --format text main.pdf| and the log lines
+    \texttt{README.md} names. A
     script cannot judge everything, so finish with five checks by hand: read every alt
     text back, then look at the tags, the reading order, the links and the use of color
     in Acrobat Pro: All tools, Prepare for accessibility, Check for accessibility.
@@ -274,7 +282,7 @@ file. A block of code goes in \texttt{verbatim}, which is tagged as code. Each l
 verbatim block is tagged as a code line; a screen reader with symbol pronunciation set to
 ``all'' reads the punctuation.
 \begin{verbatim}
-verapdf --flavour ua2 main.pdf
+verapdf --flavour ua2 --format text main.pdf
 \end{verbatim}
 
 %------------------------------------------------------------------------------
@@ -436,7 +444,7 @@ are not compatible with tagging, so lay the panels out with \verb|\hfill|, as he
 % Two panels in one figure: one \includegraphics per panel, each with its own
 % alt text, and one caption that names the panels. subcaption and subfig are
 % incompatible with tagging, so \hfill places the panels.
-% Meets: Tagged PDF BPG 1.0.1 5.5.3.1 (per-panel alternative text).
+% Meets: Tagged PDF BPG 1.0.1 5.5.2 (alternative text on each panel).
 \begin{figure}\centering
   \caption{Two panels: (a) the left half and (b) the right half of the wall}\label{fig:panels}
   \includegraphics[width=0.33\linewidth,trim=0 0 160 0,clip,alt={Panel (a): the left half of the cable wall, four columns of coils.}]{cables}
@@ -558,7 +566,7 @@ Four small things that come up in any paper; the first two need a command, shown
 % by \tagmcbegin{tag=text}; without it the rest of the paragraph is written as
 % an artifact and lost. Both are documented tagpdf commands. LaTeX 2026-11-01
 % marks \rule as an artifact by itself, so these three commands can then go.
-% Meets: ISO 32000-2:2020 14.8.2.2 (artifacts); Tagged PDF BPG 1.0.1 4.3.1.
+% Meets: ISO 32000-2:2020 14.8.2.2 (artifacts); Tagged PDF BPG 1.0.1 3.7.
 \begin{description}
   \item[A decorative rule] A rule that only separates words carries no meaning:
     \tagmcbegin{artifact}\rule{2cm}{0.4pt}\tagmcend%
@@ -593,8 +601,7 @@ Four small things that come up in any paper; the first two need a command, shown
 A table is accessible when a reader can tell which cells are headers and what each header
 covers. Declare the header cells with \verb|\tagpdfsetup| before \verb|\begin{tabular}|, put the
 caption above the table, as above every figure in this file, and keep notes outside it. The
-eight layouts below, and the one caveat that follows them, cover the cases that come up in a
-thesis.
+eight layouts below, and the one caveat among them, cover the cases that come up in a thesis.
 
 % Layouts follow Clemson's tables guide:
 % https://www.clemson.edu/accessibility/digital/concepts/tables.html
@@ -724,7 +731,7 @@ thesis.
 % head as an artifact; but its \caption is tagged as a header cell, not as a
 % Caption (a latex-lab-table limit). Put the title in a paragraph before the
 % table until that is fixed. lscape and pdflscape are listed compatible.
-% Meets: Tagged PDF BPG 1.0.1 3.2.2 (one table across pages).
+% Meets: Tagged PDF BPG 1.0.1 3.4 (content that spans pages).
 
 %---- Side by side, not a table -----------------------------------------------
 Two names side by side are not a table: they hold no data and no headers, and Clemson's tables
@@ -817,7 +824,7 @@ Begin every entry with the figure it describes, so that the caption and the desc
 link to each other in both directions.
 
 \strong{\autoref{fig:wall}:} A color photograph of a storage wall in a network room. Gray
-patch cables are wound into loops about twenty centimetres across and hung on a beige
+patch cables are wound into loops about twenty centimeters across and hung on a beige
 pegboard in six rows of eight. A blue plastic clip holds each coil near the top, and the blue
 connectors at the ends of each cable hang below the coil. The rows are evenly spaced and the
 coils are of much the same size, so the wall reads as a store of unused cable rather than as
