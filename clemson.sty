@@ -71,18 +71,20 @@
 % FONTS AND MATH
 %------------------------------------------------------------------------------
 % LuaLaTeX already sets Latin Modern in Unicode (TU) encoding, with its small
-% caps and optical sizes, so no font command is needed. unicode-math is the
-% tagging project's math setup on LuaLaTeX: with it every formula gets MathML.
-% It loads fontspec and amsmath. Do not load amssymb or bm after it; write
-% \symbf{v}, \symbfit{v} and \symcal{A} for bold and script letters. A
-% document that loads lua-unicode-math first keeps it.
-% Meets: ISO 14289-2:2024 8.2.5.29.1 (MathML); 8.4.5.8 (ToUnicode).
-\IfPackageLoadedTF{lua-unicode-math}{}{\RequirePackage{unicode-math}}
+% caps and optical sizes, so no font command is needed. The tagging project
+% asks for unicode-math with math: it gives LaTeX's MathML the right characters
+% (\int, \sum, \hbar). It loads fontspec and amsmath. Do not load amssymb or bm
+% after it; write \symbf{v}, \symbfit{v} and \symcal{A} for bold and script
+% letters. A document that loads lua-unicode-math first keeps it and gets
+% fontspec, which defines \strong. Meets: ISO 14289-2:2024 8.2.5.29.1 (MathML;
+% Math in PDF BPG 1.0 p. 4).
+\IfPackageLoadedTF{lua-unicode-math}{\RequirePackage{fontspec}}{\RequirePackage{unicode-math}}
 % \strong (fontspec) is tagged Strong through the kernel's inline socket, the
 % way LaTeX tags \emph as Em; \textbf only changes the letters, so bold used
 % for meaning is lost to a screen reader. Keep it to words in a sentence; the
 % LINKS block lets it sit in a heading without breaking the bookmark.
-% Meets: WCAG 2.1 SC 1.3.1 (failure F2: meaning carried by appearance alone).
+% REMOVE WHEN: LaTeX ships \strongemph (latex2e issue 1620); drop these hooks.
+% Meets: WCAG 2.1 SC 1.3.1 (failure F2); ISO 32000-2:2020 Table 368 (Strong).
 \AddToHook{cmd/strong/before}{\leavevmode\UseTaggingSocket{inline/begin}{tag=Strong}}
 \AddToHook{cmd/strong/after}{\UseTaggingSocket{inline/end}}
 
