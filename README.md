@@ -61,7 +61,7 @@ ones every accessible document needs:
   lang          = en-US,
   pdfstandard   = ua-2,
   tagging       = on,
-  tagging-setup = {math/setup={mathml-SE,mathml-AF}},
+  tagging-setup = {math/setup=mathml-SE},
   check-tagging-status,
 }
 \documentclass{article}
@@ -76,8 +76,8 @@ writes MathML. `\DocumentMetadata` goes above `\documentclass`. `lang` is the la
 PDF (ISO 14289-2:2024 8.4.4). `pdfstandard=ua-2` declares PDF/UA-2, the standard veraPDF tests.
 `tagging=on` turns tagging on (`tagging-setup` alone would too); `pdfstandard=ua-2` by itself does
 not, and LaTeX then writes an untagged PDF without a word, which is why the package stops instead.
-`tagging-setup` writes the MathML of every formula as structure elements and as an attached file
-(see "Mathematics"). `check-tagging-status` appends a report on the loaded packages to the log. Use
+`tagging-setup` writes the MathML of every formula into the tag tree (see "Mathematics").
+`check-tagging-status` appends a report on the loaded packages to the log. Use
 `report` for chapters (`\chapter` is H2, `\section` H3); `book` works too but has no abstract.
 `\usepackage{clemson}` comes last, because it loads hyperref, which must follow every other package.
 `pdftitle` and `pdfauthor` set the metadata a screen reader announces when the file opens (ISO
@@ -196,25 +196,30 @@ its syntax is built in. Each item body holds its text as `LBody > Part > P`; tha
 ### Mathematics
 
 LaTeX tags every formula as a Formula and writes its MathML itself, which is what ISO 14289-2:2024
-8.2.5.29.1 asks; the package loads unicode-math so that happens on LuaLaTeX. The MathML is written
-on the first run and read back on the next, so a document needs two runs; `latexmk` does that, and
-near its end the log reports `==> N math fragments found` and `==> N MathML AF attached`, which
-must match.
-The `math/setup` key in `\DocumentMetadata` chooses the form: `mathml-SE` puts the MathML into the
-tag tree as structure elements, `mathml-AF` attaches it as a file. The tagging project's screen
-reader recordings show Acrobat with NVDA reading the structure elements, and Foxit with NVDA and
-Firefox with NVDA or JAWS reading the attached file; no recording shows the reverse. With no key
-LaTeX attaches the file only, and the project's usage instructions show `mathml-SE`; the kit asks
-for both so that every recorded viewer reads the same MathML from one file. Two known warnings
-under `mathml-SE`: a numbered `multline` reports "structure with label 0 is unknown" (issue 1407;
-use `multline*`), and an mhchem prescript such as `\ce{^{14}C}` reports a reused label (issue
-793; write it out in words). `\MathMLintent{mean($x)}{{...}}` and `\MathMLarg{x}{...}` name what
-a formula means (Math in PDF BPG 1.0 p. 15); keep the double braces, because a scripted single
-atom loses the intent silently. Write `\symbf{v}`, `\symbfit{v}` and `\symcal{A}` for bold and
-script letters; `bm` does not work with unicode-math, and `amssymb` loaded after the package stops
-the build (load it before the package if a command name is missing). A file name with a comma
-makes LaTeX split the list of MathML files and drop every formula's MathML; the package resets
-the list in that case. Banners: "Inline and display math" through "Chemistry, units, bra-ket".
+8.2.5.29.1 asks; the package loads unicode-math so that happens on LuaLaTeX. MathML can sit in a
+PDF in two forms, and the `math/setup` key in `\DocumentMetadata` chooses. `mathml-SE` (structure
+elements) writes the MathML into the tag tree itself: inside each Formula element sits a `math`
+element with `mrow`, `mi`, `mo`, `mfrac` and the other MathML elements as tags, so the reader
+walks the formula the way it walks a list or a table. `mathml-AF` (associated file) leaves the
+Formula element empty and attaches a small MathML file to it, one per distinct formula, which the
+reader has to open. The Math in PDF BPG and the tagging project's usage instructions both put
+`mathml-SE` first, and it is the form Acrobat passes to a screen reader (NVDA with MathCAT in the
+tagging project's recordings); the kit therefore asks for `math/setup=mathml-SE`, and every file
+in this folder uses it. Its cost: the recordings show Foxit and Firefox (with NVDA or JAWS) reading
+the attached file, not the structure elements, so a document meant for those readers can add the
+file with `math/setup={mathml-SE,mathml-AF}` (about five percent larger). With no key at all LaTeX
+attaches the file only. Under `mathml-SE` the MathML is written during the run, so it needs no
+second pass and no count appears in the log; a `math` element inside every Formula in the tag
+tree is the proof. Two known warnings under `mathml-SE`: a numbered `multline` reports "structure
+with label 0 is unknown" (issue 1407; use `multline*`), and an mhchem prescript such as
+`\ce{^{14}C}` reports a reused label (issue 793; write it out in words).
+`\MathMLintent{mean($x)}{{...}}` and `\MathMLarg{x}{...}` name what a formula means (Math in PDF
+BPG 1.0 p. 15); keep the double braces, because a scripted single atom loses the intent silently.
+Write `\symbf{v}`, `\symbfit{v}` and `\symcal{A}` for bold and script letters; `bm` does not work
+with unicode-math, and `amssymb` loaded after the package stops the build (load it before the
+package if a command name is missing). With `mathml-AF`, a file name with a comma makes LaTeX
+split its list of MathML files and drop every formula's MathML; the package resets the list in
+that case. Banners: "Inline and display math" through "Chemistry, units, bra-ket".
 
 ### Theorems and proofs
 
@@ -354,15 +359,15 @@ Four commands cover what a program can check. Run them after `latexmk -lualatex 
 ```
 verapdf --flavour ua2 --format text main.pdf
 grep -n -A2 '^!\|Package tagpdf Warning\|Package clemson\|Alternative text for graphic' main.log
-grep -n '^==>\|mathml missing\|luamml has been' main.log
+grep -n 'luamml\|mathml' main.log | grep -i 'warning\|missing'
 sed -n '/Status report of the tagging support/,/3\. Partially/p' main.log
 ```
 
 The second command lists LaTeX errors, warnings from LaTeX's tagging code and from the package,
 and every `\includegraphics` without `alt` or `artifact` (a tikz drawing without `alt` is silent,
-so search the source for `tikzpicture` as well). The third prints the MathML statistics:
-`math fragments found` and `MathML AF attached` must be equal, and any `mathml missing` line means
-the MathML file is stale, so build again. The fourth prints sections 1 and 2 of the
+so search the source for `tikzpicture` as well). The third prints any warning from the MathML
+code; under `mathml-SE` there is no count to compare, so open the PDF in Acrobat's tags panel
+and look for a `math` element inside each Formula. The fourth prints sections 1 and 2 of the
 `check-tagging-status` report, which name packages to replace (`float.sty`, which the package
 loads, is listed for two commands the kit does not use).
 

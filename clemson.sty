@@ -4,8 +4,7 @@
 % What you write; the package cannot do these for you (details in README.md):
 %   1. % !TEX program = lualatex  on the first line, so editors pick LuaLaTeX.
 %   2. \DocumentMetadata{lang=en-US, pdfstandard=ua-2, tagging=on,
-%        tagging-setup={math/setup={mathml-SE,mathml-AF}},
-%        check-tagging-status}
+%        tagging-setup={math/setup=mathml-SE}, check-tagging-status}
 %      above \documentclass. It turns tagging on and names the standard.
 %   3. \usepackage{clemson} as the LAST \usepackage line; it loads hyperref.
 %   4. alt={...} on every \includegraphics and tikzpicture, and the header rows
@@ -225,11 +224,13 @@
 %------------------------------------------------------------------------------
 % MATHML FILE NAME
 %------------------------------------------------------------------------------
-% A11Y WORKAROUND. LaTeX expands the job name into its comma list of MathML
-% files, so a file name with a comma is split ("mathml file a does not exist")
-% and no formula gets its MathML, with no error. Only then, the list is set
-% again with \jobname left unexpanded, at begindocument/before so that a
-% \tagpdfsetup{math/setup=...} later in the preamble cannot undo it.
+% A11Y WORKAROUND. With mathml-AF (LaTeX's default) each formula's MathML is
+% attached from a file, and LaTeX expands the job name into its comma list of
+% file names, so a name with a comma is split ("mathml file a does not
+% exist") and no formula gets its MathML, with no error. Only then, the list
+% is set again with \jobname left unexpanded, at begindocument/before so that
+% a later \tagpdfsetup{math/setup=...} cannot undo it. mathml-SE, the
+% recommended setup, writes the MathML into the tag tree and needs no file.
 % REMOVE WHEN: latex-lab-math.ltx braces \c_sys_jobname_str in that list.
 % Meets: ISO 14289-2:2024 8.2.5.29.1 (MathML for every formula).
 \ExplSyntaxOn

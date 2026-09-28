@@ -18,9 +18,9 @@
   lang          = en-US,   % the language of the whole PDF, written to /Lang
   pdfstandard   = ua-2,    % declares PDF/UA-2, the standard for PDF 2.0
   tagging       = on,      % turns tagging on (tagging-setup alone would too)
-  % MathML as structure elements (what Acrobat and NVDA read) and as attached
-  % files (what Foxit and Firefox read); the LaTeX default is the file only.
-  tagging-setup = {math/setup={mathml-SE,mathml-AF}},
+  % MathML as structure elements in the tag tree, the form the tagging
+  % project and the Math BPG recommend; the LaTeX default attaches files.
+  tagging-setup = {math/setup=mathml-SE},
   check-tagging-status,    % appends a package report to the end of the log
 }
 % report and book work the same way: there \chapter becomes H2 and \section
@@ -234,9 +234,10 @@ verapdf --flavour ua2 --format text main.pdf
 \label{sec:math}
 Mathematics is written into the PDF as MathML, which lets a MathCAT-class reader speak the
 real structure of a formula; LaTeX writes it itself, and every formula is a Formula element.
-The \verb|\DocumentMetadata| block above writes the MathML twice, as structure elements and
-as an attached file, so both Acrobat and Foxit readers get it; the LaTeX default writes only
-the attached file.
+The \verb|\DocumentMetadata| block above writes the MathML into the tag tree as structure
+elements (\verb|mathml-SE|), the form the tagging project and the PDF Association's Math BPG
+recommend and the one Acrobat hands to a screen reader; \texttt{README.md} explains the
+other form, an attached file per formula.
 
 %---- Inline and display math -------------------------------------------------
 Inline mathematics sits in the sentence: $e^{i\pi} + 1 = 0$. A displayed equation takes

@@ -22,9 +22,9 @@
   % Turns tagging on; pdfstandard alone does not, and LaTeX would write an
   % untagged PDF without a word. The clemson package stops the build instead.
   tagging       = on,
-  % Writes the MathML of every formula as structure elements (Acrobat, NVDA)
-  % and as an attached file (Foxit, Firefox). The LaTeX default is the file.
-  tagging-setup = {math/setup={mathml-SE,mathml-AF}},
+  % Writes the MathML of every formula into the tag tree as structure
+  % elements, the recommended form; LaTeX's default attaches files instead.
+  tagging-setup = {math/setup=mathml-SE},
   % Appends a report on the loaded packages near the end of main.log;
   % sections 1 and 2 name packages to replace.
   check-tagging-status,
