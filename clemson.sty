@@ -790,8 +790,10 @@
 \AddToHook{cmd/listoftables/before}{\clemson@ulfalse}
 \AddToHook{cmd/listoftables/after}{\clemson@ultrue}
 % \email{addr} is a mailto link whose visible text is the address, so a
-% screen reader hears the address. Meets: WCAG 2.1 SC 2.4.4 (link purpose).
-\providecommand{\email}[1]{\href{mailto:#1}{#1}}
+% screen reader hears the address (Clemson Links page: use the address as
+% the link text); \detokenize keeps an underscore in the address from
+% being read as math. Meets: WCAG 2.1 SC 2.4.4 (link purpose).
+\providecommand{\email}[1]{\href{mailto:#1}{\detokenize{#1}}}
 % The contents and the two lists print starred headings that get no outline
 % entry, so a reader navigating by bookmarks cannot reach them. hyperref's
 % \pdfbookmark adds one before each. With chapters the heading starts a new
