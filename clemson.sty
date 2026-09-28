@@ -293,23 +293,40 @@
 % in that language. Meets: WCAG 2.1 SC 3.1.2; ISO 32000-2:2020 14.9.2.
 \RequirePackage{babel}
 % A11Y WORKAROUND. babel writes no /Lang. Its "foreign" hook wraps the
-% argument of \foreignlanguage in a Span with the kernel's inline socket. Its
-% afterextras hook runs at every language switch: it sets tagpdf's text/lang
-% key for another language, so each element opened in otherlanguage or after
-% \selectlanguage carries /Lang, and clears it for the main language, which
-% the catalog /Lang already names. The l3text line keeps \foreignlanguage out
-% of bookmark and /T strings. Recipe: babel discussion 357 and the tagging
-% project's max-moritz example. \foreignlanguage then holds one paragraph.
-% REMOVE WHEN: babel or tagpdf writes the language tag itself (news 25.13).
+% argument of \foreignlanguage (one paragraph at most) in a Span with the
+% kernel's inline socket. Its afterextras hook runs at every switch: for
+% another language it sets tagpdf's text/lang, so each element opened from
+% then on carries /Lang; back in the main language it clears the key only
+% when the element that was open at the first switch is open again, because
+% an element without /Lang inherits its parent's (ISO 32000-2:2020 14.9.2.3).
+% The l3text line keeps the language name out of heading and contents /T
+% strings and the PDF title; hyperref strips it from bookmarks itself.
+% REMOVE WHEN: babel writes /Lang itself (babel discussion 357) or tagpdf
+% gets a Lang interface for marked content (tagging issue 988).
 \ExplSyntaxOn
 \AddBabelHook { clemson } { foreign }
   { \BabelWrapText { \UseTaggingSocket { inline/begin } { tag=Span , lang=\BCPdata{tag} }
       ##1 \UseTaggingSocket { inline/end } } }
-\AddToHook { babel/*/afterextras }
+\tl_new:N \l__clemson_lang_struct_tl
+\AddBabelHook { clemson } { afterextras }
   {
     \cs_if_eq:NNTF \localename \mainlocalename
-      { \tagpdfsetup { text/lang = } }
-      { \tagpdfsetup { text/lang = \BCPdata{tag} } }
+      {
+        \tl_if_empty:NF \l__clemson_lang_struct_tl
+          {
+            \str_if_eq:eeTF { \tag_get:n { struct_num } } { \l__clemson_lang_struct_tl }
+              {
+                \tl_clear:N \l__clemson_lang_struct_tl
+                \tagpdfsetup { text/lang = }
+              }
+              { \tagpdfsetup { text/lang = \BCPdata{tag} } }
+          }
+      }
+      {
+        \tl_if_empty:NT \l__clemson_lang_struct_tl
+          { \tl_set:Ne \l__clemson_lang_struct_tl { \tag_get:n { struct_num } } }
+        \tagpdfsetup { text/lang = \BCPdata{tag} }
+      }
   }
 \text_declare_purify_equivalent:Nn \foreignlanguage { \use_ii:nn }
 \ExplSyntaxOff
