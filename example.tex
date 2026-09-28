@@ -105,13 +105,13 @@ is written the way it is.
 Copy the whole kit folder. Write your document in \texttt{main.tex}, the blank starter,
 and build it with \verb|latexmk -lualatex main.tex|; \verb|latexmk -lualatex example.tex|
 builds this file. Every
-example here is marked in the source by a banner comment line (\verb|%----|) that names
+example here is marked in the source by a banner comment line (\texttt{\%----}) that names
 it, so search \texttt{example.tex} for the one you need and copy the block, with its
 \verb|\usepackage| line from the PACKAGES block if it has one. Then work through five
 steps.
 
 \begin{enumerate}
-  \item Keep \verb|% !TEX program = lualatex| on the first line, so that your editor
+  \item Keep \texttt{\% !TEX program = lualatex} on the first line, so that your editor
     picks the engine, and the \verb|\DocumentMetadata| block above \verb|\documentclass|.
     That block turns tagging on and names the standard.
   \item Load your packages, then \verb|\usepackage{clemson}| as the last
