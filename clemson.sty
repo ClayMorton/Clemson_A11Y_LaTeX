@@ -758,17 +758,30 @@
 % at the size of the current font. The switch runs in hyperref's own link
 % hooks (hyp/link/link is declared here; hyperref declares only the cite one)
 % and in a group around \href and \url. The contents and the two lists stay
-% plain, since every line there is a link. Meets: WCAG 2.1 SC 1.4.1.
+% plain, since every line there is a link. House style: Clemson's Links page
+% asks for underlined links; WCAG 2.1 SC 1.4.1 holds either way, since the
+% links are black (LaTeX's default viewer border would meet it too).
 \RequirePackage{lua-ul}
 \newunderlinetype\clemson@underline{\leaders\vrule height -.65ex depth .75ex}
+% lua-ul stores each underline rule at its first use at a given size and
+% copies it, tagging attributes included, at every later use, so each rule
+% was tagged as content of the paragraph that first used that size. Defined
+% inside an artifact, every copy is an artifact, as LaTeX's own table and
+% footnote rules are. REMOVE WHEN: lua-ul or LaTeX marks these rules as
+% artifacts (lua-ul issue 420, tagging issue 1581). Meets: ISO 14289-2 8.2.2.
+\ExplSyntaxOn
+\cs_new_protected:Npn \clemson@ulon
+  { \tag_mc_end_push: \tag_mc_begin:n { artifact }
+    \clemson@underline \tag_mc_end: \tag_mc_begin_pop:n { } }
+\ExplSyntaxOff
 \newif\ifclemson@ul
 \clemson@ultrue
 \IfHookExistsTF{hyp/link/link}{}{\NewHook{hyp/link/link}}
-\AddToHook{hyp/link/link}{\ifclemson@ul\clemson@underline\fi}
-\AddToHook{hyp/link/cite}{\ifclemson@ul\clemson@underline\fi}
-\AddToHook{cmd/href/before}{\begingroup\ifclemson@ul\clemson@underline\fi}
+\AddToHook{hyp/link/link}{\ifclemson@ul\clemson@ulon\fi}
+\AddToHook{hyp/link/cite}{\ifclemson@ul\clemson@ulon\fi}
+\AddToHook{cmd/href/before}{\begingroup\ifclemson@ul\clemson@ulon\fi}
 \AddToHook{cmd/href/after}{\endgroup}
-\AddToHook{cmd/url/before}{\begingroup\ifclemson@ul\clemson@underline\fi}
+\AddToHook{cmd/url/before}{\begingroup\ifclemson@ul\clemson@ulon\fi}
 \AddToHook{cmd/url/after}{\endgroup}
 \AddToHook{cmd/tableofcontents/before}{\clemson@ulfalse}
 \AddToHook{cmd/tableofcontents/after}{\clemson@ultrue}
