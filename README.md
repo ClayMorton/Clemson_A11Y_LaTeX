@@ -243,8 +243,13 @@ define `\lemmaautorefname`. Banner: "Theorems and algorithm".
 
 `\footnote{...}` is all LaTeX needs: the note is tagged FENote, the mark is a Lbl holding the link,
 and the tree cross-references mark and note (Ref) both ways, which PDF/UA-2 asks for (veraPDF
-rules 8.2.5.14). With the default `10pt` option footnote text is 8 pt; Clemson's text concept says
-to avoid sizes under 9 points, and the `11pt` class option gives 9 pt notes with 11 pt body text.
+rules 8.2.5.14). The package adds two things. It writes `NoteType Footnote` on each note, through
+LaTeX's own footnote hook, so a tool can tell footnotes from other notes. And it makes the link box
+of the raised mark the mark itself: LaTeX's link plug wraps the whole mark box, which is as tall as
+the line, so the underline would land under the text next to the mark; the package runs that plug
+inside the raised box instead, and the underline sits under the numeral (the same holds for
+endnote marks, whose link already sits inside the raised box). Note text is set at 9 pt, Clemson's
+floor, with 7 pt raised marks; with the `10pt` option LaTeX's own size would be 8 pt.
 LaTeX has no endnote support. The package loads `enotez`, listed partially compatible, and
 configures it: `\endnote{...}` writes a note, `\printendnotes` prints the list where it stands
 (nothing when there are none) and adds "Notes" to the contents, the mark links to the note and
@@ -257,9 +262,13 @@ the arabic footnote marks. The `endnotes` package gives no link from mark to not
 The package loads hyperref last, so every `\ref`, `\cite`, `\href`, `\url` and contents entry is a
 link annotation inside a Link or Reference element with a structure destination, and every page
 has a structure tab order (ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3). Link text stays black and the
-underline comes from the annotation's border style, so no link is marked by color alone (WCAG 2.1
-1.4.1); viewers differ in whether they draw it, and the link text names the destination in every
-viewer. `\hypersetup{hidelinks}` after the package removes it. Name the destination in the link
+underline comes from the annotation's border style, drawn by the viewer with the geometry of
+LaTeX's own `\underline`: a 0.4 pt rule 1.2 pt below the text (hyperref's `pdflinkmargin` pads
+the link box, which is otherwise the line box, so the rule would cross the letters). No link is
+marked by color alone (WCAG 2.1 1.4.1); viewers differ in whether they draw the border, and the
+link text names the destination in every viewer. The contents and the lists of figures and tables
+stay plain, because every line there is a link. `\hypersetup{hidelinks}` after the package removes
+the underline everywhere. Name the destination in the link
 text, never "click here"; `\email{name@clemson.edu}` (or `\href{mailto:...}{...}`, as the
 example does) gives an email address as its own link whose text is the address. `\autoref{sec:x}`
 links the whole phrase and prints "Section 3": the package sets the names Section, Chapter,
@@ -421,8 +430,8 @@ font, and the font passes every veraPDF font rule.
 | Figure with Alt, ActualText or artifact | LaTeX 2026-06-01, from the author's keys | ISO 32000-2:2020 14.8.4.8.5, 14.9.4 |
 | Formula with MathML, kept when the file name holds a comma | LaTeX 2026-06-01 with unicode-math; clemson.sty | ISO 14289-2:2024 8.2.5.29.1 |
 | Theorems as Sect with Caption and Lbl; the environments and the word QED | LaTeX 2026-06-01; clemson.sty (amsthm) | ISO 32000-2:2020 14.8.4.8.4 |
-| Footnotes as FENote with Ref both ways; endnotes linked both ways in a tagged list | LaTeX 2026-06-01; clemson.sty (enotez) | ISO 14289-2:2024 8.2.5.14; ISO 32000-2:2020 14.8.4.7 |
-| Links in Link elements, structure destinations, tab order; black underline; `\email`; capitalized `\autoref` names | LaTeX 2026-06-01 with hyperref; clemson.sty | ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3; WCAG 2.1 1.4.1, 2.4.4 |
+| Footnotes as FENote with Ref both ways, typed Footnote, link box on the mark, 9 pt notes; endnotes linked both ways in a tagged list | LaTeX 2026-06-01; clemson.sty (NoteType, mark box, size, enotez) | ISO 14289-2:2024 8.2.5.14; ISO 32000-2:2020 14.8.4.7 |
+| Links in Link elements, structure destinations, tab order; black underline in the text, none in the contents; `\email`; `\autoref` names | LaTeX 2026-06-01 with hyperref; clemson.sty | ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3; WCAG 2.1 1.4.1, 2.4.4 |
 | `\emph` as Em; `\strong` as Strong, in headings too | LaTeX 2026-06-01; clemson.sty | WCAG 2.1 1.3.1 (failure F2) |
 | Document language | LaTeX 2026-06-01, from `lang` | ISO 14289-2:2024 8.4.4; WCAG 2.1 3.1.1 |
 | Language of phrases and blocks with babel | clemson.sty (LANGUAGES block) | ISO 32000-2:2020 14.9.2; WCAG 2.1 3.1.2 |
@@ -482,14 +491,16 @@ Work on a copy of the project.
 
 ## After a LaTeX update
 
-Five things in `clemson.sty` are tied to a LaTeX or babel version. The three blocks marked
+Six things in `clemson.sty` are tied to a LaTeX or babel version. The four blocks marked
 `A11Y WORKAROUND` each carry a `REMOVE WHEN` line: MATHML FILE NAME resets the MathML file list
 when the file name holds a comma (only then, with a documented key); LANGUAGES tags babel's
 language switches (until babel or tagpdf writes the tag itself); TABLE CELLS reads latex-lab-table
 internals to write the direct cell attributes, checks that each one still exists and, when a
 LaTeX update has removed one, warns in the log and skips the attributes, so the build finishes
-and LaTeX's attribute classes remain. The title plug in TITLE AND HEADINGS and the two `\par`
-hooks in FLOATS use kernel sockets and hooks that a later release may change or make unnecessary.
+and LaTeX's attribute classes remain; FOOTNOTES puts the mark's link inside the raised box (until
+LaTeX sizes the link box to the mark itself). The title plug in TITLE AND HEADINGS and the two
+`\par` hooks in FLOATS use kernel sockets and hooks that a later release may change or make
+unnecessary.
 Everything else is LaTeX's own tagging; the table keys `table/header-rows`, `table/header-columns`
 and `table/multirow` are marked preliminary in the latex-lab table documentation. After every `tlmgr
 update`, build `example.tex` once and run veraPDF on it; a PASS and a log without tagging warnings
