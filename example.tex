@@ -516,12 +516,13 @@ Four small things that come up in any paper; the first two need a command, shown
     \tagmcbegin{tag=text} and the sentence carries on after it.
   % A foreign phrase needs its own /Lang so a screen reader changes voice.
   % babel writes none; the clemson package wraps every \foreignlanguage phrase
-  % in a Span with lang=fr, and babel hyphenates it as French. The kernel's
-  % inline socket (the one \emph uses) does the same without a language switch:
-  % \UseTaggingSocket{inline/begin}{tag=Span,lang=fr}...{inline/end}.
+  % in a Span with lang=fr (inline, inside the paragraph), and babel hyphenates
+  % it as French. Whole paragraphs go in otherlanguage, shown after this list.
   % Meets: ISO 32000-2:2020 14.9.2 (Lang); WCAG 2.1 3.1.2 (language of parts).
   \item[A phrase in another language] The French for ``right away'' is
     \foreignlanguage{french}{tout de suite}, tagged as a Span whose language is French.
+    A whole passage in another language is a block, not a phrase; the paragraph after
+    this list shows one.
   \item[An abbreviation] Write it out the first time it appears: Americans with
     Disabilities Act (ADA). PDF has an \verb|/E| attribute for an expansion, but it is not needed once the
     expansion is in the text, where every reader gets it.
@@ -529,11 +530,26 @@ Four small things that come up in any paper; the first two need a command, shown
     shade and names each bar on the axis, so nothing depends on telling colors apart.
 \end{description}
 
-\noindent The commands behind the first two items, copied from the source of this file:
+% A passage in another language is a block: otherlanguage with a blank line
+% before and after it. The package gives every paragraph, list, footnote or
+% heading inside the block its /Lang, and babel hyphenates it. Without the
+% blank lines the block joins the paragraph next to it and loses the tag.
+% Meets: ISO 32000-2:2020 14.9.2 (Lang); WCAG 2.1 3.1.2 (language of parts).
+\noindent A whole paragraph in French, tagged as a block whose language is French:
+
+\begin{otherlanguage}{french}
+Un document accessible porte, en plus de la page imprim\'ee, un arbre de balises que le
+lecteur d'\'ecran suit; chaque passage dans une autre langue y porte sa propre \'etiquette de
+langue.
+\end{otherlanguage}
+
+\noindent The commands behind the rule, the phrase and the block, copied from the source of
+this file:
 \begin{verbatim}
 \tagmcbegin{artifact}\rule{2cm}{0.4pt}\tagmcend%
 \tagmcbegin{tag=text}
 \foreignlanguage{french}{tout de suite}
+\begin{otherlanguage}{french} ... \end{otherlanguage}
 \end{verbatim}
 
 %------------------------------------------------------------------------------
