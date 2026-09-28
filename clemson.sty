@@ -737,15 +737,17 @@
 %------------------------------------------------------------------------------
 % LINKS
 %------------------------------------------------------------------------------
-% hyperref, loaded last, gives every \ref, \cite, \href, \url and contents
-% entry a link annotation, which LaTeX encloses in a Link or Reference
-% element with a structure destination and /Tabs /S. Link text stays black,
-% and no border is drawn by the viewer; the underline is set by LaTeX itself,
-% below (see UNDERLINES), so no link is marked by color alone.
-% Meets: ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3; WCAG 2.1 SC 1.4.1.
+% hyperref comes after the packages above, as its manual asks. It makes every
+% \ref, \cite, \href, \url and contents entry a link; LaTeX tags each one as
+% Link (inside Reference for citations and contents entries) with a structure
+% destination and /Tabs /S: ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3. House
+% style (Clemson Links page): no viewer box; UNDERLINES underlines the text,
+% so no link relies on color alone. Meets: WCAG 2.1 SC 1.4.1 either way.
 \RequirePackage{hyperref}
 \hypersetup{pdfborder={0 0 0}}
-% The next line lets \strong sit in a heading without breaking its bookmark.
+% \strong in a section title stops the build ("Use of \bookmark doesn't
+% match its definition"): hyperref's \pdfstringdef handles \emph and \textbf
+% but not fontspec's \strong. REMOVE WHEN: hyperref handles \strong.
 \pdfstringdefDisableCommands{\let\strong\@firstofone}
 
 %------------------------------------------------------------------------------
