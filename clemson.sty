@@ -172,13 +172,14 @@
 % TITLE AND HEADINGS
 %------------------------------------------------------------------------------
 % The printed title is the only H1 and every heading moves down one level, as
-% in the Graduate School's Word template: chapter H2, section H3 and so on in
-% report and book, where subparagraph stays H6, the last level; section H2
-% to subparagraph H6 in article. LaTeX's own choice is the PDF 2.0 Title
-% element with H1 sections; both forms pass PDF/UA-2. The title plug makes
-% the title line of the kernel's \maketitle an H1; a class with its own title
-% page keeps its title untagged.
-% Meets: ISO 32000-2:2020 14.8.4.5 Table 366; Tagged PDF BPG 1.0.1 4.2.2.
+% in the Graduate School's Word template: chapter H2 to subparagraph H6 in
+% report and book (paragraph and subparagraph share H6, the last HTML level),
+% section H2 to subparagraph H6 in article. House style: LaTeX's default, a
+% Title element with H1 sections, passes veraPDF too. The plug puts the whole
+% title of LaTeX's \maketitle in one H1, one Span per line; a class with its
+% own title page (ClemsonThesis.cls) tags its title as text and has no H1.
+% REMOVE WHEN: tagging issue 1625 (H1 title, H2 headings) is released.
+% Meets: ISO 32000-2:2020 14.8.4.5 Table 366; Tagged PDF BPG 1.0.1 4.2.2.2.
 \ifdefined\chapter
   \AssignStructureRole{sec/0/title}{H2}
   \AssignStructureRole{sec/1/title}{H3}
@@ -192,8 +193,9 @@
   \AssignStructureRole{sec/4/title}{H5}
   \AssignStructureRole{sec/5/title}{H6}
 \fi
-\NewTaggingSocketPlug{title}{h1}{\AssignStructureRole{para/textblock}{H1}#2}
-\AssignTaggingSocketPlug{title}{h1}
+\NewTaggingSocketPlug{title}{clemson-h1}
+  {\tagstructbegin{tag=H1}\AssignStructureRole{para/textblock}{Span}#2\tagstructend}
+\AssignTaggingSocketPlug{title}{clemson-h1}
 
 %------------------------------------------------------------------------------
 % ABSTRACT
