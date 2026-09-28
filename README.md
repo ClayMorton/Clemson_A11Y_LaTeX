@@ -67,8 +67,8 @@ ones every accessible document needs:
 \documentclass{article}
 \usepackage{booktabs}          % your packages
 \usepackage{clemson}           % last
-\title[pdftitle={{Title of the document}}]{Title of the document}
-\author[pdfauthor={First Author, Second Author}]{First Author and Second Author}
+\title{Title of the document}
+\author{First Author \and Second Author}
 ```
 
 The two `% !TEX` lines tell VS Code, TeXShop and other editors to use LuaLaTeX, the one engine that
@@ -80,9 +80,12 @@ not, and LaTeX then writes an untagged PDF without a word, which is why the pack
 `check-tagging-status` appends a report on the loaded packages to the log. Use
 `report` for chapters (`\chapter` is H2, `\section` H3); `book` works too but has no abstract.
 `\usepackage{clemson}` comes last, because it loads hyperref, which must follow every other package.
-`pdftitle` and `pdfauthor` set the metadata a screen reader announces when the file opens (ISO
-14289-2:2024 8.11); the doubled braces keep a comma in the title from splitting it, and the names in
-`pdfauthor` are separated by commas.
+LaTeX writes the title and the authors into the metadata a screen reader announces when the file
+opens (ISO 14289-2:2024 8.11); `\and` between authors gives one entry each. A title that contains
+a comma needs `\title[pdftitle={{The title, with a comma}}]{The title, with a comma}` on LaTeX
+2026-06-01, which otherwise cuts the metadata title at the comma (fixed in the 2026-11-01
+release); `\author[pdfauthor={A, B}]{A and B}` lists the authors when the printed line says
+"and". The example shows both.
 
 Build with `latexmk -lualatex main.tex`. `latexmk` repeats LuaLaTeX and BibTeX until every
 reference and link is resolved; a single run leaves `??` in the text and formulas without MathML,
@@ -465,7 +468,7 @@ Work on a copy of the project.
    environment the document defines itself; a `\graphicspath` line replaces the package's
    `resources/` list; a `\pdfbookmark` line before `\tableofcontents` goes, since the package
    adds that bookmark. Keep the rest, including `amsmath`. Add `\usepackage{clemson}` as the last
-   `\usepackage` line and the `pdftitle` and `pdfauthor` brackets to `\title` and `\author`. A
+   `\usepackage` line; keep `\title` and `\author` as they are unless the title has a comma. A
    class of your own built on `article`, `report` or `book` can stay; journal classes are listed
    incompatible.
 5. Look up every remaining package in "Packages by field" and the status page. Most papers need
