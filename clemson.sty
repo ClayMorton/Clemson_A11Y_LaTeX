@@ -15,14 +15,15 @@
 % every formula), amsthm with theorem, lemma, proposition, corollary,
 % definition, example, remark and algorithm, enotez (endnotes), graphicx with
 % resources/ as the picture folder, float ([H] placement), babel (add
-% languages with \babelprovide) and hyperref (black underlined links);
+% languages with \babelprovide), hyperref and lua-ul (links underlined by
+% LaTeX, black, plain in the contents);
 % tags the title as the only H1 with the headings one level down and the
 % abstract as a Sect with an H2; keeps each figure and table in the tag tree
 % where it is written; writes Scope, spans and Headers on every table cell;
 % sets left-aligned text (option justified turns that off); tags \strong and
 % babel language switches; keeps the MathML file list right when the file
-% name holds a comma; types footnotes and sizes their link to the mark; adds
-% bookmarks for the front matter, \autoref names,
+% name holds a comma; types footnotes; adds bookmarks for the front matter,
+% \autoref names,
 % \email and the word QED at the end of a proof. The rest is LaTeX's own
 % tagging. Meets: ISO 14289-2:2024 (PDF/UA-2), checked with veraPDF.
 \NeedsTeXFormat{LaTeX2e}
@@ -667,67 +668,46 @@
 \ExplSyntaxOff
 \renewcommand{\footnotesize}{\small}
 \DeclareMathSizes{9}{9}{7}{5}
-% A11Y WORKAROUND. LaTeX's fnmark/link plug wraps the whole mark box, so the
-% link box is line-high and the underline lands under the baseline text next
-% to the mark. This plug runs LaTeX's own plug inside the raised box instead
-% (or inside a box of the mark, for a class with its own \@makefnmark), so the
-% link box is the mark. The kernel plug is found and called by name.
-% REMOVE WHEN: latex-lab-footnotes sizes the link box to the mark.
-% Meets: WCAG 2.1 SC 2.4.4 (the link is the mark).
-\ExplSyntaxOn
-\str_new:N \l__clemson_fnlink_str
-\cs_generate_variant:Nn \socket_assign_plug:nn { nV }
-\cs_new_protected:Npn \__clemson_fnlink:n #1
-  {
-    \socket_assign_plug:nV { fnmark/link } \l__clemson_fnlink_str
-    \UseSocket { fnmark/link } {#1}
-    \socket_assign_plug:nn { fnmark/link } { clemson }
-  }
-\NewSocketPlug { fnmark/link } { clemson }
-  {
-    \str_set:Ne \l_tmpa_str { \cs_meaning:N \@makefnmark }
-    \str_if_in:NnTF \l_tmpa_str { @textsuperscript }
-      { \hbox { \@textsuperscript { \normalfont \__clemson_fnlink:n { \@thefnmark } } } }
-      { \hbox { \__clemson_fnlink:n {#1} } }
-  }
-\AddToHook { begindocument/end }
-  {
-    \socket_if_exist:nTF { fnmark/link }
-      {
-        \socket_get_plug:nN { fnmark/link } \l__clemson_fnlink_str
-        \socket_assign_plug:nn { fnmark/link } { clemson }
-      }
-      {
-        \PackageWarningNoLine { clemson }
-          { The~fnmark/link~socket~was~not~found:~footnote~marks~keep~the~line-high~link~box }
-      }
-  }
-\ExplSyntaxOff
-
 %------------------------------------------------------------------------------
 % LINKS
 %------------------------------------------------------------------------------
-% hyperref, loaded last, makes every \ref, \cite, \href and contents entry a
-% link annotation, which LaTeX encloses in a Link or Reference element with a
-% structure destination and /Tabs /S. Link text stays black and the viewer
-% draws a black underline from the annotation's border style, so no link is
-% marked by color alone. The rule is LaTeX's own underline: 0.4 pt thick,
-% 1.2 pt below the text (hyperref's pdflinkmargin pads the link box, which is
-% otherwise the line box, so the rule would cross the letters). The contents
-% and the two lists stay plain, since every line there is a link.
-% \hypersetup{hidelinks} in a document removes the underline everywhere.
+% hyperref, loaded last, gives every \ref, \cite, \href, \url and contents
+% entry a link annotation, which LaTeX encloses in a Link or Reference
+% element with a structure destination and /Tabs /S. Link text stays black,
+% and no border is drawn by the viewer; the underline is set by LaTeX itself,
+% below (see UNDERLINES), so no link is marked by color alone.
 % Meets: ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3; WCAG 2.1 SC 1.4.1.
 \RequirePackage{hyperref}
-\hypersetup{pdfborderstyle={/S/U/W 0.4},allbordercolors=black,pdfborder={0 0 0},
-  pdflinkmargin=1.2pt}
-\AddToHook{cmd/tableofcontents/before}{\hypersetup{pdfborderstyle={}}}
-\AddToHook{cmd/tableofcontents/after}{\hypersetup{pdfborderstyle={/S/U/W 0.4}}}
-\AddToHook{cmd/listoffigures/before}{\hypersetup{pdfborderstyle={}}}
-\AddToHook{cmd/listoffigures/after}{\hypersetup{pdfborderstyle={/S/U/W 0.4}}}
-\AddToHook{cmd/listoftables/before}{\hypersetup{pdfborderstyle={}}}
-\AddToHook{cmd/listoftables/after}{\hypersetup{pdfborderstyle={/S/U/W 0.4}}}
+\hypersetup{pdfborder={0 0 0}}
 % The next line lets \strong sit in a heading without breaking its bookmark.
 \pdfstringdefDisableCommands{\let\strong\@firstofone}
+
+%------------------------------------------------------------------------------
+% UNDERLINES
+%------------------------------------------------------------------------------
+% Links are underlined by lua-ul, with the rule its \underLine draws by
+% default, in the text itself: under the descenders, across line breaks and
+% at the size of the current font. The switch runs in hyperref's own link
+% hooks (hyp/link/link is declared here; hyperref declares only the cite one)
+% and in a group around \href and \url. The contents and the two lists stay
+% plain, since every line there is a link. Meets: WCAG 2.1 SC 1.4.1.
+\RequirePackage{lua-ul}
+\newunderlinetype\clemson@underline{\leaders\vrule height -.65ex depth .75ex}
+\newif\ifclemson@ul
+\clemson@ultrue
+\IfHookExistsTF{hyp/link/link}{}{\NewHook{hyp/link/link}}
+\AddToHook{hyp/link/link}{\ifclemson@ul\clemson@underline\fi}
+\AddToHook{hyp/link/cite}{\ifclemson@ul\clemson@underline\fi}
+\AddToHook{cmd/href/before}{\begingroup\ifclemson@ul\clemson@underline\fi}
+\AddToHook{cmd/href/after}{\endgroup}
+\AddToHook{cmd/url/before}{\begingroup\ifclemson@ul\clemson@underline\fi}
+\AddToHook{cmd/url/after}{\endgroup}
+\AddToHook{cmd/tableofcontents/before}{\clemson@ulfalse}
+\AddToHook{cmd/tableofcontents/after}{\clemson@ultrue}
+\AddToHook{cmd/listoffigures/before}{\clemson@ulfalse}
+\AddToHook{cmd/listoffigures/after}{\clemson@ultrue}
+\AddToHook{cmd/listoftables/before}{\clemson@ulfalse}
+\AddToHook{cmd/listoftables/after}{\clemson@ultrue}
 % \email{addr} is a mailto link whose visible text is the address, so a
 % screen reader hears the address. Meets: WCAG 2.1 SC 2.4.4 (link purpose).
 \providecommand{\email}[1]{\href{mailto:#1}{#1}}
