@@ -160,9 +160,9 @@ of the document, after the appendices and before the works cited.}
 %---- Links, citations --------------------------------------------------------
 \subsection{Links}
 A link carries its own text, so name the destination rather than writing ``click here'' or
-``more''. Link text stays black here, and the underline comes from the link annotation's
-border style, which Acrobat draws (some viewers, such as Preview on macOS, may not); no link
-is marked by color alone, and the link text says where it goes in every viewer. \verb|\href| prints words
+``more''. Link text stays black here, and the underline is drawn by LaTeX in the text
+itself (the package loads lua-ul), so every viewer shows it and no link is marked by color
+alone; the link text says where it goes in every viewer. \verb|\href| prints words
 instead of an address: \href{https://latex3.github.io/tagging-project/}{the LaTeX tagging
 project}. \verb|\url| prints the address itself, \url{https://www.clemson.edu/accessibility/};
 avoid a raw address as the only link text, because a screen reader may announce each
@@ -178,9 +178,9 @@ one link, so a screen reader announces ``Section 3'' and not a bare ``3'', and i
 correct when the text moves. Label anything to point at: see \autoref{sec:math} on
 page~\pageref{sec:math}, \autoref{sec:notation}, \autoref{fig:lab} on page~\pageref{fig:lab},
 \autoref{tab:headerrow}, Equation~\eqref{eq:gauss}, \autoref{alg:max}, \autoref{app:example},
-and a citation with a page number~\cite[p.~3]{knuth1984lp}. Theorem-like blocks other than
-algorithm share one counter, so point at them with \verb|\hyperref[lem:title]{Lemma~\ref*{lem:title}}|:
-\hyperref[lem:title]{Lemma~\ref*{lem:title}}. Equations keep \verb|\eqref| for the
+and a citation with a page number~\cite[p.~3]{knuth1984lp}. Theorem-like blocks work the
+same way, since the package names each environment for \verb|\autoref|:
+\autoref{lem:title}. Equations keep \verb|\eqref| for the
 parentheses; \verb|\pageref| links the page number alone.
 %---- Lists -------------------------------------------------------------------
 \subsection{Lists}
