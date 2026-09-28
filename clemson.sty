@@ -710,18 +710,28 @@
 % FOOTNOTES
 %------------------------------------------------------------------------------
 % LaTeX tags a footnote as FENote with a Ref both ways and links the mark to
-% the note. The type is added here: the fntext hook runs while the FENote is
-% the open structure, before the note's paragraph starts, so the attribute
-% lands on the note. Note text is set at 9 pt, Clemson's floor, and its
-% script size at 7 pt, so every raised mark is the same size (\footnotesize
-% is 8 pt on a 10 pt base). Meets: ISO 14289-2:2024 8.2.5.14 (NoteType).
+% the note, which is what PDF/UA-2 8.2.5.14 asks for. The package adds the
+% optional NoteType Footnote (WTPDF 1.0; 8.2.5.14 only limits its value, and
+% a missing one reads as None) in the fntext hook, where the FENote is the
+% open structure; the check skips a note that has no FENote (tagging
+% suspended). REMOVE WHEN: LaTeX writes NoteType itself (tagging issue 728).
+% Meets: ISO 14289-2:2024 8.2.5.14 (FENote and Ref from LaTeX; NoteType value).
 \ExplSyntaxOn
 \AddToHook { fntext }
   {
-    \tag_struct_gput:ene { \tag_get:n { struct_num } } { attribute }
-      { /O~/FENote~/NoteType~/Footnote }
+    \str_if_eq:eeT { \tag_get:n { struct_tag } } { \UseStructureName { fnote/note } }
+      {
+        \tag_struct_gput:ene { \tag_get:n { struct_num } } { attribute }
+          { /O~/FENote~/NoteType~/Footnote }
+      }
   }
 \ExplSyntaxOff
+% House style: notes at 9 pt, as Clemson's text page advises ("Avoid small
+% font sizes (less than 9 points)"); no ISO or WCAG clause sets a size.
+% \footnotesize becomes \small everywhere: footnotes, \thanks, the endnote
+% list and any \footnotesize text or table (10 and 10.95 pt with 11pt, 12pt).
+% At 9 pt the script size goes from LaTeX's 6 pt to 7 pt, the size of the
+% marks in 10 pt text; raised marks and scripts stay below 9 pt.
 \renewcommand{\footnotesize}{\small}
 \DeclareMathSizes{9}{9}{7}{5}
 %------------------------------------------------------------------------------
