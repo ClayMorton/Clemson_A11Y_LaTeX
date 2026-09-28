@@ -91,25 +91,27 @@
 %------------------------------------------------------------------------------
 % THEOREMS
 %------------------------------------------------------------------------------
-% amsthm gives \theoremstyle and proof; LaTeX tags each theorem-like block as
-% a Sect whose head is a Caption with a Lbl number. Proofs end with the word
-% QED, which a screen reader reads; amsthm's open square is drawn with rules
-% and announces nothing. Delete the \qedsymbol line for the square.
-% Meets: ISO 32000-2:2020 14.8.4.8.4 (Caption); WCAG 2.1 SC 1.3.1.
-\RequirePackage{amsthm}
+% LaTeX has amsthm's \newtheorem, \theoremstyle and proof built in and never
+% reads amsthm.sty under \DocumentMetadata. Each theorem-like block is a Sect
+% whose head is a Caption with a Lbl number. House style: a proof ends with
+% the word QED, read aloud; LaTeX's square is drawn with rules and says
+% nothing. Delete the \qedsymbol line for the square.
+% Meets: ISO 32000-2:2020 14.8.4.8.4 (Caption); ISO 14289-2:2024 8.2.5.27.
 \renewcommand{\qedsymbol}{\textup{QED}}
-% The usual environments are defined when the document starts, each one only
-% if the document has not defined it: theorem, lemma, proposition, corollary,
-% definition, example and remark on one counter, and algorithm on its own.
-% algorithm is a theorem-like block, not a float, because the algorithm
-% package cannot be tagged; put the steps in an algorithmic body.
-% Meets: ISO 32000-2:2020 14.8.4.8.4 (Caption), 14.8.4.8.2 (L).
+% When the document starts, LaTeX's \newtheorem defines theorem, lemma,
+% proposition, corollary, definition, example and remark on one counter and
+% algorithm on its own, each only if the preamble has not defined it (a
+% convenience). algorithm is theorem-like because the algorithm package is
+% listed as currently incompatible; write the steps in an algorithmic body.
+% Each name is also its \autoref name, so \autoref{lem:x} reads "Lemma 2".
+% Meets: ISO 32000-2:2020 14.8.4.8.4 (Caption), 14.8.4.8.2 (L); WCAG 2.1 2.4.4.
 \newcommand*{\clemson@theorem}[3]{%
   \@ifundefined{#2}{%
     \theoremstyle{#1}%
     \@ifundefined{c@theorem}{\newtheorem{#2}{#3}}{\newtheorem{#2}[theorem]{#3}}%
+    \expandafter\providecommand\csname #2autorefname\endcsname{#3}%
   }{}}
-\AddToHook{begindocument/before}{%
+\AddToHook{begindocument/before}[./theorems]{%
   \@ifundefined{theorem}{\theoremstyle{plain}\newtheorem{theorem}{Theorem}}{}%
   \clemson@theorem{plain}{lemma}{Lemma}%
   \clemson@theorem{plain}{proposition}{Proposition}%
@@ -118,6 +120,7 @@
   \clemson@theorem{definition}{example}{Example}%
   \clemson@theorem{remark}{remark}{Remark}%
   \@ifundefined{algorithm}{\theoremstyle{definition}\newtheorem{algorithm}{Algorithm}}{}%
+  \providecommand*{\algorithmautorefname}{Algorithm}%
   \theoremstyle{plain}}
 
 %------------------------------------------------------------------------------
