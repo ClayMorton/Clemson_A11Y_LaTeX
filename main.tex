@@ -19,8 +19,8 @@
   % Declares PDF/UA-2, the accessibility standard for PDF 2.0. veraPDF checks
   % the file against it with --flavour ua2.
   pdfstandard   = ua-2,
-  % Turns tagging on. Without it LaTeX writes an untagged PDF and says
-  % nothing; the clemson package stops the build instead.
+  % Turns tagging on; pdfstandard alone does not, and LaTeX would write an
+  % untagged PDF without a word. The clemson package stops the build instead.
   tagging       = on,
   % Writes the MathML of every formula as structure elements (Acrobat, NVDA)
   % and as an attached file (Foxit, Firefox). The LaTeX default is the file.
@@ -29,7 +29,7 @@
   % sections 1 and 2 name packages to replace.
   check-tagging-status,
 }
-% Use report for chapters (\chapter becomes H1, \section H2). book works too
+% Use report for chapters (\chapter becomes H2, \section H3). book works too
 % but has no abstract, so delete the abstract below.
 \documentclass{article}
 
@@ -37,30 +37,9 @@
 % PACKAGES
 %------------------------------------------------------------------------------
 % Add only what you use; README.md ("Packages by field") says which packages
-% tag correctly and which to avoid. The commented lines are the blocks from
-% example.tex; uncomment the ones your document needs.
-\usepackage{graphicx}          % \includegraphics[alt={...}]{name}
-\graphicspath{{resources/}}    % pictures live in resources/ next to this file
+% tag correctly and which to avoid; example.tex loads the ones for chemistry,
+% units, algorithms and drawings.
 \usepackage{booktabs}          % \toprule, \midrule and \bottomrule in tables
-
-% Theorems: LaTeX tags each one as theorem-like with a Caption and a Lbl.
-% \usepackage{amsthm}
-% \newtheorem{theorem}{Theorem}
-% \newtheorem{lemma}[theorem]{Lemma}
-
-% Endnotes: the mark links to the note and the note's number links back.
-% \usepackage{enotez}
-% \setenotez{backref=true, list-style=description, totoc=auto,
-%   counter-format=roman}
-
-% Floats printed where they are written; the \par lines end the paragraph
-% before an [H] float, which can otherwise put its Caption outside the float.
-% \usepackage{float}
-% \floatplacement{figure}{H}
-% \floatplacement{table}{H}
-% \AddToHook{env/figure/begin}{\par}
-% \AddToHook{env/table/begin}{\par}
-
 
 % The kit's package, last: it loads hyperref, which must come after every
 % other package, and babel with the main language from lang= above.
@@ -77,15 +56,12 @@
 % \AssignStructureRole{float/table/label}{Span}
 % \AssignStructureRole{block/theorem-like/label}{Span}
 
-% Left-aligned text, as Clemson's text concept prefers. Delete for justified.
-\AtBeginDocument{\raggedright\setlength{\parindent}{1.5em}}
-
 %------------------------------------------------------------------------------
 % TITLE AND ABSTRACT
 %------------------------------------------------------------------------------
 % pdftitle and pdfauthor set the PDF metadata. The doubled braces keep a comma
 % from splitting the title. Separate the names in pdfauthor with commas.
-% LaTeX tags the printed title as the Title element and \section as H1.
+% The package tags the printed title as the only H1 and \section as H2.
 \title[pdftitle={{Title of the document}}]{Title of the document}
 \author[pdfauthor={First Author, Second Author}]{First Author and Second Author}
 \date{\today}
@@ -100,13 +76,9 @@ One paragraph that says what the document is about.
 %------------------------------------------------------------------------------
 % CONTENTS AND LISTS
 %------------------------------------------------------------------------------
-% Uncomment the ones the document needs. The \pdfbookmark line before each
-% gives its heading a bookmark (with report or book, put \clearpage first).
-% \pdfbookmark[1]{\contentsname}{toc}
+% Uncomment the ones the document needs; each gets a bookmark from the package.
 % \tableofcontents
-% \pdfbookmark[1]{\listfigurename}{lof}
 % \listoffigures
-% \pdfbookmark[1]{\listtablename}{lot}
 % \listoftables
 
 %------------------------------------------------------------------------------
@@ -120,14 +92,14 @@ table; \texttt{example.tex} shows both.
 %------------------------------------------------------------------------------
 % ENDNOTES AND BIBLIOGRAPHY
 %------------------------------------------------------------------------------
-% \printendnotes prints the endnotes written with \endnote; uncomment it
-% together with the enotez lines above. Uncomment the four bibliography lines
+% \printendnotes prints the endnotes written with \endnote and nothing when
+% there are none. Uncomment the four bibliography lines
 % once something is cited; with no \cite they print an empty References
 % heading. Entries go in references.bib; latexmk runs BibTeX. VS Code runs it
 % once you add "% !BIB program = bibtex" and "% !BIB TS-program = bibtex"
 % under line 2. In TeXShop, run Typeset, BibTeX, Typeset, Typeset by hand.
 
-% \printendnotes
+\printendnotes
 % \phantomsection
 % \addcontentsline{toc}{section}{\refname}  % report/book: {chapter}{\bibname}
 % \bibliographystyle{plain}

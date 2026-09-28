@@ -23,38 +23,14 @@
   tagging-setup = {math/setup={mathml-SE,mathml-AF}},
   check-tagging-status,    % appends a package report to the end of the log
 }
-% report and book work the same way: there \chapter becomes H1 and \section
-% H2. Everything below is plain LaTeX plus one package.
+% report and book work the same way: there \chapter becomes H2 and \section
+% H3. Everything below is plain LaTeX plus one package.
 \documentclass{article}
 
 %------------------------------------------------------------------------------
 % PACKAGES
 %------------------------------------------------------------------------------
-\usepackage{graphicx}          % \includegraphics with alt={...}
-\graphicspath{{resources/}}    % pictures live in resources/ next to this file
 \usepackage{booktabs}          % \toprule, \midrule and \bottomrule in tables
-% Theorem environments: amsthm gives \theoremstyle and proof; LaTeX tags each
-% block as theorem-like (Sect) with its head as Caption and its number as Lbl.
-% Meets: ISO 32000-2:2020 14.8.4.8.4 (Caption); Tagged PDF BPG 1.0.1 4.2.4.
-\usepackage{amsthm}
-\theoremstyle{plain}
-\newtheorem{theorem}{Theorem}
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{corollary}[theorem]{Corollary}
-\theoremstyle{definition}
-\newtheorem{definition}[theorem]{Definition}
-\newtheorem{example}[theorem]{Example}
-\newtheorem{algorithm}{Algorithm}  % its own counter; a block, not a float
-\theoremstyle{remark}
-\newtheorem{remark}[theorem]{Remark}
-% \autoref prints "Algorithm 1" for the block with its own counter; hyperref
-% takes the name from <env>autorefname, so define one per such environment.
-\newcommand{\algorithmautorefname}{Algorithm}
-% amsthm's open square is drawn with rules and announces nothing, so the
-% proofs in this file end with the word QED. Delete the line for the square.
-% Meets: WCAG 2.1 1.3.1 (information conveyed by presentation alone).
-\renewcommand{\qedsymbol}{\textup{QED}}
 % Packages for the examples below. None of them is in section 1 (unsupported)
 % or section 2 (incompatible) of the tagging status report, and each one
 % produces Formula, list or Figure tags.
@@ -64,25 +40,6 @@
 \usepackage{braket}         % bra-ket notation
 \usepackage{algpseudocode}  % the steps of an algorithm
 \usepackage{tikz}           % a diagram drawn in the document
-% enotez prints endnotes. backref=true links each note back to its mark,
-% list-style=description tags the notes L/LI/Lbl/LBody, totoc=auto puts
-% "Notes" in the contents, and counter-format=roman keeps endnote marks apart
-% from the arabic footnote marks on the same page.
-% Meets: ISO 32000-2:2020 14.8.4.7 (Link); Tagged PDF BPG 1.0.1 4.2.5 (lists).
-\usepackage{enotez}
-\setenotez{backref=true, list-style=description, totoc=auto,
-  counter-format=roman}
-% [H] prints a float where it is written. The two \par lines end the
-% paragraph before it: an [H] float placed right after a list or a displayed
-% formula otherwise writes its Caption outside the float, which veraPDF
-% reports under 8.2.5.27. Leave all five lines out to let LaTeX place floats;
-% that needs no rule. The status report lists float as incompatible for its
-% \newfloat and \restylefloat, which this file does not use.
-\usepackage{float}
-\floatplacement{figure}{H}
-\floatplacement{table}{H}
-\AddToHook{env/figure/begin}{\par}
-\AddToHook{env/table/begin}{\par}
 % A long \verb string or URL cannot be hyphenated and can run into the margin.
 % \emergencystretch lets TeX loosen that line instead. This is for typography
 % and has no effect on tagging.
@@ -102,37 +59,24 @@
 % \AssignStructureRole{float/figure/label}{Span}
 % \AssignStructureRole{float/table/label}{Span}
 % \AssignStructureRole{block/theorem-like/label}{Span}
-% \autoref names its target; hyperref's default for a section is "section".
-% babel resets those names when the document starts, so the change goes in
-% a begindocument/end hook, and "Section" is what the link then reads.
-\AddToHook{begindocument/end}{%
-  \renewcommand*{\sectionautorefname}{Section}%
-  \renewcommand*{\subsectionautorefname}{Section}}
-
-% Clemson's text concept prefers left-aligned text (WCAG 1.4.8 is AAA, not
-% required). LaTeX writes TextAlign Start on those paragraphs; theorem and
-% proof bodies keep LaTeX's justified setting. Delete the line for justified
-% text.
-\AtBeginDocument{\raggedright\setlength{\parindent}{1.5em}}
 
 %------------------------------------------------------------------------------
 % TITLE, ABSTRACT, CONTENTS
 %------------------------------------------------------------------------------
-% LaTeX tags the printed title as the PDF 2.0 Title element, not as a
-% heading, and \section as H1. pdftitle: the doubled braces keep a comma from
-% splitting the title. pdfauthor: separate the names with commas.
-% Meets: Tagged PDF BPG 1.0.1 4.2.2.2 (Title); ISO 14289-2:2024 8.11.
+% The package tags the printed title as the only H1 and moves every heading
+% down one level (\section is H2). pdftitle: the doubled braces keep a comma
+% from splitting the title. pdfauthor: separate the names with commas.
+% Meets: ISO 32000-2:2020 14.8.4.5; ISO 14289-2:2024 8.11 (metadata).
 \title[pdftitle={{Accessible LaTeX, quickly}}]{Accessible LaTeX, quickly}
 \author[pdfauthor={First Author, Second Author}]{First Author and Second Author}
 \date{\today}
 \begin{document}
 \maketitle
 
-% The abstract is article's own, tagged BlockQuote with "Abstract" as a plain
-% paragraph; the tagging project is revising that (issue 1327). hyperref's
-% \pdfbookmark gives it a bookmark; the starred headings of the contents and
-% the two lists below get theirs the same way.
-\pdfbookmark[1]{\abstractname}{abstract}
+% The package tags the abstract as a Sect with an H2 heading, under the H1
+% title, and gives it a bookmark; the contents and the two lists below get
+% their bookmarks from the package too.
+% Meets: ISO 32000-2:2020 14.8.4.4 (Sect); Tagged PDF BPG 1.0.1 4.2.2, 7.2.
 \begin{abstract}
 This file is a working example of every kind of content a paper or a report usually holds:
 headings, text, notes, cross-references, mathematics, chemistry, units, algorithms, figures
@@ -143,15 +87,12 @@ is written the way it is.
 % The table of contents is tagged TOC, with one TOCI per entry, and each entry
 % links to its heading.
 % Meets: ISO 32000-2:2020 Annex M (TOC, TOCI); Tagged PDF BPG 1.0.1 4.1.4.
-\pdfbookmark[1]{\contentsname}{toc}
 \tableofcontents
 % The list of figures and the list of tables are tagged and linked the same
 % way. Each entry is the short title from \caption[Short title]{Long caption},
 % or the whole caption if there is no short title.
 % Meets: ISO 32000-2:2020 Annex M (TOC, TOCI); Tagged PDF BPG 1.0.1 4.1.4.
-\pdfbookmark[1]{\listfigurename}{lof}
 \listoffigures
-\pdfbookmark[1]{\listtablename}{lot}
 \listoftables
 
 %------------------------------------------------------------------------------
@@ -173,11 +114,11 @@ steps.
   \item Load your packages, then \verb|\usepackage{clemson}| as the last
     \verb|\usepackage| line; it loads hyperref. Replace the title, the authors and the
     text. Use \verb|\section|, \verb|\subsection| and \verb|\subsubsection| in order and
-    never skip a level; LaTeX tags the title as the Title element and the sections as
-    H1, H2 and H3.
+    never skip a level; the package tags the title as the only H1 and the sections as
+    H2, H3 and H4.
   \item Give every picture alt text: \verb|\includegraphics[alt={...}]{file}|.
   \item Declare the header cells of every table before its \verb|\begin{tabular}|.
-    \autoref{sec:tables} shows the eight layouts, the one caveat and the
+    \autoref{sec:tables} shows the nine layouts, the one caveat and the
     \verb|\tagpdfsetup| keys each layout needs.
   \item Build with \verb|latexmk -lualatex main.tex| and check with
     \verb|verapdf --flavour ua2 --format text main.pdf| and the log lines
@@ -188,9 +129,10 @@ steps.
     \texttt{README.md} links Clemson's manual checks, which the five are adapted from.
 \end{enumerate}
 
-Text is set ragged right by one line in the preamble, as Clemson's text guidance asks;
-delete that line for the justified look some journals require. \texttt{README.md} has
-the full instructions and the list of packages to use and to avoid in each field.
+The package sets the text ragged right, as Clemson's text guidance asks;
+\verb|\usepackage[justified]{clemson}| keeps the justified look some journals require.
+\texttt{README.md} has the full instructions and the list of packages to use and to avoid
+in each field.
 
 %------------------------------------------------------------------------------
 % TEXT EXAMPLES
@@ -220,7 +162,7 @@ avoid a raw address as the only link text, because a screen reader may announce 
 individual character of it. Name the file type when a link opens a document, as in
 \href{https://mirrors.ctan.org/macros/latex/contrib/tagpdf/tagpdf.pdf}{the tagpdf package
 manual (PDF)}, and write an email address as its own link with
-\verb|\href{mailto:...}{...}|: \href{mailto:first.last@clemson.edu}{first.last@clemson.edu}.
+\verb|\email|, which the package defines: \email{first.last@clemson.edu}.
 Citations are links too~\cite{knuth1984,lamport1994}.
 %---- Cross-references --------------------------------------------------------
 \subsection{Cross-references}
@@ -383,18 +325,18 @@ MathML.
 \begin{equation}\label{eq:burn} \ce{CH4 + 2O2 -> CO2 + 2H2O} \end{equation}
 %---- Theorems and algorithm --------------------------------------------------
 \subsection{Theorems, proofs and algorithms}
-The preamble defines theorem, lemma, proposition, corollary, definition, example, remark
-and algorithm with \verb|\newtheorem|; copy those lines into your own preamble. LaTeX
-tags each block as theorem-like, with its head as a caption:
+The package defines theorem, lemma, proposition, corollary, definition, example, remark
+and algorithm, unless the document defines them itself; \verb|\newtheorem| adds any other
+name. LaTeX tags each block as theorem-like, with its head as a caption:
 \begin{theorem}\label{thm:one} Every heading in a tagged PDF carries a level. \end{theorem}
-\begin{lemma}\label{lem:title} The printed title is not a heading; LaTeX tags it as the Title element. \end{lemma}
-\begin{corollary} The first \verb|\section| of an article is the first H1 in the file. \end{corollary}
-\begin{proof} \verb|\section| is the highest heading command in article, and LaTeX tags it H1. \end{proof}
+\begin{lemma}\label{lem:title} The printed title is the only H1 in this file. \end{lemma}
+\begin{corollary} The first \verb|\section| of this article is therefore an H2. \end{corollary}
+\begin{proof} The package moves every heading one level down, so \verb|\section| is H2. \end{proof}
 \begin{definition} A \emph{header cell} names the row or the column it belongs to. \end{definition}
 \begin{example} A table of results has one header row; its first row is tagged TH. \end{example}
 \begin{remark} A proof ends with the word QED, which a screen reader reads aloud;
 amsthm's open square is drawn with rules and announces nothing. To get the square
-back, delete the \verb|\qedsymbol| line in the PACKAGES block of this file. \end{remark}
+back, write \verb|\renewcommand{\qedsymbol}{\openbox}| after the package. \end{remark}
 % The algorithm block is theorem-like, not a float. The algorithm package is
 % listed "Currently incompatible", and an algorithmic body inside a figure
 % aborts the build. This gives a tagged Caption and a label \ref can reach. The
@@ -601,7 +543,7 @@ Four small things that come up in any paper; the first two need a command, shown
 A table is accessible when a reader can tell which cells are headers and what each header
 covers. Declare the header cells with \verb|\tagpdfsetup| before \verb|\begin{tabular}|, put the
 caption above the table, as above every figure in this file, and keep notes outside it. The
-eight layouts below, and the one caveat among them, cover the cases that come up in a thesis.
+nine layouts below, and the one caveat among them, cover the cases that come up in a thesis.
 
 % Layouts follow Clemson's tables guide:
 % https://www.clemson.edu/accessibility/digital/concepts/tables.html
@@ -685,12 +627,11 @@ eight layouts below, and the one caveat among them, cover the cases that come up
   \end{tabular}
 \end{table}
 %---- Table: one per group ----------------------------------------------------
-% 6. Headers outside the first row. A group row ("Fall semester") in the middle
-% of a table is a header row too (table/header-rows={1,2,5}, one \multicolumn
-% cell per group). LaTeX writes Scope for header cells as attribute classes,
-% which PDF/UA-2 accepts and veraPDF checks, but Acrobat's Table Editor shows
-% "scope none" for them (a tool limit, tagging-project issue 1324). So keep
-% one table per group, as Clemson recommends anyway.
+% 6. One table per group, as Clemson's tables guide recommends: each group
+% gets its own caption and header row, so nothing depends on a header row in
+% the middle of a table. The package writes each cell's Scope and Headers
+% directly, so Acrobat's Table Editor shows them.
+% Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, Scope, Headers); Clemson tables.
 \begin{table}\centering
   \caption{One table per group: fall semester}
   \tagpdfsetup{table/header-rows={1}, table/header-columns={1}}
@@ -709,8 +650,28 @@ eight layouts below, and the one caveat among them, cover the cases that come up
     MATH 102 & 88  & 80  \\ \bottomrule
   \end{tabular}
 \end{table}
+%---- Table: group rows -------------------------------------------------------
+% 7. Group rows. A header row after data rows ("Fall semester") heads the rows
+% below it up to the next group row, and the column headers in row 1 head
+% every row. Declare every header row (table/header-rows={1,2,5}), one
+% \multicolumn cell per group. Each data cell then lists its row header, its
+% group and its column header in /Headers, so a screen reader hears all three.
+% Meets: ISO 32000-2:2020 14.8.5.7 (Headers); Clemson complex tables.
+\begin{table}\centering
+  \caption{Group rows: a header row in the middle of the table}
+  \tagpdfsetup{table/header-rows={1,2,5}, table/header-columns={1}}
+  \begin{tabular}{lrr}
+    \toprule Course   & Enrolled & Passed \\ \midrule
+    \multicolumn{3}{l}{Fall semester} \\
+    MATH 101 & 120 & 108 \\
+    MATH 102 & 95  & 90  \\
+    \multicolumn{3}{l}{Spring semester} \\
+    MATH 101 & 130 & 121 \\
+    MATH 102 & 88  & 80  \\ \bottomrule
+  \end{tabular}
+\end{table}
 %---- Table: note outside, no empty cells -------------------------------------
-% 7. Title and notes outside the table; no empty data cells. The \caption is
+% 8. Title and notes outside the table; no empty data cells. The \caption is
 % the title; the List of Tables prints its short form. A note is a paragraph
 % after the table, not a row in it. A cell with no value says so ("n/a").
 \begin{table}\centering
@@ -726,7 +687,7 @@ eight layouts below, and the one caveat among them, cover the cases that come up
 \noindent Note: the South site opened in 2025, so it has no 2024 value.
 
 %---- Long tables (caveat) ----------------------------------------------------
-% Caveat, not one of the eight layouts: a table that runs over a page break.
+% Caveat, not one of the nine layouts: a table that runs over a page break.
 % longtable keeps it one Table across pages, as the BPG asks, and repeats the
 % head as an artifact; but its \caption is tagged as a header cell, not as a
 % Caption (a latex-lab-table limit). Put the title in a paragraph before the
@@ -747,7 +708,7 @@ documented choice for a layout table (it adds the ARIA role), or \verb|=div|; \v
 suits only l, c and r columns. Acrobat's checker still reports a presentation table under
 its Headers rule, and each form still reads row by row.
 
-% 8. Side-by-side text: each author is a minipage, tagged Div and read to its
+% 9. Side-by-side text: each author is a minipage, tagged Div and read to its
 % end before the next. Paragraph tagging is off in the group, so no empty P;
 % keep both \par (else the para hooks differ). Other text there is an artifact.
 % Layout tabular: table/tagging=presentation (ARIA role) or =div in a group
@@ -773,7 +734,7 @@ mark; an endnote is an item in a tagged list whose number links back to the mark
 mark links to the note, so a reader can follow either and come straight back. Footnote marks
 are arabic and endnote marks roman, so the two series cannot be confused.
 
-% Endnotes use enotez, which the preamble loads and configures. The mark links
+% Endnotes use enotez, which the package loads and configures. The mark links
 % to the note and the note's number links back; the list is tagged L/LI/LBody.
 % Rejected: the endnotes package (plain superscript marks, no Link or Ref, so
 % the note cannot be reached) and hand-rolled \hypertarget/\hyperlink pairs (a
