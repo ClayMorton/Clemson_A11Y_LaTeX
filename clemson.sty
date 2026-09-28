@@ -224,16 +224,20 @@
 %------------------------------------------------------------------------------
 % TEXT ALIGNMENT
 %------------------------------------------------------------------------------
-% Clemson's text concept prefers left-aligned text (WCAG 2.1 1.4.8 is AAA and
-% not required). \raggedright is LaTeX's own para instance and writes
-% TextAlign Start on each paragraph; the indent is put back so paragraphs
-% stay apart, and \\ is set back to a plain line break, because the one
-% \raggedright installs ends the paragraph and splits a heading written with
-% \\ into two headings. Theorem and proof bodies keep their justified
-% templates. \usepackage[justified]{clemson} leaves the text justified.
-% Meets: Clemson text concept; WCAG 2.1 SC 1.4.8 (advisory).
+% Clemson's text page: "As a best practice, use left-aligned text." (WCAG 2.1
+% SC 1.4.8 is Level AAA, not required at AA.) \raggedright is LaTeX's own para
+% instance and tags body paragraphs TextAlign Start. The class's indent is
+% put back (the instance zeroes it) and \\ stays a plain line break, since the
+% one \raggedright installs ends the paragraph. Footnotes get the same setting
+% through the fntext/para hook; minipage, parbox, float and p-column text
+% stays justified, as LaTeX resets it there. Theorem and proof bodies keep
+% their justified templates; option justified keeps LaTeX's everywhere.
+% Meets: Clemson Digital Accessibility, Text; WCAG 2.1 SC 1.4.8 (Level AAA).
+\newcommand*{\clemson@ragged}{\edef\clemson@parindent{\the\parindent}%
+  \raggedright\let\\\@normalcr\setlength{\parindent}{\clemson@parindent}}
 \ifclemson@justified\else
-  \AtBeginDocument{\raggedright\let\\\@normalcr\setlength{\parindent}{1.5em}}
+  \AtBeginDocument{\clemson@ragged}
+  \AddToHook{fntext/para}{\clemson@ragged}
 \fi
 
 %------------------------------------------------------------------------------
