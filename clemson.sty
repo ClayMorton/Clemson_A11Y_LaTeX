@@ -200,20 +200,26 @@
 %------------------------------------------------------------------------------
 % ABSTRACT
 %------------------------------------------------------------------------------
-% article and report tag the abstract as a BlockQuote whose "Abstract" line is
-% a plain paragraph. This version keeps the layout, tags the block Sect with
-% an H2 heading under the H1 title, and gives it a bookmark. It is applied
-% under article and report only. Put \maketitle before the abstract: a
-% hand-made center block right before it stops the build ("text para hooks
-% differ", LaTeX 2026-06-01). In report the abstract leaves its own page.
-% Meets: ISO 32000-2:2020 14.8.4.4 (Sect), 14.8.4.5; BPG 1.0.1 4.2.2.
+% LaTeX tags the article abstract as a BlockQuote and report's title-page one
+% as plain text (tagging issue 1327, open). This keeps the class's own layout,
+% tags the block Sect with an H2 heading, as the Graduate School template
+% does, and bookmarks it inside the Sect; in report it prints in the text
+% flow. The \par comes first, or LaTeX 2026-06-01 stops ("text para hooks
+% differ") after a center block or a list. Article and report only.
+% REMOVE WHEN: issue 1327 gives the abstract its own tagging.
+% Meets: ISO 32000-2:2020 14.8.4.4 (Sect), 14.8.4.5; Tagged PDF BPG 1.0.1
+% 4.1.1, 4.2.2, 7.2; WCAG 2.1 SC 1.3.1.
 \newcommand*{\clemson@abstract}{%
   \renewenvironment{abstract}{%
+    \par
+    \begin{displayblock}[tag-name=Sect, tagging-recipe=standalone]%
     \pdfbookmark[1]{\abstractname}{clemson.abstract}%
-    \begin{quotation}[tag-name=Sect, tagging-recipe=standalone]\small
-    \begin{center}\AssignStructureRole{para/textblock}{H2}\bfseries\abstractname\end{center}%
-  }{\end{quotation}}}
-\@ifclassloaded{article}{\clemson@abstract}{\@ifclassloaded{report}{\clemson@abstract}{}}
+    \small
+    \begin{center}\AssignStructureRole{para/textblock}{H2}%
+      \bfseries\abstractname\vspace{-.5em}\vspace{\z@}\end{center}%
+    \begin{quotation}[tagging-recipe=basic]%
+  }{\end{quotation}\end{displayblock}}}
+\IfClassLoadedTF{article}{\clemson@abstract}{\IfClassLoadedTF{report}{\clemson@abstract}{}}
 
 %------------------------------------------------------------------------------
 % TEXT ALIGNMENT
