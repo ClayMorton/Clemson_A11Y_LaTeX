@@ -41,9 +41,12 @@
 % units, algorithms and drawings.
 \usepackage{booktabs}          % \toprule, \midrule and \bottomrule in tables
 
-% The kit's package, last: it loads hyperref, which must come after every
-% other package, and babel with the main language from lang= above.
+% The kit's package, after your other packages: it loads hyperref, which its
+% manual asks to load last, and babel with the main language from lang=
+% above. A package that must follow hyperref (cleveref) goes after this line.
 \usepackage{clemson}
+% Pictures: LaTeX looks beside this file first, then in resources/.
+\graphicspath{{resources/}}
 
 % Other languages: one \babelprovide line each, after the package. babel
 % hyphenates them and the package writes their language tags.

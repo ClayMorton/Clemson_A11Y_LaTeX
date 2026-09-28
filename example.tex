@@ -44,10 +44,14 @@
 % \emergencystretch lets TeX loosen that line instead. This is for typography
 % and has no effect on tagging.
 \setlength{\emergencystretch}{2em}
-% The kit's package, last: it loads hyperref, which must come after every
-% other package. It also loads unicode-math, so every formula gets MathML,
-% and babel, with the main language taken from lang= in \DocumentMetadata.
+% The kit's package, after the other packages: it loads hyperref, which its
+% manual asks to load last (a package that must follow hyperref, such as
+% cleveref, goes after this line). It also loads unicode-math, which gives
+% LaTeX's MathML the right characters, and babel, with the main language
+% taken from lang= in \DocumentMetadata.
 \usepackage{clemson}
+% Pictures: LaTeX looks beside this file first, then in resources/.
+\graphicspath{{resources/}}
 % Other languages come after the package, one \babelprovide line each. babel
 % hyphenates them; the package writes their language tags: every
 % \foreignlanguage phrase (one paragraph at most) and every otherlanguage

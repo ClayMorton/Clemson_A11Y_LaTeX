@@ -126,12 +126,14 @@
 %------------------------------------------------------------------------------
 % PICTURES
 %------------------------------------------------------------------------------
-% graphicx gives \includegraphics with its alt, actualtext and artifact keys.
-% Pictures go in resources/ next to the document or beside the .tex file;
-% \graphicspath in the document replaces this list.
-% Meets: ISO 32000-2:2020 14.8.4.8.5 (Figure Alt); Tagged PDF BPG 1.0.1 5.5.2.
+% graphicx gives \includegraphics; LaTeX's tagging code turns its alt,
+% actualtext and artifact keys into a Figure with Alt, a Span with ActualText
+% or an artifact. Without a key LaTeX warns and uses the file name as the Alt,
+% which veraPDF passes, so each alt text is the author's job. The picture
+% folder is the document's choice (\graphicspath in main.tex).
+% Meets, with the author's alt text: ISO 14289-2:2024 8.2.5.28.2; WCAG 2.1
+% SC 1.1.1; ISO 32000-2:2020 14.8.4.8.5; Tagged PDF BPG 1.0.1 5.5.2.
 \RequirePackage{graphicx}
-\graphicspath{{resources/}{./}}
 
 %------------------------------------------------------------------------------
 % FLOATS
