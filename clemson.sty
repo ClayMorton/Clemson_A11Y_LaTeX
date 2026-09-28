@@ -6,28 +6,33 @@
 %   2. \DocumentMetadata{lang=en-US, pdfstandard=ua-2, tagging=on,
 %        tagging-setup={math/setup=mathml-SE}, check-tagging-status}
 %      above \documentclass. It turns tagging on and names the standard.
-%   3. \usepackage{clemson} as the LAST \usepackage line; it loads hyperref.
+%   3. \usepackage{clemson} after your other packages; it loads hyperref. A
+%      package that must follow hyperref (cleveref) goes after it, and a
+%      hyperref option that works only at load time goes in
+%      \PassOptionsToPackage{...}{hyperref} above it.
 %   4. alt={...} on every \includegraphics and tikzpicture, and the header rows
 %      or columns of every tabular (\tagpdfsetup{table/header-rows={1}}).
 % What the package does, with article, report, book or a class built on them:
 % stops the build unless LuaLaTeX, LaTeX 2026-06-01 or newer and
-% \DocumentMetadata with tagging are in use; loads unicode-math (MathML for
-% every formula), amsthm with theorem, lemma, proposition, corollary,
-% definition, example, remark and algorithm, enotez (endnotes), graphicx with
-% resources/ as the picture folder, float ([H] placement), babel (add
-% languages with \babelprovide), hyperref and lua-ul (links underlined by
-% LaTeX, black, plain in the contents);
+% \DocumentMetadata with tagging are in use (tagging=draft builds, with a
+% warning); loads unicode-math (the right characters in LaTeX's MathML),
+% defines theorem, lemma, proposition, corollary, definition, example, remark
+% and algorithm (LaTeX supplies amsthm's commands itself under tagging), loads
+% enotez (endnotes), graphicx, float ([H] placement), babel (add languages
+% with \babelprovide), hyperref and lua-ul (links underlined by LaTeX, black,
+% plain in the contents);
 % tags the title as the only H1 with the headings one level down and the
 % abstract as a Sect with an H2; keeps each figure and table in the tag tree
-% where it is written; writes Scope, spans and Headers on every table cell;
-% sets left-aligned text (option justified turns that off); tags \strong and
-% babel language switches; keeps the MathML file list right when the file
-% name holds a comma; types footnotes; adds bookmarks for the front matter,
-% \autoref names,
-% \email and the word QED at the end of a proof. The rest is LaTeX's own
-% tagging. Meets: ISO 14289-2:2024 (PDF/UA-2), checked with veraPDF.
+% where it is written; writes Scope, spans and Headers on the cells of every
+% tabular (not longtable or layout tables); sets left-aligned text (option
+% justified turns that off); tags \strong and babel language switches; keeps
+% the MathML file list right when the file name holds a comma; adds NoteType
+% to footnotes; adds bookmarks for the front matter, \autoref names, \email
+% and the word QED at the end of a proof. The rest is LaTeX's own tagging.
+% Meets: ISO 14289-2:2024 (PDF/UA-2) machine rules, checked with veraPDF
+% --flavour ua2; the checks by hand in README.md cover the rest.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{clemson}[2026/09/28 v2.1 Accessible LaTeX (Clemson A11Y)]
+\ProvidesPackage{clemson}[2026/09/29 v2.2 Accessible LaTeX (Clemson A11Y)]
 % One option: justified keeps LaTeX's justified text (TEXT ALIGNMENT below).
 \newif\ifclemson@justified
 \DeclareKeys[clemson]{justified .if = clemson@justified, justified .usage = load}
