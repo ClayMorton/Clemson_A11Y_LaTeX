@@ -118,8 +118,9 @@ steps.
   \item Keep \texttt{\% !TEX program = lualatex} on the first line, so that your editor
     picks the engine, and the \verb|\DocumentMetadata| block above \verb|\documentclass|.
     That block turns tagging on and names the standard.
-  \item Load your packages, then \verb|\usepackage{clemson}| as the last
-    \verb|\usepackage| line; it loads hyperref. Replace the title, the authors and the
+  \item Load your packages, then \verb|\usepackage{clemson}| after them; it loads
+    hyperref (a package that must follow hyperref, such as cleveref, goes after it).
+    Replace the title, the authors and the
     text. Use \verb|\section|, \verb|\subsection| and \verb|\subsubsection| in order and
     never skip a level; the package tags the title as the only H1 and the sections as
     H2, H3 and H4.
