@@ -259,22 +259,25 @@
 %------------------------------------------------------------------------------
 % MATHML FILE NAME
 %------------------------------------------------------------------------------
-% A11Y WORKAROUND. With mathml-AF (LaTeX's default) each formula's MathML is
-% attached from a file, and LaTeX expands the job name into its comma list of
-% file names, so a name with a comma is split ("mathml file a does not
-% exist") and no formula gets its MathML, with no error. Only then, the list
-% is set again with \jobname left unexpanded, at begindocument/before so that
-% a later \tagpdfsetup{math/setup=...} cannot undo it. mathml-SE, the
-% recommended setup, writes the MathML into the tag tree and needs no file.
-% REMOVE WHEN: latex-lab-math.ltx braces \c_sys_jobname_str in that list.
+% A11Y WORKAROUND. When LaTeX reads MathML from files (mathml-AF, the default
+% with no math/setup key, or {mathml-SE,mathml-AF}) it expands the job name
+% into its comma list of file names: "a,b" loses every formula's MathML with
+% no error and "a, b" stops the build. The list is set again with \jobname
+% unexpanded at begindocument/before, after any math/setup; an empty list
+% (mathml-SE alone, or math/mathml/sources=) stays empty. Reads latex-lab's
+% \l__tag_math_mathml_files_clist. REMOVE WHEN: a,b.tex with mathml-AF logs
+% "reading mathml file a,b-luamml-mathml" without this block.
 % Meets: ISO 14289-2:2024 8.2.5.29.1 (MathML for every formula).
 \ExplSyntaxOn
 \AddToHook { begindocument/before }
   {
     \str_if_in:NnT \c_sys_jobname_str { , }
       {
-        \tagpdfsetup { math/mathml/sources = { \jobname-mathml , \jobname-luamml-mathml } }
-        \PackageInfo { clemson } { job~name~holds~a~comma:~MathML~file~list~set~again }
+        \clist_if_empty:NF \l__tag_math_mathml_files_clist
+          {
+            \tagpdfsetup { math/mathml/sources = { \jobname-mathml , \jobname-luamml-mathml } }
+            \PackageInfo { clemson } { job~name~holds~a~comma:~MathML~file~list~set~again }
+          }
       }
   }
 \ExplSyntaxOff
