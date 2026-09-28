@@ -808,15 +808,13 @@
 \AddToHook{cmd/tableofcontents/before}[./bookmark]{\clemson@bookmark{\contentsname}{clemson.toc}}
 \AddToHook{cmd/listoffigures/before}[./bookmark]{\clemson@bookmark{\listfigurename}{clemson.lof}}
 \AddToHook{cmd/listoftables/before}[./bookmark]{\clemson@bookmark{\listtablename}{clemson.lot}}
-% \autoref{label} makes the whole phrase the link ("Section 3", "Figure 1"),
-% which is what a screen reader announces; \ref links only the number. The
-% names are set at the end of \begin{document}, after babel has reset them.
-% Meets: WCAG 2.1 SC 2.4.4 (link purpose in context).
-\AddToHook{begindocument/end}{%
+% \autoref{label} makes the whole phrase the link ("Section 3", "Figure 1").
+% hyperref's English names for sections are lowercase, and babel re-applies
+% its names each time the main language is selected, so the capitalized ones
+% go into that language's extras (babel and hyperref manuals); the other
+% names are hyperref's own. \ref in a sentence already meets WCAG 2.1 SC
+% 2.4.4 (Level A); the whole phrase helps SC 2.4.9 (Level AAA).
+\expandafter\addto\csname extras\mainlocalename\endcsname{%
   \def\sectionautorefname{Section}\def\subsectionautorefname{Section}%
-  \def\subsubsectionautorefname{Section}\def\chapterautorefname{Chapter}%
-  \def\figureautorefname{Figure}\def\tableautorefname{Table}%
-  \def\equationautorefname{Equation}\def\appendixautorefname{Appendix}%
-  \providecommand{\algorithmautorefname}{Algorithm}%
-  \def\footnoteautorefname{footnote}\def\itemautorefname{item}}
+  \def\subsubsectionautorefname{Section}\def\chapterautorefname{Chapter}}
 \endinput
