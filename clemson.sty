@@ -244,14 +244,17 @@
 % ENDNOTES
 %------------------------------------------------------------------------------
 % \endnote{...} writes an endnote and \printendnotes prints them (nothing when
-% there are none). enotez is used because the mark links to the note and the
-% note's number links back; list-style=description tags the notes as a list,
-% totoc=auto puts "Notes" in the contents and counter-format=roman keeps the
-% marks apart from arabic footnote marks. enotez is loaded before hyperref.
-% Meets: ISO 32000-2:2020 14.8.4.7 (Link); Tagged PDF BPG 1.0.1 4.2.5.
+% there are none). The mark links to the note and, with backref, the note's
+% number links back. The notes are an enumerate list, since they are numbered;
+% the heading's optional argument puts "Notes" in the contents and bookmarks
+% at the heading itself (totoc=auto pointed before it). Roman marks stay
+% apart from arabic footnote marks. The notes are a list with links, not
+% FENote elements: enotez is listed partially compatible (tagging issue 728).
+% Meets: ISO 14289-2:2024 8.2.5.8, 8.2.5.25; Tagged PDF BPG 1.0.1 4.2.8.
 \RequirePackage{enotez}
-\setenotez{backref=true, list-style=description, totoc=auto,
-  counter-format=roman}
+\DeclareInstance{enotez-list}{enumerate}{list}{list-type = enumerate}
+\setenotez{backref=true, list-style=enumerate, counter-format=roman,
+  list-heading={\@ifundefined{chapter}{\section*[#1]{#1}}{\chapter*[#1]{#1}}}}
 
 %------------------------------------------------------------------------------
 % MATHML FILE NAME
