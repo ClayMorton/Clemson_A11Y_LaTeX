@@ -77,14 +77,14 @@ PDF (ISO 14289-2:2024 8.4.4). `pdfstandard=ua-2` declares PDF/UA-2, the standard
 `tagging=on` turns tagging on (`tagging-setup` alone would too); `pdfstandard=ua-2` by itself does
 not, and LaTeX then writes an untagged PDF without a word, which is why the package stops instead.
 `tagging-setup` writes the MathML of every formula into the tag tree (see "Mathematics").
-`check-tagging-status` appends a report on the loaded packages to the log. Use
-`report` for chapters (`\chapter` is H2, `\section` H3); `book` works too but has no abstract.
-`\usepackage{clemson}` comes last, because it loads hyperref, which must follow every other package.
-LaTeX writes the title and the authors into the metadata a screen reader announces when the file
-opens (ISO 14289-2:2024 8.11); `\and` between authors gives one entry each. A title that contains
-a comma needs `\title[pdftitle={{The title, with a comma}}]{The title, with a comma}` on LaTeX
-2026-06-01, which otherwise cuts the metadata title at the comma (fixed in the 2026-11-01
-release); `\author[pdfauthor={A, B}]{A and B}` lists the authors when the printed line says
+`check-tagging-status` appends a report on the loaded packages to the log. Use `report` for chapters
+(`\chapter` is H2, `\section` H3); `book` works too but has no abstract. `\usepackage{clemson}`
+comes last, because it loads hyperref, which must follow every other package. LaTeX writes the title
+and the authors into the metadata a screen reader announces when the file opens (ISO 14289-2:2024
+8.11); `\and` between authors gives one entry each. A title that contains a comma needs
+`\title[pdftitle={{The title, with a comma}}]{The title, with a comma}` on LaTeX 2026-06-01, which
+otherwise cuts the metadata title at the comma; the 2026-11-01 release fixes this, and the key can
+then be dropped; `\author[pdfauthor={A, B}]{A and B}` lists the authors when the printed line says
 "and". The example shows both.
 
 Build with `latexmk -lualatex main.tex`. `latexmk` repeats LuaLaTeX and BibTeX until every

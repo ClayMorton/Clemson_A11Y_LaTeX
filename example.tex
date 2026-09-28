@@ -66,8 +66,9 @@
 % The package tags the printed title as the only H1 and moves every heading
 % down one level (\section is H2). LaTeX writes title and authors into the
 % metadata itself; this title has a comma, which LaTeX 2026-06-01 takes for a
-% list separator, so pdftitle repeats it inside doubled braces. pdfauthor
-% lists the names with commas where \and is not wanted in print.
+% list separator, so pdftitle repeats it inside doubled braces (fixed in the
+% 2026-11-01 release). pdfauthor lists the names with commas where \and is
+% not wanted in print.
 % Meets: ISO 32000-2:2020 14.8.4.5; ISO 14289-2:2024 8.11 (metadata).
 \title[pdftitle={{Accessible LaTeX, quickly}}]{Accessible LaTeX, quickly}
 \author[pdfauthor={First Author, Second Author}]{First Author and Second Author}
