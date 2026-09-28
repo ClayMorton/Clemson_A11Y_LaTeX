@@ -38,33 +38,34 @@
 %------------------------------------------------------------------------------
 % An untagged PDF looks normal and fails the accessibility check later, and
 % LaTeX writes one without a word: pdfstandard=ua-2 alone does not turn tagging
-% on.
-% So the build stops, and no PDF is written, unless the LaTeX release can tag,
-% the engine is LuaLaTeX (the only one that writes MathML), \DocumentMetadata
-% is present and tagging is active when the document starts. tagging=draft
-% passes that test and skips the tag tree, so the end of the run warns.
-% Meets: ISO 14289-2:2024 6.2 (Marked), 8.2.1 (structure), 8.2.5.29 (MathML).
+% on. So the build stops, and no PDF is written, unless LaTeX is 2026-06-01 or
+% newer, the engine is LuaLaTeX (the only one that writes MathML; XeTeX cannot
+% tag reliably) and \DocumentMetadata is present with tagging active when the
+% document starts. tagging=draft passes that test and skips the tag tree, so
+% the end of the run warns.
+% Meets: ISO 14289-2:2024 6.2 (Marked), 8.2.1 (structure), 8.2.5.29.1 (MathML,
+% as the PDF Association Math BPG 1.0 reads it; veraPDF tests only 8.2.5.29-1).
 \RequirePackage{iftex}
 \RequireLuaTeX
 \ExplSyntaxOn
 \msg_new:nnn { clemson } { old-latex }
   { LaTeX~2026-06-01~or~newer~is~required.~Install~TeX~Live~2026~(MacTeX~2026),
     ~then~run~'sudo~tlmgr~update~--self~--all'. }
-\msg_new:nnn { clemson } { no-metadata }
-  { Put~the~\string\DocumentMetadata{...}~block~above~\string\documentclass\c_space_tl ;
-    ~README.md~shows~it. }
 \msg_new:nnn { clemson } { not-tagged }
-  { PDF~tagging~is~not~active.~Put~tagging=on~in~the~\string\DocumentMetadata\c_space_tl block~above~\string\documentclass\c_space_tl and~remove~tagging=off~or~tagging=draft. }
+  { PDF~tagging~is~not~active.~Put~tagging=on~in~the~\string\DocumentMetadata\c_space_tl block~above~\string\documentclass\c_space_tl and~remove~tagging=off. }
 \msg_new:nnn { clemson } { draft }
   { tagging=draft:~this~PDF~has~NO~tag~tree~and~is~not~accessible.~Remove~
     draft~from~\string\DocumentMetadata\c_space_tl before~you~share~it. }
 \IfFormatAtLeastTF { 2026-06-01 } { } { \msg_fatal:nn { clemson } { old-latex } }
-\IfDocumentMetadataF { \msg_fatal:nn { clemson } { no-metadata } }
 \AddToHook { begindocument }
   { \tag_if_active:F { \msg_fatal:nn { clemson } { not-tagged } } }
 \AddToHook { enddocument/end }
   { \tag_if_active:F { \msg_warning:nn { clemson } { draft } } }
 \ExplSyntaxOff
+% The kernel's own check that \DocumentMetadata was given. It comes after the
+% hooks above: it ends the package when the block is missing, and the
+% begindocument hook then stops the build with the message that names it.
+\NeedsDocumentMetadata
 
 %------------------------------------------------------------------------------
 % FONTS AND MATH
