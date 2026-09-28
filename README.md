@@ -66,7 +66,7 @@ ones every accessible document needs:
 }
 \documentclass{article}
 \usepackage{booktabs}          % your packages
-\usepackage{clemson}           % last
+\usepackage{clemson}           % after your packages
 \title{Title of the document}
 \author{First Author \and Second Author}
 ```
@@ -79,7 +79,9 @@ not, and LaTeX then writes an untagged PDF without a word, which is why the pack
 `tagging-setup` writes the MathML of every formula into the tag tree (see "Mathematics").
 `check-tagging-status` appends a report on the loaded packages to the log. Use `report` for chapters
 (`\chapter` is H2, `\section` H3); `book` works too but has no abstract. `\usepackage{clemson}`
-comes last, because it loads hyperref, which must follow every other package. LaTeX writes the title
+comes after the other packages, because it loads hyperref, which its manual asks to load last; a
+package that must follow hyperref, such as `cleveref`, goes after it, and a hyperref option that
+works only at load time goes in `\PassOptionsToPackage{...}{hyperref}` above it. LaTeX writes the title
 and the authors into the metadata a screen reader announces when the file opens (ISO 14289-2:2024
 8.11); `\and` between authors gives one entry each. A title that contains a comma needs
 `\title[pdftitle={{The title, with a comma}}]{The title, with a comma}` on LaTeX 2026-06-01, which
@@ -93,16 +95,17 @@ and `main.tex` says how VS Code and TeXShop run the extra passes. Then check wit
 `verapdf --flavour ua2 --format text main.pdf` and the log commands under "Checking".
 
 What the package does: it stops the build unless LuaLaTeX, LaTeX 2026-06-01 or newer and
-`\DocumentMetadata` with tagging are in use; loads unicode-math, so every formula gets MathML; loads
-amsthm with the environments theorem, lemma, proposition, corollary, definition, example, remark and
-algorithm, enotez for endnotes, graphicx with `resources/` as the picture folder, float with `[H]`
-as the default placement, babel (add languages with `\babelprovide`), hyperref and lua-ul (links
+`\DocumentMetadata` with tagging are in use (`tagging=draft` builds, with a warning); loads
+unicode-math, which gives LaTeX's MathML the right characters; defines the environments theorem,
+lemma, proposition, corollary, definition, example, remark and algorithm (LaTeX supplies amsthm's
+commands itself under tagging); loads enotez for endnotes, graphicx, float with `[H]` as the
+default placement, babel (add languages with `\babelprovide`), hyperref and lua-ul (links
 underlined by LaTeX, black, plain in the contents); tags the title as the only H1 with the headings
 one level down, and the abstract as a Sect with an H2; keeps each figure and table in the tag tree
-where it is written; writes Scope, spans and Headers on every table cell; sets left-aligned text;
-tags `\strong` and babel's language switches; keeps the MathML file list right when the file name
-holds a comma; and adds bookmarks for the front matter, `\autoref` names, `\email` and the word QED
-at the end of a proof. Its one option, `\usepackage[justified]{clemson}`, keeps justified text. What
+where it is written; writes Scope, spans and Headers on the cells of every `tabular`; sets
+left-aligned text; tags `\strong` and babel's language switches; keeps the MathML file list right
+when the file name holds a comma; adds NoteType to footnotes; and adds bookmarks for the front
+matter, `\autoref` names, `\email` and the word QED at the end of a proof. Its one option, `\usepackage[justified]{clemson}`, keeps justified text. What
 it cannot do for you: the `% !TEX` line, the `\DocumentMetadata` block, `alt={...}` on every
 picture, and the header rows or columns of every table. Everything else is LaTeX's own tagging. The
 next section gives, for each kind of content, the rule, the reason and the `%----` banner in
@@ -116,15 +119,16 @@ The package tags the printed title as the only H1 and moves every heading down o
 `\section` is H2, `\subsection` H3 and `\subsubsection` H4; in `report` and `book`, `\chapter` is
 H2, `\section` H3 and so on, as in the Graduate School's Word template. LaTeX's own choice is the
 PDF 2.0 Title element with `\section` as H1 (Tagged PDF BPG 1.0.1 4.2.2.2); both forms pass
-PDF/UA-2. The title plug works on the kernel's `\maketitle`, so a class with its own title page
-keeps its title untagged. Use the heading commands in order and never skip a level: veraPDF has
+PDF/UA-2. The title plug works on the kernel's `\maketitle` and puts the whole title, even one
+written on two lines, in one H1; a class with its own title page (ClemsonThesis.cls) tags its title
+as ordinary text, and the document then has no H1. Use the heading commands in order and never skip a level: veraPDF has
 no rule on skipped levels, but Acrobat's checker and WCAG 2.1 technique G141 expect H1 then H2.
 `\section*[Acknowledgments]{Acknowledgments}` gives a starred heading a contents entry and a
 bookmark (a kernel key; `toc=` and `bookmark=` set the two texts separately). In `article` and
 `report` the abstract is tagged as a Sect with an H2 heading under the H1 title and gets a
-bookmark (LaTeX alone tags it BlockQuote; tagging-project issue 1327 is open). Put `\maketitle`
-before it: a hand-made `center` block right before the abstract stops the build with "text para
-hooks differ". In `report` the abstract prints in the text flow, not on a page of its own.
+bookmark that targets the abstract itself (LaTeX alone tags the article abstract BlockQuote and
+report's title-page abstract as plain text; tagging-project issue 1327 is open). The layout is the
+class's own. In `report` the abstract prints in the text flow, not on a page of its own.
 Block: TITLE, ABSTRACT, CONTENTS.
 
 ### Pictures
@@ -140,9 +144,9 @@ alt that states its point and says where the full description is, then the descr
 text or in a data table. Inside the braces, type `\%`, `\#`, `\$`, `\&`, `\_`, `\{` and `\}` with
 a backslash (a bare `%` stops the build); type accents, quotation marks and dashes as the real
 characters, since `` `` '' `` and `--` are written as typed; `~` becomes a space, and
-`\textbackslash` lands as its own name, so write the word instead. The package loads graphicx and
-looks for pictures in `resources/` next to the document, then beside the `.tex` file; a
-`\graphicspath` line in the document replaces that list. Banners: "Picture with alt text" through
+`\textbackslash` lands as its own name, so write the word instead. The package loads graphicx;
+`main.tex` sets `\graphicspath{{resources/}}`, and LaTeX looks beside the `.tex` file first, then
+in `resources/`. Banners: "Picture with alt text" through
 "Long description in appendix".
 
 ### Tables
@@ -162,14 +166,17 @@ the build), and the covered cells stay empty; the `multirow` package is listed i
 attributes do not cover it. A `tabular` kept for layout goes inside a group with
 `\tagpdfsetup{table/tagging=presentation}` (the tagging project's choice for a layout table) or
 `=div`; `=false` suits only `l`, `c` and `r` columns, and any of the three left open changes the
-tables that follow. LaTeX writes Scope as attribute classes, which veraPDF checks but Acrobat's
-Table Editor shows as "scope none" (tagging-project issue 1324), so the package writes on every
-cell, next to those classes, a direct attribute dictionary: Scope on each header cell, ColSpan and
-RowSpan on each spanning cell, and on each data cell a Headers array with the IDs of the header
-cells that apply to it, row headers first, then column headers, most specific first (ISO
-32000-2:2020 Table 384). Acrobat's Table Editor and PAC read these, so the cell properties show
-there and a screen reader working through Acrobat gets the header association. Presentation and div
-tables get nothing; Acrobat's checker reports a presentation table under its Headers rule. Banners:
+tables that follow. LaTeX writes Scope, ColSpan and RowSpan as attribute classes, which ISO
+32000-2:2020 14.7.6.2 counts as attached to the cell and veraPDF reads, but PAC ignores
+(tagging-project Discussion 1324) and Acrobat's Table Editor shows as "scope none", so the package
+writes on every cell, next to those classes, a direct attribute dictionary: Scope on each header
+cell, ColSpan and RowSpan on each spanning cell, and on each data cell a Headers array with the IDs
+of the header cells that apply to it, row headers first, then column headers, most specific first
+(ISO 32000-2:2020 Table 384). No standard requires the direct copies; the Headers arrays matter for
+tables with group rows, where the ISO 32000-2 header search loses the top headers (ISO 14289-2:2024
+8.2.5.26; Tagged PDF BPG 1.0.1 5.4.1). veraPDF does not check the Headers arrays, so the Table
+Editor check is their only test. Presentation and div tables get nothing; Acrobat's checker reports
+a presentation table under its Headers rule. Banners:
 the "Table:" blocks and "Side by side, not a table".
 
 ### Figures and tables in the text
@@ -177,16 +184,21 @@ the "Table:" blocks and "Side by side, not a table".
 LaTeX tags each `figure` and `table` as an Aside whose first child is the Caption, but by default
 it defers those structures to the end of the tree, its choice for PDF 1.7 readers that show an
 Aside as a Note. The package sets `float/here`, so each structure stays where the float is
-written, next to the text that cites it (WCAG 2.1 1.3.2; Tagged PDF BPG 1.0.1 3.2.2). The
-package also loads `float` and makes `[H]` the default placement for `figure` and `table`, so
-each one prints where it is written; `\floatplacement{figure}{tbp}` in the document lets figures
-float again, and the tag-tree position stays the same either way. The package's two `\par` hooks
-end the paragraph before a float; without them an `[H]` float right after a list or a displayed
-formula writes its Caption outside the float, which veraPDF reports under 8.2.5.27 with no
-warning from LaTeX. Put `\caption` above the picture or tabular, because the Caption is written
-first either way. Leave a blank line before a theorem, proof or other theorem-like block that
-follows a list, a displayed formula or a `quote`, `center` or `verbatim` environment; without it
-the build stops with "text para hooks differ" (tagging-project issues 1402 and 1415).
+written, next to the text that cites it (house style: Clemson's PDF manual checks ask that tag
+order match the page, and ISO 32000-2:2020 14.8.2.5.1 says it should; LaTeX's deferred form
+passes too). The package also loads `float` and makes `[H]` the default placement for `figure`
+and `table`, so each one prints where it is written; `\floatplacement{figure}{tbp}` in the
+document lets figures float again, and the tag-tree position stays the same either way. `[!]` and
+`[]` stop the build with `[H]` as default, and an `[H]` float with its caption inside a minipage
+fails 8.2.5.27 (tagging-project issue 1549). The package's `\par` hooks end the paragraph before
+a float; without them an `[H]` float right after a list or a displayed formula writes its Caption
+outside the float, which veraPDF reports under 8.2.5.27 with no warning from LaTeX (issue 1532).
+`figure*` and `table*` get the same hook; in a one-column document they float, because the float
+package drops an `[H]` starred float from the page. Put `\caption` above the picture or tabular,
+because the Caption is written first either way. On LaTeX 2026-06-01, leave a blank line before a
+theorem, proof or other theorem-like block that follows a list, a displayed formula or a `quote`,
+`center` or `verbatim` environment; without it the build stops with "text para hooks differ"
+(tagging-project issues 1402 and 1415, fixed in the 2026-11-01 release).
 
 ### Lists
 
@@ -199,7 +211,8 @@ its syntax is built in. Each item body holds its text as `LBody > Part > P`; tha
 ### Mathematics
 
 LaTeX tags every formula as a Formula and writes its MathML itself, which is what ISO 14289-2:2024
-8.2.5.29.1 asks; the package loads unicode-math so that happens on LuaLaTeX. MathML can sit in a
+8.2.5.29.1 asks (the Math in PDF BPG 1.0 p. 4 states the clause; veraPDF tests only that math sits
+inside a Formula); the package loads unicode-math so the MathML gets the right characters. MathML can sit in a
 PDF in two forms, and the `math/setup` key in `\DocumentMetadata` chooses. `mathml-SE` (structure
 elements) writes the MathML into the tag tree itself: inside each Formula element sits a `math`
 element with `mrow`, `mi`, `mo`, `mfrac` and the other MathML elements as tags, so the reader
@@ -211,7 +224,7 @@ tagging project's recordings); the kit therefore asks for `math/setup=mathml-SE`
 in this folder uses it. Its cost: the recordings show Foxit and Firefox (with NVDA or JAWS) reading
 the attached file, not the structure elements, so a document meant for those readers can add the
 file with `math/setup={mathml-SE,mathml-AF}` (about five percent larger). With no key at all LaTeX
-attaches the file only. Under `mathml-SE` the MathML is written during the run, so it needs no
+attaches the MathML file and the TeX source. Under `mathml-SE` the MathML is written during the run, so it needs no
 second pass and no count appears in the log; a `math` element inside every Formula in the tag
 tree is the proof. Two known warnings under `mathml-SE`: a numbered `multline` reports "structure
 with label 0 is unknown" (issue 1407; use `multline*`), and an mhchem prescript such as
@@ -220,62 +233,77 @@ with label 0 is unknown" (issue 1407; use `multline*`), and an mhchem prescript 
 BPG 1.0 p. 15); keep the double braces, because a scripted single atom loses the intent silently.
 Write `\symbf{v}`, `\symbfit{v}` and `\symcal{A}` for bold and script letters; `bm` does not work
 with unicode-math, and `amssymb` loaded after the package stops the build (load it before the
-package if a command name is missing). With `mathml-AF`, a file name with a comma makes LaTeX
-split its list of MathML files and drop every formula's MathML; the package resets the list in
-that case. Banners: "Inline and display math" through "Chemistry, units, bra-ket".
+package if a command name is missing). When LaTeX reads MathML from files (`mathml-AF`, no key at
+all, or both forms), a file name with a comma makes LaTeX split its list of MathML files and drop
+every formula's MathML; the package resets the list in that case and leaves it alone under
+`mathml-SE`. Banners: "Inline and display math" through "Chemistry, units, bra-ket".
 
 ### Theorems and proofs
 
-The package loads `amsthm` and, when the document starts, defines `theorem`, `lemma`,
+Under tagging LaTeX supplies amsthm's `\newtheorem`, `\theoremstyle` and `proof` itself and never
+reads amsthm.sty. When the document starts, the package defines `theorem`, `lemma`,
 `proposition`, `corollary`, `definition`, `example` and `remark` on one counter and `algorithm` on
-its own, each only if the document has not defined that environment itself; `\newtheorem` adds
-any other name, and `\theoremstyle` and `proof` work as in any document. `algorithm` is a
-theorem-like block with an optional title, not a float, because the `algorithm` package cannot be
-tagged; put the steps in an `algorithmic` body. LaTeX tags each theorem, lemma and proof as a
-theorem-like block, role-mapped to Sect, with its head as a Caption and its number as a Lbl (ISO
-32000-2:2020 14.8.4.8.4; Tagged PDF BPG 1.0.1 4.2.4). A proof ends with the word QED, which a
-screen reader reads; amsthm's open square is drawn with rules and announces nothing, and
-`\renewcommand{\qedsymbol}{\openbox}` after the package restores it. `\autoref` prints only the
-number for an environment on the shared counter; write `\hyperref[lem:x]{Lemma~\ref*{lem:x}}` or
-define `\lemmaautorefname`. Banner: "Theorems and algorithm".
+its own, each only if the preamble has not defined that environment itself (a `\newtheorem` for
+one of these names later in the document stops with "already defined"); `\newtheorem` adds any
+other name. `algorithm` is a theorem-like block with an optional title, not a float, because the
+`algorithm` package is listed currently incompatible; put the steps in an `algorithmic` body.
+LaTeX tags each theorem, lemma and proof as a theorem-like block, role-mapped to Sect, with its
+head as a Caption and its number as a Lbl (ISO 32000-2:2020 14.8.4.8.4; Tagged PDF BPG 1.0.1
+4.2.4). A proof ends with the word QED (house style), which a screen reader reads; LaTeX's open
+square is drawn with rules and announces nothing, and `\renewcommand{\qedsymbol}{\openbox}` after
+the package restores it. Each of these environments is also its `\autoref` name, so
+`\autoref{lem:x}` reads "Lemma 2"; an environment of your own gets one with
+`\providecommand{\fooautorefname}{Foo}`. For a proof that ends with a displayed formula, leave
+`\qedhere` out: with it the word QED sits inside the Formula ahead of the MathML, and inside
+`align*` it is not read at all. Banner: "Theorems and algorithm".
 
 ### Footnotes and endnotes
 
 `\footnote{...}` is all LaTeX needs: the note is tagged FENote, the mark is a Lbl holding the link,
 and the tree cross-references mark and note (Ref) both ways, which PDF/UA-2 asks for (veraPDF
-rules 8.2.5.14). The package adds `NoteType Footnote` on each note, through LaTeX's own footnote
-hook, so a tool can tell footnotes from other notes, and sets note text at 9 pt, Clemson's floor,
-with 7 pt raised marks (with the `10pt` option LaTeX's own size would be 8 pt). The raised mark is
+rules 8.2.5.14). The package adds the optional `NoteType Footnote` on each note through LaTeX's
+footnote hook (Well-Tagged PDF 1.0; PDF/UA-2 8.2.5.14 only limits the value, and a missing one
+reads as None), and sets note text at 9 pt, as Clemson's text page advises, with 7 pt raised marks
+(with the `10pt` option LaTeX's own sizes would be 8 and 6 pt). `\footnotesize` becomes `\small`
+everywhere, so `\thanks`, the endnote list and any `\footnotesize` text follow. The raised mark is
 a link to the note and is underlined like every other link, at its own size.
 LaTeX has no endnote support. The package loads `enotez`, listed partially compatible, and
 configures it: `\endnote{...}` writes a note, `\printendnotes` prints the list where it stands
-(nothing when there are none) and adds "Notes" to the contents, the mark links to the note and
-the note's number links back, the list is tagged, and the marks are roman so they stay apart from
-the arabic footnote marks. The `endnotes` package gives no link from mark to note. Banners:
+(nothing when there are none) under a heading that puts "Notes" in the contents and the bookmarks,
+the mark links to the note and the note's number links back, the list is tagged as a numbered list
+(not as FENote elements, which enotez does not write; tagging-project issue 728), and the marks are
+roman so they stay apart from the arabic footnote marks. The `endnotes` package gives no link from
+mark to note. Banners:
 "Emphasis, footnote, endnote" and the FOOTNOTE AND ENDNOTE EXAMPLES section.
 
 ### Links and bookmarks
 
-The package loads hyperref last, so every `\ref`, `\cite`, `\href`, `\url` and contents entry is a
-link annotation inside a Link or Reference element with a structure destination, and every page has
-a structure tab order (ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3). Link text stays black and is
-underlined by LaTeX itself, not by the viewer: the package loads `lua-ul`, which draws the underline
-in the text (under the descenders, across line breaks, in the size of the current font, so a
-footnote mark gets a mark-sized line), and switches it on inside hyperref's own link hooks,
+The package loads hyperref, and LaTeX then makes every `\ref`, `\cite`, `\href`, `\url` and contents
+entry a link annotation inside a Link or Reference element with a structure destination, and gives
+every page a structure tab order (ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3). Link text stays black
+and is underlined by LaTeX itself, not by the viewer: the package loads `lua-ul`, which draws the
+underline in the text (under the descenders, across line breaks, in the size of the current font,
+so a footnote mark gets a mark-sized line), and switches it on inside hyperref's own link hooks,
 `hyp/link/link` and `hyp/link/cite` for internal links and the `\href` and `\url` hook pairs for web
-links. Every viewer shows the same underline, no viewer border is drawn, and no link is marked by
-color alone (WCAG 2.1 1.4.1). The contents and the lists of figures and tables stay plain, because
-every line there is a link. To drop the underlines, remove the package's code from those four hooks
-with `\RemoveFromHook{hyp/link/link}[clemson]` and its three siblings. Name the destination in the
-link text, never "click here"; `\email{name@clemson.edu}` (or `\href{mailto:...}{...}`, as the
-example does) gives an email address as its own link whose text is the address. `\autoref{sec:x}`
-links the whole phrase and prints "Section 3": the package sets the names Section, Chapter, Figure,
-Table, Equation, Appendix and Algorithm at the end of `\begin{document}`, after babel has reset
-them, so the document needs no line for them; a name of your own, such as `\lemmaautorefname`, goes
-inside `\AddToHook{begindocument/end}{...}` for the same reason. `\tableofcontents`,
-`\listoffigures` and `\listoftables` print starred headings with no outline entry, so the package
-adds a level 1 bookmark before each, and before the abstract; in `report` and `book` it turns the
-page first, so the bookmark points at the heading's page. Banners: "Links, citations",
+links; the rules are artifacts, like LaTeX's own rules. Every viewer shows the same underline and
+no viewer border is drawn. This is Clemson's link style (the Links page asks for underlined links);
+WCAG 2.1 1.4.1 holds either way, because the links are black. The contents and the lists of figures
+and tables stay plain, because every line there is a link. To drop the underlines, remove the
+package's code from all six hooks: `\RemoveFromHook{hyp/link/link}[clemson]` and the same for
+`hyp/link/cite`, `cmd/href/before`, `cmd/href/after`, `cmd/url/before` and `cmd/url/after` (the
+`\href` and `\url` pairs open and close a group, so both halves must go), and drop
+`\hypersetup{pdfborder={0 0 0}}` as well, or the links get no visual cue at all. Name the
+destination in the link text, never "click here"; `\email{name@clemson.edu}` (or
+`\href{mailto:...}{...}`, as the example does) gives an email address as its own link whose text is
+the address. `\autoref{sec:x}` links the whole phrase and prints "Section 3": the package adds the
+names Section and Chapter to babel's names for the main language (hyperref's own are lowercase
+there, and babel re-applies its names at every switch back to the main language) and names each of
+its theorem-like environments; hyperref already names figures, tables, equations, appendices,
+footnotes and items. A name of your own for a section-level counter goes into
+`\addto\extrasamerican{...}` (for `lang=en-US`). `\tableofcontents`, `\listoffigures` and
+`\listoftables` print starred headings with no outline entry, so the package adds a bookmark
+before each (at chapter level in `report` and `book`, where it also turns the page first, so the
+bookmark points at the heading's page) and one inside the abstract. Banners: "Links, citations",
 "Cross-references".
 
 ### Language
@@ -357,8 +385,10 @@ veraPDF tests it and the Tagged PDF BPG 1.0.1 do not require them.
 LaTeX justifies text. Clemson's text concept says to use left-aligned text as a best practice and
 to avoid justified text and sizes under 9 points; WCAG 2.1 1.4.8 is a AAA criterion, outside
 Clemson's WCAG 2.1 AA standard, and no PDF/UA-2 rule reads alignment. The package therefore sets
-`\raggedright` with a 1.5em paragraph indent when the document starts, which LaTeX records as
-TextAlign Start on each paragraph; theorem and proof bodies keep their justified templates.
+`\raggedright` when the document starts and keeps the paragraph indent the class or the document
+set, which LaTeX records as TextAlign Start on body paragraphs; footnotes get the same setting.
+Text in minipages, parboxes, floats and `p` columns stays justified, because LaTeX resets it
+there, and theorem and proof bodies keep their justified templates.
 `\usepackage[justified]{clemson}`, the package's only option, keeps justified text. Do not use
 `ragged2e`. Place a vector chart at its natural size, because scaling it scales the type inside.
 
@@ -423,34 +453,34 @@ font, and the font passes every veraPDF font rule.
 | Abstract as Sect with an H2 heading; bookmarks for abstract, contents, list of figures and list of tables | clemson.sty | ISO 32000-2:2020 14.8.4.4; Tagged PDF BPG 1.0.1 7.2 |
 | Lists L, LI, Lbl, LBody | LaTeX 2026-06-01 | ISO 32000-2:2020 14.8.4.8.2 |
 | Tables TH, TD, Scope and spans as attribute classes | LaTeX 2026-06-01, from the author's keys | ISO 32000-2:2020 14.8.4.8.3 |
-| Scope, ColSpan, RowSpan and Headers as direct attributes on every cell | clemson.sty (TABLE CELLS) | ISO 32000-2:2020 14.8.4.8.3, Table 384 |
-| Floats as Aside with Caption first; structure kept where written; `[H]` placement with the `\par` hooks | LaTeX 2026-06-01; clemson.sty (`float/here`, float) | ISO 32000-2:2020 14.8.4.8.4; WCAG 2.1 1.3.2; Tagged PDF BPG 1.0.1 3.2.2; ISO 14289-2:2024 8.2.5.27 |
+| Scope, ColSpan, RowSpan and Headers as direct attributes on every `tabular` cell (for Acrobat and PAC; no standard requires the copies, Headers matter for group rows) | clemson.sty (TABLE CELLS) | ISO 32000-2:2020 14.8.4.8.3, Table 384; ISO 14289-2:2024 8.2.5.26 |
+| Floats as Aside with Caption first; structure kept where written; `[H]` placement with the `\par` hooks | LaTeX 2026-06-01; clemson.sty (`float/here`, float) | ISO 32000-2:2020 14.8.4.8.4, 14.8.2.5.1 (house style); ISO 14289-2:2024 8.2.5.27 |
 | Figure with Alt, ActualText or artifact | LaTeX 2026-06-01, from the author's keys | ISO 32000-2:2020 14.8.4.8.5, 14.9.4 |
 | Formula with MathML, kept when the file name holds a comma | LaTeX 2026-06-01 with unicode-math; clemson.sty | ISO 14289-2:2024 8.2.5.29.1 |
-| Theorems as Sect with Caption and Lbl; the environments and the word QED | LaTeX 2026-06-01; clemson.sty (amsthm) | ISO 32000-2:2020 14.8.4.8.4 |
-| Footnotes as FENote with Ref both ways, typed Footnote, 9 pt notes; endnotes linked both ways in a tagged list | LaTeX 2026-06-01; clemson.sty (NoteType, size, enotez) | ISO 14289-2:2024 8.2.5.14; ISO 32000-2:2020 14.8.4.7 |
-| Links in Link elements, structure destinations, tab order; underline drawn by LaTeX in the text, none in the contents; `\email`; `\autoref` names | LaTeX 2026-06-01 with hyperref; clemson.sty with lua-ul | ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3; WCAG 2.1 1.4.1, 2.4.4 |
+| Theorems as Sect with Caption and Lbl; the environments, their `\autoref` names and the word QED | LaTeX 2026-06-01 (amsthm's commands built in); clemson.sty (environments, QED) | ISO 32000-2:2020 14.8.4.8.4; ISO 14289-2:2024 8.2.5.27 |
+| Footnotes as FENote with Ref both ways, optional NoteType, 9 pt notes; endnotes linked both ways in a numbered list with a contents entry | LaTeX 2026-06-01; clemson.sty (NoteType, size, enotez) | ISO 14289-2:2024 8.2.5.14, 8.2.5.8, 8.2.5.25 |
+| Links in Link elements, structure destinations, tab order; underline drawn by LaTeX in the text as artifacts, none in the contents; `\email`; `\autoref` names | LaTeX 2026-06-01 with hyperref; clemson.sty with lua-ul | ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3, 8.2.2; WCAG 2.1 1.4.1, 2.4.4; Clemson Links page |
 | `\emph` as Em; `\strong` as Strong, in headings too | LaTeX 2026-06-01; clemson.sty | WCAG 2.1 1.3.1 (failure F2) |
 | Document language | LaTeX 2026-06-01, from `lang` | ISO 14289-2:2024 8.4.4; WCAG 2.1 3.1.1 |
 | Language of phrases and blocks with babel | clemson.sty (LANGUAGES block) | ISO 32000-2:2020 14.9.2; WCAG 2.1 3.1.2 |
 | Code and code lines | LaTeX 2026-06-01 | ISO 32000-2:2020 14.8.4.6, 14.8.4.7 |
 | Page numbers and running heads as artifacts | LaTeX 2026-06-01 | ISO 14289-2:2024 8.2.2 |
-| Left-aligned text, TextAlign Start on each paragraph | clemson.sty (option `justified` turns it off) | Clemson text concept; WCAG 2.1 1.4.8 (advisory) |
+| Left-aligned text, TextAlign Start on body paragraphs and footnotes | clemson.sty (option `justified` turns it off) | Clemson text page; WCAG 2.1 1.4.8 (Level AAA, not required) |
 | Fonts embedded with ToUnicode | LuaLaTeX and LaTeX 2026-06-01 | ISO 14289-2:2024 8.4.5.8 |
 
 ## Packages by field
 
 | Use | Avoid | Why |
 | --- | --- | --- |
-| `unicode-math`, `amsmath`, `amsthm` (all loaded by the package; `lua-unicode-math` loaded first is kept instead), `braket` | `amssymb` after the package, `bm`, `thmtools`, `ntheorem`, `tikz-cd` | `amssymb` after unicode-math stops the build and `bm` does not work with it (load `amssymb` before the package if a name is missing; write `\symbf`); the rest are listed currently incompatible |
+| `unicode-math`, `amsmath` (both loaded by the package; `lua-unicode-math` loaded first is kept instead), the `amsthm` commands (built into LaTeX under tagging), `braket` | `amssymb` after the package, `bm`, `thmtools`, `ntheorem`, `tikz-cd` | `amssymb` after unicode-math stops the build and `bm` does not work with it (load `amssymb` before the package if a name is missing; write `\symbf`); the rest are listed currently incompatible |
 | `mhchem` (`$\ce{H2O}$`), `siunitx` | `chemfig`, `chemformula`, `physics` with `siunitx`, `\qtyrange` | `mhchem` and `physics` are unchecked on the status page and `siunitx` partially compatible (a number and its unit are separate formulas); `chemfig` and `chemformula` are incompatible, so draw structures as pictures with alt text; `\qtyrange` loses its numbers in the MathML |
 | `verbatim`, `\verb`, `algpseudocode`, `algorithmicx` | `listings`, `minted`, `algorithm`, `algorithm2e`, `fancyvrb` | listed incompatible (`fancyvrb` partial); `algorithm` is a float that aborts with `[H]`; use the package's theorem-like `algorithm` block, as the example does |
 | `booktabs`, `tabularx`, `longtable` | `multirow`, `tabularray`, `nicematrix`, `caption`, `subcaption`, `subfig` | listed incompatible; `longtable` is compatible but tags its caption as a cell and gets no cell attributes from the package; spans come from `table/multirow`; panels share one caption, as in "Two panels" |
-| `graphicx` and `float` (both loaded by the package, with `[H]` and the two `\par` hooks), `tikz` with `alt={...}`, `placeins` | `pgfplots`, `wrapfig`, `pdfpages`, `floatrow`, `\newfloat` and `\restylefloat` from `float`, `titlesec` | incompatible or unsupported; export a plot as a picture with alt text; `float` is listed incompatible for those two commands only; `titlesec` stops tagging and writes no PDF |
+| `graphicx` and `float` (both loaded by the package, with `[H]` and the two `\par` hooks), `tikz` with `alt={...}`, `placeins` | `pgfplots`, `wrapfig`, `pdfpages`, `floatrow`, `\newfloat` and `\restylefloat` from `float`, `titlesec` | incompatible or unsupported; export a plot as a picture with alt text; `float` is listed incompatible (status 2): those two commands break the tagging, `[!]` and `[]` stop the build with `[H]` as default, and an `[H]` float with its caption in a minipage fails 8.2.5.27 (tagging-project issue 1549); `titlesec` stops tagging and writes no PDF |
 | the kernel's `label=` key | `enumitem` | the package cannot be loaded under tagging; its syntax is built in |
 | `\footnote`; `enotez` for endnotes (loaded by the package) | `endnotes`, `postnotes` | `endnotes` gives no link from mark to note; `postnotes` does not build under LaTeX 2026-06-01; `enotez` is partially compatible |
 | `babel` (loaded by the package; add languages with `\babelprovide[import]{...}`; `babel-english` compatible, `babel-spanish` partial) | `polyglossia` | cannot be loaded together with babel, so it cannot be used with the package |
-| `multicol`, `geometry`, `fancyhdr`, `microtype`, `setspace`, `parskip`, `natbib`, `bookmark`; `biblatex`, `cleveref` (after `amsmath`), `csquotes`, `acronym` (all four partial) | `memoir`; journal classes (`IEEEtran`, `revtex4-2`, `llncs`); `beamer`; `glossaries` | listed incompatible or unsupported, and `glossaries` unchecked; send a journal the copy built with its own class; write an abbreviation out in the text |
+| `multicol`, `geometry`, `fancyhdr`, `microtype`, `setspace`, `parskip`, `natbib`, `bookmark`; `biblatex`, `cleveref` (after `\usepackage{clemson}`), `csquotes`, `acronym` (all four partial) | `memoir`; journal classes (`IEEEtran`, `revtex4-2`, `llncs`); `beamer`; `glossaries` | listed incompatible or unsupported, and `glossaries` unchecked; send a journal the copy built with its own class; write an abbreviation out in the text |
 
 For any other package, look it up at <https://latex3.github.io/tagging-project/tagging-status/>;
 a package that is not listed has not been checked, and the `check-tagging-status` report at the end
@@ -468,35 +498,40 @@ Work on a copy of the project.
 4. Delete the lines that load `fontspec`, `unicode-math`, `hyperref`, `inputenc`, `fontenc`,
    `lmodern`, `amssymb` and `bm`, and font packages such as `times` or `newtxmath`; the package
    loads the first three, and the rest clash with unicode-math or the Unicode font setup.
-   hyperref options go in `\hypersetup{...}` after `\usepackage{clemson}`. The package also
-   loads `amsthm`, `enotez`, `float`, `graphicx` and `babel`: delete those lines or keep them
-   before the package (a `\usepackage[...]{babel}` line with options must come before it);
-   delete `polyglossia`. `\newtheorem` lines can stay, because the package skips every theorem
-   environment the document defines itself; a `\graphicspath` line replaces the package's
-   `resources/` list; a `\pdfbookmark` line before `\tableofcontents` goes, since the package
-   adds that bookmark. Keep the rest, including `amsmath`. Add `\usepackage{clemson}` as the last
-   `\usepackage` line; keep `\title` and `\author` as they are unless the title has a comma. A
+   hyperref options go in `\hypersetup{...}` after `\usepackage{clemson}`, except the few that
+   work only at load time, which go in `\PassOptionsToPackage{...}{hyperref}` before it. The
+   package also loads `enotez`, `float`, `graphicx` and `babel`, and LaTeX supplies `amsthm`:
+   delete those lines or keep them before the package (a `\usepackage[...]{babel}` line with
+   options must come before it); delete `polyglossia`. `\newtheorem` lines in the preamble can
+   stay, because the package skips every theorem environment the preamble defines; a
+   `\graphicspath` line stays as it is; a `\pdfbookmark` line before `\tableofcontents` goes,
+   since the package adds that bookmark. Keep the rest, including `amsmath`. Add
+   `\usepackage{clemson}` after the other `\usepackage` lines (`cleveref`, if used, goes after
+   it); keep `\title` and `\author` as they are unless the title has a comma. A
    class of your own built on `article`, `report` or `book` can stay; journal classes are listed
    incompatible.
 5. Look up every remaining package in "Packages by field" and the status page. Most papers need
    `\bm{x}` replaced by `\symbfit{x}`, and each `subfigure` rebuilt like "Two panels".
-6. Build, then check. The first build of an older document often stops with "text para hooks
-   differ"; the cause is a theorem, proof or abstract right after a list, display or `center`
-   with no blank line before it. Then the veraPDF output and the log lines under "Checking" are
+6. Build, then check. On LaTeX 2026-06-01 the first build of an older document often stops with
+   "text para hooks differ"; the cause is a theorem or proof right after a list, display or
+   `center` with no blank line before it. Then the veraPDF output and the log lines under "Checking" are
    the to-do list. No program can see two things, so do them yourself: give every data table its
    `\tagpdfsetup` header line, and
    move every caption above its picture or tabular. Finish with the five checks by hand.
 
 ## After a LaTeX update
 
-Five things in `clemson.sty` are tied to a LaTeX or babel version. The three blocks marked
-`A11Y WORKAROUND` each carry a `REMOVE WHEN` line: MATHML FILE NAME resets the MathML file list
-when the file name holds a comma (only then, with a documented key); LANGUAGES tags babel's
+Several things in `clemson.sty` are tied to a LaTeX, hyperref or babel version, and each carries a
+`REMOVE WHEN` line. The four blocks marked `A11Y WORKAROUND`: FLOATS adds a `\par` before each
+float (tagging-project issue 1532); MATHML FILE NAME resets the MathML file list when the file name
+holds a comma (only when LaTeX reads MathML files, with a documented key); LANGUAGES tags babel's
 language switches (until babel or tagpdf writes the tag itself); TABLE CELLS reads latex-lab-table
 internals to write the direct cell attributes, checks that each one still exists and, when a
 LaTeX update has removed one, warns in the log and skips the attributes, so the build finishes
-and LaTeX's attribute classes remain. The title plug in TITLE AND HEADINGS and the two `\par`
-hooks in FLOATS use kernel sockets and hooks that a later release may change or make unnecessary.
+and LaTeX's attribute classes remain. The `\strong` hooks go when LaTeX ships `\strongemph`
+(latex2e issue 1620), the `\pdfstringdef` line when hyperref handles `\strong`, the title plug
+when issue 1625 makes an H1 title the default, the NoteType hook when LaTeX writes it (issue 728),
+and the underline artifact when lua-ul marks its rules (issue 1581).
 Everything else is LaTeX's own tagging; the table keys `table/header-rows`, `table/header-columns`
 and `table/multirow` are marked preliminary in the latex-lab table documentation. After every `tlmgr
 update`, build `example.tex` once and run veraPDF on it; a PASS and a log without tagging warnings
