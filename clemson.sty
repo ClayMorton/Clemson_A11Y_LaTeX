@@ -334,19 +334,21 @@
 %------------------------------------------------------------------------------
 % TABLE CELLS
 %------------------------------------------------------------------------------
-% A11Y WORKAROUND. LaTeX writes Scope, ColSpan and RowSpan only as attribute
-% classes and writes no /Headers. That is valid PDF, but Acrobat and PAC read
-% direct attributes only, so the Table Editor shows "scope none". At the end
-% of each tabular every cell gets a direct /A with /O /Table: Scope on a TH,
-% ColSpan and RowSpan above 1, and /Headers with the IDs of its header cells.
-% Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, TD); 14.8.5.7 (Table 384).
+% A11Y WORKAROUND. LaTeX writes Scope, ColSpan and RowSpan as attribute
+% classes, which ISO 32000-2:2020 14.7.6.2 counts as attached to the cell and
+% veraPDF reads. PAC ignores classes (tagging-project Discussion 1324) and
+% Acrobat's Table Editor shows "scope none", so at the end of each tabular
+% every cell also gets them as a direct /A with /O /Table. No standard asks
+% for this copy. Headers are different: LaTeX writes none (see below).
+% Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, TD); 14.8.5.7 (Table 384, optional).
 \ExplSyntaxOn
 % Headers holds "row IDs followed by column IDs" (ISO 32000-2 Table 384),
-% each list nearest first. The top header rows head every data row. A lower
-% header row, or a one-cell row under the top headers, is a group row: it
-% heads the rows below it up to the next group. A header cell looks only in
-% its own header rows. Header columns work the same way from the left.
-% Meets: ISO 32000-2:2020 14.8.4.8.3 (header search); 14.8.5.7 (Headers).
+% each list nearest first. The 14.8.4.8.3 search stops at the first data
+% cell past a header, so below a second group row the top headers are lost.
+% Here the top header rows head every data row and a group row (a lower
+% header row, or a one-cell row under the top headers) heads the rows below
+% it up to the next group; header columns work the same way from the left.
+% Meets: ISO 14289-2:2024 8.2.5.26; Tagged PDF BPG 1.0.1 5.4.1 (complex tables).
 \prop_new:N  \l__hdrs_grid_prop
 \prop_new:N  \l__hdrs_minr_prop
 \prop_new:N  \l__hdrs_maxr_prop
@@ -627,9 +629,9 @@
     \int_set:Nn \l__hdrs_cols_int { \g__tbl_table_cols_tl }
     \tl_set_eq:NN \l__hdrs_table_tl \g__tbl_struct_table_tl
   }
-% Layout tables (table/tagging=presentation or =div) carry the
-% ARIA-role-presentation class and get nothing; =false never gets here.
-% Meets: ISO 32000-2:2020 14.8.5.7; WAI-ARIA 1.1 role=presentation.
+% Layout tables (table/tagging=presentation or =div) carry LaTeX's
+% ARIA-role-presentation class and no header cells, so they get nothing;
+% =false never gets here. Meets: WAI-ARIA 1.1 role=presentation.
 \cs_new_protected:Npn \__hdrs_apply:
   {
     \str_clear:N \l__hdrs_class_str
@@ -676,7 +678,8 @@
 % the Table plug's csname) and tagpdf's \__tag_struct_get_id:n and struct_C
 % code. longtable is not covered: it has its own finalize plug. If one is
 % missing the build warns and writes nothing. The plug keeps its name, Table.
-% REMOVE WHEN: latex-lab-table writes Headers and direct attributes itself.
+% REMOVE WHEN: latex-lab-table writes Headers (the TODO in its docs,
+% tagging-project Discussion 930) and PAC and Acrobat read classes.
 \bool_lazy_all:nTF
   {
     { \seq_if_exist_p:N \g__tbl_struct_cells_seq }
