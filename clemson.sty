@@ -796,15 +796,18 @@
 \providecommand{\email}[1]{\href{mailto:#1}{\detokenize{#1}}}
 % The contents and the two lists print starred headings that get no outline
 % entry, so a reader navigating by bookmarks cannot reach them. hyperref's
-% \pdfbookmark adds one before each. With chapters the heading starts a new
-% page after this hook runs, so the page is turned first, or the bookmark
-% would point at the page before its heading.
+% \pdfbookmark adds one before each, at chapter level when the class has
+% chapters (a level-1 entry would nest under the previous chapter). With
+% chapters the heading starts a new page after this hook runs, so the page
+% is turned first, or the bookmark would point at the page before its
+% heading. The hooks carry the label clemson/bookmark, so a class that
+% bookmarks these lists itself can remove them with \RemoveFromHook.
 % Meets: Tagged PDF BPG 1.0.1 7.2 (outlines follow the headings).
 \newcommand*{\clemson@turnpage}{\if@openright\cleardoublepage\else\clearpage\fi}
-\newcommand*{\clemson@bookmark}[2]{\ifdefined\chapter\clemson@turnpage\fi\pdfbookmark[1]{#1}{#2}}
-\AddToHook{cmd/tableofcontents/before}{\clemson@bookmark{\contentsname}{clemson.toc}}
-\AddToHook{cmd/listoffigures/before}{\clemson@bookmark{\listfigurename}{clemson.lof}}
-\AddToHook{cmd/listoftables/before}{\clemson@bookmark{\listtablename}{clemson.lot}}
+\newcommand*{\clemson@bookmark}[2]{\ifdefined\chapter\clemson@turnpage\pdfbookmark[0]{#1}{#2}\else\pdfbookmark[1]{#1}{#2}\fi}
+\AddToHook{cmd/tableofcontents/before}[./bookmark]{\clemson@bookmark{\contentsname}{clemson.toc}}
+\AddToHook{cmd/listoffigures/before}[./bookmark]{\clemson@bookmark{\listfigurename}{clemson.lof}}
+\AddToHook{cmd/listoftables/before}[./bookmark]{\clemson@bookmark{\listtablename}{clemson.lot}}
 % \autoref{label} makes the whole phrase the link ("Section 3", "Figure 1"),
 % which is what a screen reader announces; \ref links only the number. The
 % names are set at the end of \begin{document}, after babel has reset them.
