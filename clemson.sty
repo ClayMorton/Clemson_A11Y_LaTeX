@@ -138,25 +138,35 @@
 %------------------------------------------------------------------------------
 % FLOATS
 %------------------------------------------------------------------------------
-% LaTeX tags every figure and table as an Aside with its Caption first, and by
-% default defers those structures into figures and tables sections at the end
-% of the tree, its choice for PDF 1.7 readers that show an Aside as a Note.
-% Clemson wants each figure read where the text cites it, so float/here, a
-% documented key, keeps the structure at the source position.
-% Meets: WCAG 2.1 SC 1.3.2 (meaningful sequence); Tagged PDF BPG 1.0.1 3.2.2.
+% LaTeX tags each figure and table as an Aside with its Caption first and by
+% default moves it to figures and tables sections at the end of the tree:
+% floats are consultation objects, and PDF 1.7 readers show an Aside as a
+% Note. float/here, a documented key, keeps every float's Aside where it is
+% written ([H] floats stay there anyway). House style: with [H], tag order
+% then matches the page (Clemson PDF manual checks; ISO 32000-2:2020
+% 14.8.2.5.1, a should). Meets: WCAG 2.1 SC 1.3.2 either way.
 \tagpdfsetup{float/here}
-% The picture prints where it is written too: the float package's [H] is the
-% default placement. \floatplacement{figure}{tbp} in the document lets figures
-% float again. The two \par lines end the paragraph before a float, because
-% an [H] float placed right after a list or a displayed formula otherwise
-% writes its Caption outside the float, which fails PDF/UA-2 8.2.5.27 with no
-% warning. float is listed incompatible only for \newfloat and \restylefloat.
-% Meets: ISO 14289-2:2024 8.2.5.27 (Caption first or last child).
+% Figures and tables print where they are written: the float package's [H]
+% is their default placement; \floatplacement{figure}{tbp} lets figures float.
+% float is listed incompatible (status 2): \newfloat and \restylefloat break
+% the tagging (latex-lab-firstaid 2.8), [!] and [] stop the build with [H] as
+% default, and an [H] float with its \caption in a minipage fails PDF/UA-2
+% 8.2.5.27 (tagging issue 1549). House style; no standard requires it.
 \RequirePackage{float}
 \floatplacement{figure}{H}
 \floatplacement{table}{H}
+% A11Y WORKAROUND. A float right after a list or a displayed formula otherwise
+% stops the build (tagging issue 1532) or, with no warning, leaves an [H]
+% float's Caption or a floating table's body outside the Aside. The float
+% package drops an [H] figure* or table* in one column, so there those float.
+% REMOVE WHEN: issue 1532 is fixed (the \par parts only).
+% Meets: ISO 14289-2:2024 8.2.5.27; ISO 32000-2:2020 14.8.4.8.4 (Caption).
 \AddToHook{env/figure/begin}{\par}
 \AddToHook{env/table/begin}{\par}
+\AddToHook{env/figure*/begin}%
+  {\par\if@twocolumn\else\floatplacement{figure}{!htbp}\fi}
+\AddToHook{env/table*/begin}%
+  {\par\if@twocolumn\else\floatplacement{table}{!htbp}\fi}
 
 %------------------------------------------------------------------------------
 % TITLE AND HEADINGS
