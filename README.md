@@ -3,7 +3,8 @@
 `clemson.sty` makes LuaLaTeX write a tagged PDF that conforms to PDF/UA-2 (ISO 14289-2:2024) and
 to Clemson's digital accessibility standard (WCAG 2.1 AA and the Clemson guidance pages). The
 folder holds the package, `main.tex` (the starter), `example.tex` (every kind of content, with a
-comment on each block and the clause it meets), `references.bib` and `resources/` (pictures).
+comment on each block and the clause it meets), `Clemson_LaTeX_Accessibility_Talk.tex` (the
+examples as slides), `references.bib` and `resources/` (pictures).
 
 ## Requirements
 
