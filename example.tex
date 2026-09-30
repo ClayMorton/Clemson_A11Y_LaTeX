@@ -337,9 +337,8 @@ name. LaTeX tags each block as theorem-like, with its head as a caption:
 \begin{proof} The package moves every heading one level down, so \verb|\section| is H2. \end{proof}
 \begin{definition} A \emph{header cell} names the row or the column it belongs to. \end{definition}
 \begin{example} A table of results has one header row; its first row is tagged TH. \end{example}
-\begin{remark} A proof ends with the word QED, which a screen reader reads aloud;
-amsthm's open square is drawn with rules and announces nothing. To get the square
-back, write \verb|\renewcommand{\qedsymbol}{\openbox}| after the package. \end{remark}
+\begin{remark} The proof above ends with the word QED on its own; a screen reader reads
+it, while LaTeX's open square is drawn with rules and announces nothing. \end{remark}
 % The algorithm block is theorem-like, not a float. The algorithm package is
 % listed "Currently incompatible", and an algorithmic body inside a figure
 % aborts the build. This gives a tagged Caption and a label \ref can reach. The

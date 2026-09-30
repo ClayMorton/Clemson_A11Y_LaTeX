@@ -91,8 +91,8 @@ New:
 
 Changed:
 
-- `\qedsymbol` prints the word QED. `\renewcommand{\qedsymbol}{\openbox}` after the package
-  restores the square.
+- The `proof` environment ends with the word QED instead of the open square; nothing to write.
+  (`\renewcommand{\qedsymbol}{\openbox}` after the package brings the square back.)
 - `abstract` (article, report): the class's own layout inside a Sect with an H2 heading and a
   bookmark.
 - `\footnotesize` is `\small`; at 9 pt the script size is 7 pt (`\DeclareMathSizes{9}{9}{7}{5}`).
