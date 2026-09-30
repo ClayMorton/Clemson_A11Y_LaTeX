@@ -214,6 +214,30 @@
 \NewTaggingSocketPlug{title}{clemson-h1}
   {\tagstructbegin{tag=H1}\AssignStructureRole{para/textblock}{Span}#2\tagstructend}
 \AssignTaggingSocketPlug{title}{clemson-h1}
+% ltx-talk (the tagged slide class) tags its title page as a Title element
+% and every frame title as H4; its manual (14.2) calls that level open. A
+% deck gets the same shape as an article: the title H1 with its paragraph
+% a Span, as in the plug above, and each frame title H2. A deck that uses
+% \section gets those as H2 from the roles above, so the first \section
+% moves the frame titles to H3. The class keeps its own tag namespace
+% current, so the new-tag lines land there.
+% REMOVE WHEN: ltx-talk settles its heading levels.
+% Meets: Clemson Digital Accessibility, Headings; ISO 14289-1:2014 7.4.2.
+\ExplSyntaxOn
+\IfClassLoadedTF { ltx-talk }
+  {
+    \EditInstance { titlepage-element } { title }
+      {
+        tag-begin = \tag_struct_begin:n { tag = H1 }
+                    \AssignStructureRole { para/textblock } { Span } ,
+        tag-end   = \tag_struct_end:
+      }
+    \tagpdfsetup { role/new-tag = frametitle/H2 }
+    \AddToHook { cmd/section/before } [ clemson ]
+      { \tagpdfsetup { role/new-tag = frametitle/H3 } }
+  }
+  { }
+\ExplSyntaxOff
 % A11Y WORKAROUND: at the last page LaTeX 2026-06-01 hands the text of \title
 % to hyperref's pdftitle key without braces, and that key reads a comma list
 % (one title per language), so "A, B" reaches dc:title as "A". This chunk

@@ -121,6 +121,8 @@ Changed:
   files are read; roles `sec/N/title` one level down; the `title` socket plug `clemson-h1`; the
   table finalize plug `Table` replaced by a copy that also writes the cell attributes; NoteType
   added in the `fntext` hook.
+- ltx-talk only: the title page element's tags (H1) and the `frametitle` role (H2, or H3 once
+  `\section` is used).
 - Kernel hooks, no command redefined: `cmd/strong/before|after`; `env/figure|table|figure*|table*/begin`;
   `cmd/href|url/before|after`;
   `cmd/tableofcontents|listoffigures|listoftables/before`; `env/thebibliography/before` with
@@ -279,6 +281,10 @@ section numbers to `heading-number`, mapped to Lbl) and makes `\rule` an artifac
 
 ## Presentations
 
-The package does not cover slides. `beamer` cannot be tagged. The `ltx-talk` class is the tagged
-replacement (`\DocumentMetadata{tagging=on, pdfstandard=ua-2}`, then `\documentclass{ltx-talk}`);
-it is experimental.
+`beamer` cannot be tagged. Use the `ltx-talk` class (experimental) with the same
+`\DocumentMetadata` block, then `\usepackage{clemson}` after the other packages. The package tags
+the title H1 and each frame title H2; a deck that uses `\section` gets sections at H2 and frame
+titles at H3 (the class alone writes a Title element and H4 frame titles). Tables, pictures,
+links, notes and math work as in a document. A frame that holds `\verb` or `verbatim` is a
+`frame*`. `Clemson_LaTeX_Accessibility_Talk.tex` is a worked deck:
+`latexmk -lualatex Clemson_LaTeX_Accessibility_Talk.tex`.
