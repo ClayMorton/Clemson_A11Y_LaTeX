@@ -92,19 +92,17 @@
     \begin{column}[t]{.55\textwidth}
 \small
 \begin{verbatim}
-\DocumentMetadata{                % A11Y
-  lang        = en-US,            % A11Y
-  pdfstandard = ua-2,             % A11Y
-  tagging     = on,               % A11Y
-  check-tagging-status,           % A11Y
-}                                 % A11Y
+\DocumentMetadata{
+  lang        = en-US,
+  pdfstandard = ua-2,
+  tagging     = on,
+  check-tagging-status,
+}
 \documentclass{article}
 \usepackage{booktabs}
-\usepackage{clemson}              % A11Y
+\usepackage{clemson}
 \graphicspath{{resources/}}
 \end{verbatim}
-      A line ending in \texttt{\% A11Y} is one plain LaTeX does not have.
-      Every other line is what you write today.
     \end{column}
   \end{columns}
 \end{frame*}
@@ -149,7 +147,7 @@
       \medskip
 
       \verb|\thanks| adds a footnote to a name; LaTeX leaves it out of the
-      metadata. No line here is new: the package sets the levels.
+      metadata. The package sets the levels; nothing to write.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -190,13 +188,13 @@
 \small
 \begin{verbatim}
 Use \emph{emphasis} and
-\strong{important text}.          % A11Y
+\strong{important text}.
 A footnote.\footnote{A note at
   the foot of the page.}
-An aside.\endnote{Printed near    % A11Y
+An aside.\endnote{Printed near
   the end.}
 ...
-\printendnotes                    % A11Y
+\printendnotes
 \end{verbatim}
     \end{column}
   \end{columns}
@@ -224,7 +222,7 @@ An aside.\endnote{Printed near    % A11Y
 \href{https://www.clemson.edu/accessibility/}
   {Clemson accessibility}
 \url{https://verapdf.org/}
-\email{first.last@clemson.edu}    % A11Y
+\email{first.last@clemson.edu}
 \end{verbatim}
     \end{column}
   \end{columns}
@@ -242,9 +240,9 @@ An aside.\endnote{Printed near    % A11Y
     \begin{column}[t]{.55\textwidth}
 \small
 \begin{verbatim}
-See \autoref{thm:one} on          % A11Y
+See \autoref{thm:one} on
 page~\pageref{thm:one},
-\autoref{alg:max} and             % A11Y
+\autoref{alg:max} and
 Equation~\eqref{eq:gauss}.
 \end{verbatim}
       Theorem-like blocks work too: the package names each one for
@@ -271,7 +269,7 @@ Equation~\eqref{eq:gauss}.
     \begin{column}[t]{.55\textwidth}
 \small
 \begin{verbatim}
-\begin{enumerate}[label=(\alph*)] % A11Y
+\begin{enumerate}[label=(\alph*)]
   \item Lettered items come from
     a kernel key.
   \item The letters are labels,
@@ -310,7 +308,7 @@ Reserved characters take a
 backslash: 100\%, R\&D. A command
 in a sentence goes in \verb|\emph|.
 \end{verbatim}
-      No new line: LaTeX tags all of this by itself.
+      LaTeX tags all of this by itself.
     \end{column}
   \end{columns}
 \end{frame*}
@@ -347,8 +345,7 @@ sentence: $e^{i\pi} + 1 = 0$.
 Equation~\eqref{eq:gauss} is
 cited by number.
 \end{verbatim}
-      No new line: LaTeX writes the MathML and the package puts it in the tag
-      tree.
+      LaTeX writes the MathML and the package puts it in the tag tree.
     \end{column}
   \end{columns}
 \end{frame*}
@@ -403,7 +400,7 @@ cited by number.
 \small
 \begin{verbatim}
 \begin{equation}
-  \MathMLintent{mean($x)}         % A11Y
+  \MathMLintent{mean($x)}
     {{\overline{\MathMLarg{x}{x}}}}
   = \frac{1}{n} \sum_{i=1}^{n} x_i
 \end{equation}
@@ -438,7 +435,7 @@ Standard gravity is
 \qty{9.81}{\metre\per\second\squared};
 a state is $\ket{0}$.
 \end{verbatim}
-      No new line: these packages tag by themselves.
+      These packages tag by themselves.
     \end{column}
   \end{columns}
 \end{frame*}
@@ -498,7 +495,7 @@ a state is $\ket{0}$.
 \begin{verbatim}
 \usepackage{algpseudocode}
 ...
-\begin{algorithm}[Find the largest % A11Y
+\begin{algorithm}[Find the largest
   value]\label{alg:max}
   Input: $a_1,\dots,a_n$.
   \begin{algorithmic}[1]
@@ -537,11 +534,11 @@ a state is $\ket{0}$.
 \small
 \begin{verbatim}
 \begin{figure}
-  \caption{Cables in the store}   % A11Y
+  \caption{Cables in the store}
   \label{fig:cables}
   \includegraphics[width=.7\linewidth,
     alt={Coiled gray cables on a
-      beige pegboard wall.}]{cables} % A11Y
+      beige pegboard wall.}]{cables}
 \end{figure}
 \end{verbatim}
       The caption comes first: LaTeX writes the Caption tag first, so a caption
@@ -569,16 +566,16 @@ a state is $\ket{0}$.
 \small
 \begin{verbatim}
 \begin{figure}
-  \caption{Two halves of the wall} % A11Y
+  \caption{Two halves of the wall}
   \includegraphics[width=.45\linewidth,
     trim=0 0 160 0, clip,
     alt={Panel (a): the left half
-      of the cable wall.}]{cables} % A11Y
+      of the cable wall.}]{cables}
   \hfill
   \includegraphics[width=.45\linewidth,
     trim=160 0 0 0, clip,
     alt={Panel (b): the right half
-      of the same wall.}]{cables} % A11Y
+      of the same wall.}]{cables}
 \end{figure}
 \end{verbatim}
     \end{column}
@@ -607,7 +604,7 @@ a state is $\ket{0}$.
 \begin{tikzpicture}[alt={Flow diagram:
   a box labeled LaTeX source, an
   arrow, and a box labeled tagged
-  PDF.}]                          % A11Y
+  PDF.}]
   \draw (0,0) rectangle (2.6,1)
     node[midway]{LaTeX source};
   \draw[->] (2.7,0.5) -- (3.7,0.5);
@@ -636,11 +633,11 @@ a state is $\ket{0}$.
 \small
 \begin{verbatim}
 \includegraphics[height=0.8cm,
-  actualtext={Clemson University}] % A11Y
+  actualtext={Clemson University}]
   {text-image}
 
 \includegraphics[width=.6\linewidth,
-  artifact]{ornament}             % A11Y
+  artifact]{ornament}
 \end{verbatim}
     \end{column}
   \end{columns}
@@ -661,7 +658,7 @@ a state is $\ket{0}$.
 \includegraphics[alt={Bar chart of
   visitors to four destinations: Myrtle
   Beach most, Aiken fewest. Described
-  below.}]{chart}                 % A11Y
+  below.}]{chart}
 \end{verbatim}
     \end{column}
   \end{columns}
@@ -691,11 +688,11 @@ a state is $\ket{0}$.
     \begin{column}[t]{.55\textwidth}
 \small
 \begin{verbatim}
-\babelprovide[import]{french}     % A11Y
+\babelprovide[import]{french}
 ...
-\foreignlanguage{french}{tout de suite} % A11Y
+\foreignlanguage{french}{tout de suite}
 
-\begin{otherlanguage}{french}     % A11Y
+\begin{otherlanguage}{french}
 Un document accessible porte un
 arbre de balises que le lecteur
 d'\'ecran suit.
@@ -736,8 +733,8 @@ d'\'ecran suit.
 \small
 \begin{verbatim}
 \begin{table}
-  \caption{Header row}            % A11Y
-  \tagpdfsetup{table/header-rows={1}}% A11Y
+  \caption{Header row}
+  \tagpdfsetup{table/header-rows={1}}
   \begin{tabular}{lrr}
     \toprule Item & Count & Share \\
     \midrule
@@ -769,8 +766,8 @@ d'\'ecran suit.
     \begin{column}[t]{.55\textwidth}
 \small
 \begin{verbatim}
-\caption{Header column}           % A11Y
-\tagpdfsetup{table/header-columns={1}}% A11Y
+\caption{Header column}
+\tagpdfsetup{table/header-columns={1}}
 \begin{tabular}{lrrr}
   \toprule
   Mean   & 4.1 & 4.4 & 4.0 \\
@@ -805,11 +802,11 @@ d'\'ecran suit.
     \begin{column}[t]{.53\textwidth}
 \small
 \begin{verbatim}
-\tagpdfsetup{table/header-rows={1,2}, % A11Y
+\tagpdfsetup{table/header-rows={1,2},
   table/header-columns={1}}
 \begin{tabular}{lcccc}
   \toprule
-  \tagpdfsetup{table/multirow=2}% % A11Y
+  \tagpdfsetup{table/multirow=2}%
   Method & \multicolumn{2}{c}{Training}
          & \multicolumn{2}{c}{Test} \\
          & Prec. & Rec. & Prec. & Rec. \\
@@ -843,11 +840,11 @@ d'\'ecran suit.
     \begin{column}[t]{.55\textwidth}
 \small
 \begin{verbatim}
-\begin{minipage}[t]{0.45\linewidth} % A11Y
+\begin{minipage}[t]{0.45\linewidth}
   \centering
   First Author\\ Clemson University
 \end{minipage}\hfill
-\begin{minipage}[t]{0.45\linewidth} % A11Y
+\begin{minipage}[t]{0.45\linewidth}
   \centering
   Second Author\\ Clemson University
 \end{minipage}
