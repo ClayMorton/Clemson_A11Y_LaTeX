@@ -820,6 +820,18 @@
 \AddToHook{cmd/tableofcontents/before}[./bookmark]{\clemson@bookmark{\contentsname}{clemson.toc}}
 \AddToHook{cmd/listoffigures/before}[./bookmark]{\clemson@bookmark{\listfigurename}{clemson.lof}}
 \AddToHook{cmd/listoftables/before}[./bookmark]{\clemson@bookmark{\listtablename}{clemson.lot}}
+% The bibliography prints a starred heading with no contents entry and no
+% bookmark. A starred heading sets its own link target, so a contents line
+% written right after it points at the heading; the hook adds that line
+% (section in article, chapter with \chapter) and hyperref makes the bookmark
+% from it. The document needs no \addcontentsline before \bibliography.
+% Meets: ISO 14289-2:2024 8.2.5.8; Tagged PDF BPG 1.0.1 4.1.4, 7.2.
+\newif\ifclemson@bib
+\AddToHook{env/thebibliography/before}[./bookmark]{\clemson@bibtrue}
+\AddToHook{cmd/section/after}[./bookmark]{\ifclemson@bib\clemson@bibfalse
+  \addcontentsline{toc}{section}{\ifdefined\refname\refname\else\bibname\fi}\fi}
+\AddToHook{cmd/chapter/after}[./bookmark]{\ifclemson@bib\clemson@bibfalse
+  \addcontentsline{toc}{chapter}{\bibname}\fi}
 % \autoref{label} makes the whole phrase the link ("Section 3", "Figure 1").
 % hyperref's English names for sections are lowercase, and babel re-applies
 % its names each time the main language is selected, so the capitalized ones

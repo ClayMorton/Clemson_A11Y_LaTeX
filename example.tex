@@ -823,11 +823,7 @@ equipment in service.
 % reader looks for the notes. It also adds "Notes" to the contents.
 \printendnotes
 
-% The bibliography heading is a starred section, so \phantomsection puts a link
-% target here and \addcontentsline lists it in the contents.
-% Meets: ISO 32000-2:2020 14.8.4.5 (headings); Tagged PDF BPG 1.0.1 4.1.4.
-\phantomsection
-\addcontentsline{toc}{section}{\refname}
+% The package lists the bibliography in the contents and bookmarks it.
 \bibliographystyle{plain}
 \bibliography{references}
 \end{document}
