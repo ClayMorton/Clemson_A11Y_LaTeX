@@ -44,7 +44,7 @@
 % TOOLCHAIN GUARDS
 %------------------------------------------------------------------------------
 % An untagged PDF looks normal and fails the accessibility check later, and
-% LaTeX writes one without a word: pdfstandard=ua-2 alone does not turn tagging
+% LaTeX writes one with no warning: pdfstandard=ua-2 alone does not turn tagging
 % on. So the build stops, and no PDF is written, unless LaTeX is 2026-06-01 or
 % newer, the engine is LuaLaTeX (the only one that writes MathML; XeTeX cannot
 % tag reliably) and \DocumentMetadata is present with tagging active when the
@@ -346,7 +346,7 @@
 % argument of \foreignlanguage (one paragraph at most) in a Span with the
 % kernel's inline socket. Its afterextras hook runs at every switch: for
 % another language it sets tagpdf's text/lang, so each element opened from
-% then on carries /Lang; back in the main language it clears the key only
+% then on has /Lang; back in the main language it clears the key only
 % when the element that was open at the first switch is open again, because
 % an element without /Lang inherits its parent's (ISO 32000-2:2020 14.9.2.3).
 % The l3text line keeps the language name out of heading and contents /T
@@ -550,7 +550,7 @@
 % nearest first. A cell on a data line gets the nearest group, then the top
 % block. A group cell gets no headers from above it: Table 384 hands a
 % header's own Headers on to every cell that names it, so the column headers
-% over a group cell as wide as the table would reach every column.
+% over a group cell as wide as the table would apply to every column.
 % Meets: ISO 32000-2:2020 14.8.5.7 (Table 384, Headers).
 \cs_new_protected:Npn \__hdrs_lines:nNN #1 #2 #3 % first line, block, headers
   {
@@ -679,7 +679,7 @@
     \int_set:Nn \l__hdrs_cols_int { \g__tbl_table_cols_tl }
     \tl_set_eq:NN \l__hdrs_table_tl \g__tbl_struct_table_tl
   }
-% Layout tables (table/tagging=presentation or =div) carry LaTeX's
+% Layout tables (table/tagging=presentation or =div) have LaTeX's
 % ARIA-role-presentation class and no header cells, so they get nothing;
 % =false never gets here. Meets: WAI-ARIA 1.1 role=presentation.
 \cs_new_protected:Npn \__hdrs_apply:
@@ -826,17 +826,17 @@
 \AddToHook{cmd/url/before}{\begingroup\clemson@ulon}
 \AddToHook{cmd/url/after}{\endgroup}
 % \email{addr} is a mailto link whose visible text is the address, so a
-% screen reader hears the address (Clemson Links page: use the address as
+% screen reader reads the address (Clemson Links page: use the address as
 % the link text); \detokenize keeps an underscore in the address from
 % being read as math. Meets: WCAG 2.1 SC 2.4.4 (link purpose).
 \providecommand{\email}[1]{\href{mailto:#1}{\detokenize{#1}}}
 % The contents and the two lists print starred headings that get no outline
-% entry, so a reader navigating by bookmarks cannot reach them. hyperref's
+% entry, so a reader navigating by bookmarks cannot get to them. hyperref's
 % \pdfbookmark adds one before each, at chapter level when the class has
 % chapters (a level-1 entry would nest under the previous chapter). With
 % chapters the heading starts a new page after this hook runs, so the page
 % is turned first, or the bookmark would point at the page before its
-% heading. The hooks carry the label clemson/bookmark, so a class that
+% heading. The hooks have the label clemson/bookmark, so a class that
 % bookmarks these lists itself can remove them with \RemoveFromHook.
 % Meets: Tagged PDF BPG 1.0.1 7.2 (outlines follow the headings).
 \newcommand*{\clemson@turnpage}{\if@openright\cleardoublepage\else\clearpage\fi}

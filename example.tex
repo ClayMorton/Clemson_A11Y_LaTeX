@@ -50,8 +50,8 @@
 % TITLE, ABSTRACT, CONTENTS
 %------------------------------------------------------------------------------
 % Plain \title and \author. LaTeX writes both into the PDF metadata itself,
-% one author entry per \and. \thanks hangs a footnote on a name or on the
-% title (funding, affiliation, corresponding author); LaTeX keeps it out of
+% one author entry per \and. \thanks adds a footnote to a name or to the
+% title (funding, affiliation, corresponding author); LaTeX leaves it out of
 % the metadata. The package tags the printed title as the only H1 and moves
 % every heading down one level, so \section is H2.
 % Meets: ISO 32000-2:2020 14.8.4.5; ISO 14289-2:2024 8.11 (metadata).
@@ -84,7 +84,7 @@ is written the way it is.
 %------------------------------------------------------------------------------
 \section{How to use this file}
 Copy the whole kit folder. Write your document in \texttt{main.tex}, the blank starter, and
-build it with \verb|latexmk -lualatex main.tex|. Every example in this file sits under a
+build it with \verb|latexmk -lualatex main.tex|. Every example in this file is under a
 banner comment (\texttt{\%----}) that names it: search \texttt{example.tex} for the one you
 need and copy the block, with its \verb|\usepackage| line from the PACKAGES block if it has
 one. Then:
@@ -118,20 +118,20 @@ field.
 %------------------------------------------------------------------------------
 \section{Text}
 \label{sec:text}
-This section shows the text that carries its own tags: emphasis, notes, links,
+This section shows the text that has its own tags: emphasis, notes, links,
 citations, cross-references, lists, quotations, special characters and code.
 
 %---- Emphasis, footnote, endnote ---------------------------------------------
 Ordinary paragraphs need nothing. Use \verb|\emph| for \emph{emphasis} and \verb|\strong| for
 \strong{important text}; both are tagged, while \verb|\textbf| and \verb|\underline| only change
-how letters are drawn and say nothing to a screen reader.\footnote{A footnote sits at the foot
+how letters look; a screen reader does not report them.\footnote{A footnote is at the foot
 of its page. It is tagged as a note (FENote); its mark links to the note, and the tag tree
-cross-references mark and note (Ref) so a PDF/UA-2 reader can return.} Long asides belong in
+cross-references mark and note (Ref) so a PDF/UA-2 reader can return.} Long asides go in
 an endnote instead.\endnote{An endnote is collected and printed with the others near the end
 of the document, after the appendices and before the works cited.}
 %---- Links, citations --------------------------------------------------------
 \subsection{Links}
-A link carries its own text, so name the destination rather than writing ``click here'' or
+A link has its own text, so name the destination rather than writing ``click here'' or
 ``more''. The package underlines every web and email link in the text itself, so every viewer
 shows the underline and no link depends on color; links inside the document (contents,
 citations, cross-references) are not underlined. \verb|\href| prints words instead of an
@@ -145,7 +145,7 @@ manual (PDF)}. Write an email address with \verb|\email|, which the package defi
 %---- Cross-references --------------------------------------------------------
 \subsection{Cross-references}
 Write \verb|\autoref{sec:math}| rather than ``the section above'': the whole phrase becomes
-one link, so a screen reader announces ``section 3'' and not a bare ``3'', and it stays
+one link, so a screen reader reads ``section 3'' and not a bare ``3'', and it stays
 correct when the text moves. Label anything to point at: see \autoref{sec:math} on
 page~\pageref{sec:math}, \autoref{sec:notation}, \autoref{fig:lab} on page~\pageref{fig:lab},
 \autoref{tab:headerrow}, Equation~\eqref{eq:gauss}, \autoref{alg:max}, \autoref{app:example},
@@ -181,10 +181,10 @@ for every item. Keep nesting shallow; two levels is usually enough.
 %---- Quotations --------------------------------------------------------------
 \subsection{Quotations}
 A quotation longer than a line goes in the \texttt{quote} environment, which is tagged
-BlockQuote so a reader hears where the quotation starts and ends:
+BlockQuote so a screen reader can tell where the quotation starts and ends:
 \begin{quote}
   Tagging writes down what each part of a document is, so that a reader who
-  never sees the page still meets the same structure.
+  never sees the page still gets the same structure.
 \end{quote}
 %---- Special characters, text styles -----------------------------------------
 \subsection{Special characters and text styles}
@@ -193,7 +193,7 @@ numbers (pages 10--20), an em dash for a break in a sentence---like this one---a
 marks as ``paired'' quotes. A tie, \verb|Figure~1|, keeps a number with its word. The
 ``th'' in ``the 4\textsuperscript{th} of May'' is tagged with TextPosition Sup,
 \texttt{typewriter text} marks a file name and \textsc{small caps} an initialism. Color
-carries no meaning here: the text is black throughout, the chart uses one shade of gray, and
+has no meaning here: the text is black throughout, the chart uses one shade of gray, and
 colored ink would still need a contrast of 4.5:1 for text and 3:1 for a graphic.
 %---- Code --------------------------------------------------------------------
 \subsection{Code}
@@ -210,13 +210,13 @@ verapdf --flavour ua2 --format text main.pdf
 %------------------------------------------------------------------------------
 \section{Mathematics}
 \label{sec:math}
-Mathematics is written into the PDF as MathML, so a MathCAT-class reader speaks the real
-structure of a formula. LaTeX writes the MathML itself and tags every formula as a Formula;
+Mathematics is written into the PDF as MathML, so a screen reader with MathML support reads
+the real structure of a formula. LaTeX writes the MathML itself and tags every formula as a Formula;
 the package puts the MathML in the tag tree, the form the tagging project and the PDF
 Association's Math BPG recommend and the one Acrobat hands to a screen reader.
 
 %---- Inline and display math -------------------------------------------------
-Inline mathematics sits in the sentence: $e^{i\pi} + 1 = 0$. A displayed equation takes
+Inline mathematics is part of the sentence: $e^{i\pi} + 1 = 0$. A displayed equation takes
 a \verb|\label| so that it can be cited:
 \begin{equation}\label{eq:gauss}
   \int_{-\infty}^{\infty} e^{-x^2}\,dx = \sqrt{\pi}
@@ -257,7 +257,7 @@ the left margin and the rest at the right:
   + b_1 + b_2 + b_3 + b_4 + b_5 + b_6 + b_7 + b_8 + b_9 + b_{10} = s
 \end{multline*}
 %---- MathML intent -----------------------------------------------------------
-% \MathMLintent names what a formula means, so a screen reader speaks it;
+% \MathMLintent names what a formula means, so a screen reader reads it;
 % \MathMLarg names the part it applies to. Keep the double braces around the
 % argument: a scripted single atom loses the intent with no warning. Check
 % the result in example-luamml-mathml.html.
@@ -282,7 +282,7 @@ and ``complex conjugate of x'' for
 Write chemistry with \verb|\ce| from \texttt{mhchem}, numbers and units with \verb|\qty| and
 \verb|\num| from \texttt{siunitx}, and quantum states with \verb|\braket| and \verb|\ket| from
 \texttt{braket}. Each one becomes a Formula with MathML, exactly like ordinary
-mathematics: a MathML reader hears a value and its unit as structure.
+mathematics: a screen reader gets a value and its unit as structure.
 % Two limits: an isotope such as $\ce{^{14}C}$ makes tagpdf warn "structure
 % with label ... has already been used" (tagging issue 793), so carbon-14 is
 % written in words; \qtyrange loses its numbers in the MathML, so a range is
@@ -299,17 +299,17 @@ quantities, \qty{10}{\celsius} to \qty{20}{\celsius}.
 The package defines theorem, lemma, proposition, corollary, definition, example, remark
 and algorithm, unless the document defines them itself; \verb|\newtheorem| adds any other
 name. LaTeX tags each block as theorem-like, with its head as a caption:
-\begin{theorem}\label{thm:one} Every heading in a tagged PDF carries a level. \end{theorem}
+\begin{theorem}\label{thm:one} Every heading in a tagged PDF has a level. \end{theorem}
 \begin{lemma}\label{lem:title} The printed title is the only H1 in this file. \end{lemma}
 \begin{corollary} The first \verb|\section| of this article is therefore an H2. \end{corollary}
 \begin{proof} The package moves every heading one level down, so \verb|\section| is H2. \end{proof}
 \begin{definition} A \emph{header cell} names the row or the column it belongs to. \end{definition}
 \begin{example} A table of results has one header row; its first row is tagged TH. \end{example}
 \begin{remark} The proof above ends with the word QED on its own; a screen reader reads
-it, while LaTeX's open square is drawn with rules and announces nothing. \end{remark}
+it, while LaTeX's open square is drawn with rules and is not read. \end{remark}
 % algorithm is a theorem-like block the package defines, not a float: the
 % algorithm package is listed incompatible, and an algorithmic body inside a
-% figure aborts the build. The head is a tagged Caption that \ref can reach.
+% figure aborts the build. The head is a tagged Caption, and \ref works.
 % algpseudocode prints the step numbers itself, so the steps are a list
 % whose labels are still Lbl.
 % Meets: ISO 32000-2:2020 14.8.4.8.4 (Caption), 14.8.4.8.2 (L); Clemson lists.
@@ -325,14 +325,14 @@ Input: the values $a_1,\dots,a_n$. Output: the largest of them.
 % FIGURE EXAMPLES
 %------------------------------------------------------------------------------
 \section{Figures and images}
-Four cases cover almost every picture in a document: a picture that carries
+Four cases cover almost every picture in a document: a picture that gives
 information, a picture made of several panels, a picture of words, and decoration.
 Complex pictures follow in \autoref{sec:longdesc}.
 
 %---- Picture with alt text ---------------------------------------------------
 Every informative picture needs \verb|alt={...}|. Write what the picture shows and why it is
 in the document, in one or two sentences, as if describing it to a friend. Do not describe
-the file, and do not repeat the caption, which the reader hears anyway. Clemson's pattern for
+the file, and do not repeat the caption, which the reader gets anyway. Clemson's pattern for
 people is ``[name] and [name] [action] [location]'', as in ``Dr.~Ellis and two students test
 a screen reader in Cooper Library''; no picture in this kit shows people.
 
@@ -394,7 +394,7 @@ A picture of words is not the same case. Real text is always better, so set word
 wherever the picture can be redrawn. WCAG allows an image of text only where the presentation
 is essential, which in practice means a logo or a scanned original; the picture below stands
 in for one. When the picture has to stay, give it \verb|actualtext={...}|, the words
-themselves, and a reader hears the words. A picture that carries no information at all gets
+themselves, and a screen reader reads the words. A picture with no information at all gets
 \verb|artifact|, and is skipped.
 
 % actualtext={...}: the words in a picture of text, read in its place.
@@ -409,7 +409,7 @@ an artifact and is not in the tag tree at all.
 %---- Chart, description, data table ------------------------------------------
 \subsection{Complex images and long descriptions}
 \label{sec:longdesc}
-A chart, a map or a diagram carries more than one sentence of meaning. Give it a short
+A chart, a map or a diagram needs more than one sentence. Give it a short
 \verb|alt| that states its point and says where the rest is, then write the full description
 into the document, where every reader can find it. Keep the description beside the figure
 when it runs to a few sentences; move it to an appendix when it is long or when many figures
@@ -460,7 +460,7 @@ many as Aiken. \autoref{tab:chartdata} lists the same numbers.
 %---- Rule, language, abbreviation, color -------------------------------------
 \subsection{Decorative rules, other languages and abbreviations}
 Four small things that come up in any paper.
-% \rule is decoration: no reader hears it (LaTeX 2026-11-01 marks it as an
+% \rule is decoration: no screen reader reads it (LaTeX 2026-11-01 marks it as an
 % artifact, 2026-06-01 leaves it as content without text; both pass).
 % \foreignlanguage{french}{...} marks a phrase inside a paragraph: the
 % package wraps it in a Span with lang=fr and babel hyphenates it as French.
@@ -468,7 +468,7 @@ Four small things that come up in any paper.
 % Meets: ISO 32000-2:2020 14.8.2.2 (artifacts), 14.9.2 (Lang); WCAG 2.1 3.1.2.
 \begin{description}
   \item[A decorative rule] \verb|\rule{2cm}{0.4pt}| draws a rule that only separates
-    words: \rule{2cm}{0.4pt} and the sentence carries on after it.
+    words: \rule{2cm}{0.4pt} and the sentence goes on after it.
   \item[A phrase in another language] \verb|\foreignlanguage{french}{tout de suite}|
     gives \foreignlanguage{french}{tout de suite}, tagged as a Span whose language is
     French. A whole passage in another language is a block, not a phrase; the paragraph
@@ -508,7 +508,7 @@ layouts below cover the cases that come up in a thesis.
 % Layouts follow Clemson's tables guide:
 % https://www.clemson.edu/accessibility/digital/concepts/tables.html
 % Rules: caption above the table, as in the Graduate School's Word template;
-% declare the header row and/or column; a merged cell must carry its span;
+% declare the header row and/or column; a merged cell must have its span;
 % notes stay outside the table; avoid empty cells; never nest tables.
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, Scope); Tagged PDF BPG 1.0.1 4.2.6.2.
 
@@ -573,7 +573,7 @@ layouts below cover the cases that come up in a thesis.
 % \multicolumn{2}{l}{\tagpdfsetup{table/multirow=2}Text}. Before
 % \multicolumn, the key aborts the build.
 \begin{table}\centering
-  \caption{Complex table: merged cells carry their row and column spans}
+  \caption{Complex table: merged cells have their row and column spans}
   \tagpdfsetup{table/header-rows={1}, table/header-columns={1}}
   \begin{tabular}{llrr}
     \toprule Group & Sample & Before & After \\ \midrule
@@ -674,7 +674,7 @@ its own university.
 % FOOTNOTE AND ENDNOTE EXAMPLES
 %------------------------------------------------------------------------------
 \section{Footnotes and endnotes}
-A footnote belongs at the foot of the page it is read on; an endnote is collected and printed
+A footnote goes at the foot of the page it is read on; an endnote is collected and printed
 with the others near the end. A footnote is tagged as a note with a two-way reference to its
 mark; an endnote is an item in a tagged list whose number links back to the mark, and the
 mark links to the note, so a reader can follow either and come straight back. Footnote marks

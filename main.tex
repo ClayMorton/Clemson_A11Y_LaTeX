@@ -20,7 +20,7 @@
   % the file against it with --flavour ua2.
   pdfstandard   = ua-2,
   % Turns tagging on; pdfstandard alone does not, and LaTeX would write an
-  % untagged PDF without a word. The clemson package stops the build instead.
+  % untagged PDF with no warning. The clemson package stops the build instead.
   tagging       = on,
   % Appends a report on the loaded packages near the end of main.log;
   % sections 1 and 2 name packages to replace.
@@ -53,7 +53,7 @@
 % TITLE AND ABSTRACT
 %------------------------------------------------------------------------------
 % LaTeX writes the title and the authors into the PDF metadata itself (the
-% window title, and what a screen reader announces first); separate authors
+% window title, and the first thing a screen reader reads); separate authors
 % with \and, one metadata entry each.
 % The package tags the printed title as the only H1 and \section as H2.
 \title{Title of the document}

@@ -39,7 +39,7 @@ file:
 
 - `\DocumentMetadata` goes above `\documentclass`. `lang` is the document language (ISO
   14289-2:2024 8.4.4). `pdfstandard=ua-2` declares the standard. `tagging=on` turns tagging on;
-  `pdfstandard` alone does not, and LaTeX then writes an untagged PDF without a word, so the
+  `pdfstandard` alone does not, and LaTeX then writes an untagged PDF with no warning, so the
   package stops instead. `check-tagging-status` adds a package report to the log.
 - `\usepackage{clemson}` comes after the other packages: it loads hyperref, which its manual asks
   to load last. `cleveref` goes after it. A hyperref option that works only at load time goes in
@@ -128,7 +128,7 @@ Changed:
   `shipout/lastpage` (LaTeX 2026-06-01 only: sets `pdftitle` from `\title` inside braces).
 
 Internal names start with `clemson@`, `__clemson_` or `__hdrs_`. `\RemoveFromHook{<hook>}[clemson]`
-drops a hook chunk; the bookmark chunks carry the label `clemson/bookmark`, the theorem
+drops a hook chunk; the bookmark chunks have the label `clemson/bookmark`, the theorem
 definitions `clemson/theorems`.
 
 ## Writing the document
