@@ -1,38 +1,14 @@
 % clemson.sty: accessible (tagged, PDF/UA-2) LaTeX in one package.
 % Clemson University, CCIT Internal Operations, ADA Compliance Team.
 %
-% What you write; the package cannot do these for you (details in README.md):
-%   1. % !TEX program = lualatex  on the first line, so editors pick LuaLaTeX.
-%   2. \DocumentMetadata{lang=en-US, pdfstandard=ua-2, tagging=on,
-%        check-tagging-status} above \documentclass. It turns tagging on and
-%      names the standard.
-%   3. \usepackage{clemson} after your other packages; it loads hyperref. A
-%      package that must follow hyperref (cleveref) goes after it, and a
-%      hyperref option that works only at load time goes in
-%      \PassOptionsToPackage{...}{hyperref} above it.
-%   4. alt={...} on every \includegraphics and tikzpicture, and the header rows
-%      or columns of every tabular (\tagpdfsetup{table/header-rows={1}}).
-% What the package does, with article, report, book or a class built on them:
-% stops the build unless LuaLaTeX, LaTeX 2026-06-01 or newer and
-% \DocumentMetadata with tagging are in use (tagging=draft builds, with a
-% warning); puts every formula's MathML in the tag tree and loads unicode-math
-% (its characters); defines theorem, lemma, proposition, corollary, definition,
-% example, remark
-% and algorithm (LaTeX supplies amsthm's commands itself under tagging), loads
-% enotez (endnotes), graphicx, float ([H] placement), babel (add languages
-% with \babelprovide), hyperref and lua-ul (links that leave the document
-% underlined by LaTeX; all links black, no viewer box);
-% tags the title as the only H1 with the headings one level down and the
-% abstract as a Sect with an H2; keeps each figure and table in the tag tree
-% where it is written; writes Scope, spans and Headers on the cells of every
-% tabular (not longtable or layout tables); sets left-aligned text (option
-% justified turns that off); tags \strong and babel language switches; keeps
-% the MathML file list right when the file name holds a comma; adds NoteType
-% to footnotes; adds bookmarks for the front matter and the bibliography,
-% \email and the word QED at the end of a proof. The rest is LaTeX's own
-% tagging.
-% Meets: ISO 14289-2:2024 (PDF/UA-2) machine rules, checked with veraPDF
-% --flavour ua2; the checks by hand in README.md cover the rest.
+% You write: \DocumentMetadata{lang=en-US, pdfstandard={ua-2,a-4f},
+% tagging=on, check-tagging-status} above \documentclass;
+% \usepackage{clemson} after your other packages (it loads hyperref last);
+% alt={...} on every picture; the header rows or columns of every tabular
+% (\tagpdfsetup{table/header-rows={1}}). The rest is LaTeX's own tagging
+% plus the blocks below: each says what it does, the clause it meets and,
+% for a workaround, when to remove it.
+% Check: verapdf --flavour ua2, then Clemson's checks by hand.
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{clemson}[2026/09/29 v2.2 Accessible LaTeX (Clemson A11Y)]
 % One option: justified keeps LaTeX's justified text (TEXT ALIGNMENT below).
@@ -43,15 +19,11 @@
 %------------------------------------------------------------------------------
 % TOOLCHAIN GUARDS
 %------------------------------------------------------------------------------
-% An untagged PDF looks normal and fails the accessibility check later, and
-% LaTeX writes one with no warning: pdfstandard=ua-2 alone does not turn tagging
-% on. So the build stops, and no PDF is written, unless LaTeX is 2026-06-01 or
-% newer, the engine is LuaLaTeX (the only one that writes MathML; XeTeX cannot
-% tag reliably) and \DocumentMetadata is present with tagging active when the
-% document starts. tagging=draft passes that test and skips the tag tree, so
-% the end of the run warns.
-% Meets: ISO 14289-2:2024 6.2 (Marked), 8.2.1 (structure), 8.2.5.29.1 (MathML,
-% as the PDF Association Math BPG 1.0 reads it; veraPDF tests only 8.2.5.29-1).
+% LaTeX writes an untagged PDF with no warning when tagging is off, so the
+% build stops unless LaTeX 2026-06-01 or newer, LuaLaTeX (the engine that
+% writes MathML) and \DocumentMetadata with tagging on are in use;
+% tagging=draft builds and warns at the end.
+% Meets: ISO 14289-2:2024 6.2, 8.2.1, 8.2.5.29.1.
 \RequirePackage{iftex}
 \RequireLuaTeX
 \ExplSyntaxOn
@@ -69,56 +41,44 @@
 \AddToHook { enddocument/end }
   { \tag_if_active:F { \msg_warning:nn { clemson } { draft } } }
 \ExplSyntaxOff
-% The kernel's own check that \DocumentMetadata was given. It comes after the
-% hooks above: it ends the package when the block is missing, and the
-% begindocument hook then stops the build with the message that names it.
+% The kernel's own check that \DocumentMetadata was given, after the hooks
+% above so the message that names the fix is the one shown.
 \NeedsDocumentMetadata
 
 %------------------------------------------------------------------------------
 % FONTS AND MATH
 %------------------------------------------------------------------------------
-% LuaLaTeX already sets Latin Modern in Unicode (TU) encoding, with its small
-% caps and optical sizes, so no font command is needed. The tagging project
-% asks for unicode-math with math: it gives LaTeX's MathML the right characters
-% (\int, \sum, \hbar). It loads fontspec and amsmath. Do not load amssymb or bm
-% after it; write \symbf{v}, \symbfit{v} and \symcal{A} for bold and script
-% letters. A document that loads lua-unicode-math first keeps it and gets
-% fontspec, which defines \strong. Meets: ISO 14289-2:2024 8.2.5.29.1 (MathML;
-% Math in PDF BPG 1.0 p. 4).
+% unicode-math gives LaTeX's MathML the right characters (\int, \sum); it
+% loads fontspec and amsmath. Write \symbf{v}, \symbfit{v}, \symcal{A}; not
+% amssymb or bm after it. A document that loads lua-unicode-math first keeps
+% it and gets fontspec, which defines \strong.
+% Meets: ISO 14289-2:2024 8.2.5.29.1 (MathML; Math BPG 1.0 p. 4).
 \IfPackageLoadedTF{lua-unicode-math}{\RequirePackage{fontspec}}{\RequirePackage{unicode-math}}
-% Every formula's MathML goes into the tag tree as structure elements
-% (mathml-SE), the form the tagging project and the Math BPG put first and
-% the one Acrobat hands to a screen reader; LaTeX's own default attaches a
-% file per formula instead. A document that also wants the file writes
-% \tagpdfsetup{math/setup={mathml-SE,mathml-AF}} after this package.
-% Meets: ISO 14289-2:2024 8.2.5.29.1 (MathML; Math in PDF BPG 1.0 pp. 4-5).
+% Every formula's MathML goes into the tag tree (mathml-SE), the form Acrobat
+% hands to a screen reader; \tagpdfsetup{math/setup={mathml-SE,mathml-AF}}
+% after the package also attaches the file.
+% Meets: ISO 14289-2:2024 8.2.5.29.1 (Math BPG 1.0 pp. 4-5).
 \tagpdfsetup{math/setup=mathml-SE}
-% \strong (fontspec) is tagged Strong through the kernel's inline socket, the
-% way LaTeX tags \emph as Em; \textbf only changes the letters, so bold used
-% for meaning is lost to a screen reader. Keep it to words in a sentence; the
-% LINKS block lets it sit in a heading without breaking the bookmark.
-% REMOVE WHEN: LaTeX ships \strongemph (latex2e issue 1620); drop these hooks.
-% Meets: WCAG 2.1 SC 1.3.1 (failure F2); ISO 32000-2:2020 Table 368 (Strong).
+% \strong (fontspec) is tagged Strong through the kernel's inline socket, as
+% \emph is Em; \textbf says nothing to a screen reader.
+% REMOVE WHEN: LaTeX ships \strongemph (latex2e issue 1620).
+% Meets: WCAG 2.1 SC 1.3.1; ISO 32000-2:2020 Table 368 (Strong).
 \AddToHook{cmd/strong/before}{\leavevmode\UseTaggingSocket{inline/begin}{tag=Strong}}
 \AddToHook{cmd/strong/after}{\UseTaggingSocket{inline/end}}
 
 %------------------------------------------------------------------------------
 % THEOREMS
 %------------------------------------------------------------------------------
-% LaTeX has amsthm's \newtheorem, \theoremstyle and proof built in and never
-% reads amsthm.sty under \DocumentMetadata. Each theorem-like block is a Sect
-% whose head is a Caption with a Lbl number. House style: a proof ends with
-% the word QED, read aloud; LaTeX's square is drawn with rules and says
-% nothing. Delete the \qedsymbol line for the square.
+% LaTeX has amsthm's commands built in under tagging; each theorem-like block
+% is a Sect with a Caption. A proof ends with the word QED, which a screen
+% reader reads; the square is drawn with rules and is not read.
 % Meets: ISO 32000-2:2020 14.8.4.8.4 (Caption); ISO 14289-2:2024 8.2.5.27.
 \renewcommand{\qedsymbol}{\textup{QED}}
-% When the document starts, LaTeX's \newtheorem defines theorem, lemma,
-% proposition, corollary, definition, example and remark on one counter and
-% algorithm on its own, each only if the preamble has not defined it (a
-% convenience). algorithm is theorem-like because the algorithm package is
-% listed as currently incompatible; write the steps in an algorithmic body.
-% Each name is also its \autoref name, so \autoref{lem:x} reads "Lemma 2".
-% Meets: ISO 32000-2:2020 14.8.4.8.4 (Caption), 14.8.4.8.2 (L); WCAG 2.1 2.4.4.
+% theorem, lemma, proposition, corollary, definition, example, remark (one
+% counter) and algorithm, each unless the preamble defined it, each its own
+% \autoref name. algorithm is theorem-like: the algorithm package cannot be
+% loaded under tagging.
+% Meets: ISO 32000-2:2020 14.8.4.8.4 (Caption); WCAG 2.1 SC 2.4.4.
 \newcommand*{\clemson@theorem}[3]{%
   \@ifundefined{#2}{%
     \theoremstyle{#1}%
@@ -140,43 +100,30 @@
 %------------------------------------------------------------------------------
 % PICTURES
 %------------------------------------------------------------------------------
-% graphicx gives \includegraphics; LaTeX's tagging code turns its alt,
-% actualtext and artifact keys into a Figure with Alt, a Span with ActualText
-% or an artifact. Without a key LaTeX warns and uses the file name as the Alt,
-% which veraPDF passes, so each alt text is the author's job. The picture
-% folder is the document's choice (\graphicspath in main.tex).
-% Meets, with the author's alt text: ISO 14289-2:2024 8.2.5.28.2; WCAG 2.1
-% SC 1.1.1; ISO 32000-2:2020 14.8.4.8.5; Tagged PDF BPG 1.0.1 5.5.2.
+% graphicx: LaTeX turns alt, actualtext and artifact into a Figure with Alt,
+% a Span with ActualText or an artifact. Without alt LaTeX uses the file
+% name and veraPDF passes, so alt text is the author's job.
+% Meets: ISO 14289-2:2024 8.2.5.28.2; WCAG 2.1 SC 1.1.1.
 \RequirePackage{graphicx}
 
 %------------------------------------------------------------------------------
 % FLOATS
 %------------------------------------------------------------------------------
-% LaTeX tags each figure and table as an Aside with its Caption first and by
-% default moves it to figures and tables sections at the end of the tree:
-% floats are consultation objects, and PDF 1.7 readers show an Aside as a
-% Note. float/here, a documented key, keeps every float's Aside where it is
-% written ([H] floats stay there anyway), so the tag order matches the page,
-% which Clemson's PDF manual checks require and ISO 32000-2:2020 14.8.2.5.1
-% asks for. Meets: Clemson PDF manual checks (tags, reading order); ISO
-% 32000-2:2020 14.8.2.5.1; WCAG 2.1 SC 1.3.2.
+% LaTeX tags a float as an Aside and by default moves it to the end of the
+% tree; float/here keeps it where it is written, so the tag order matches
+% the page. Meets: ISO 32000-2:2020 14.8.2.5.1; WCAG 2.1 SC 1.3.2; Clemson
+% PDF checks (reading order).
 \tagpdfsetup{float/here}
-% Figures and tables print where they are written: the float package's [H]
-% is their default placement; \floatplacement{figure}{tbp} lets figures float.
-% float is listed incompatible (status 2): \newfloat and \restylefloat break
-% the tagging (latex-lab-firstaid 2.8), [!] and [] stop the build with [H] as
-% default, and an [H] float with its \caption in a minipage fails PDF/UA-2
-% 8.2.5.27 (tagging issue 1549). Meets: Clemson PDF manual checks (tag order
-% matches the page).
+% [H] is the default placement, so a float prints where it is written;
+% \floatplacement{figure}{tbp} lets figures float. [!] and [] stop the build.
 \RequirePackage{float}
 \floatplacement{figure}{H}
 \floatplacement{table}{H}
-% A11Y WORKAROUND. A float right after a list or a displayed formula otherwise
-% stops the build (tagging issue 1532) or, with no warning, leaves an [H]
-% float's Caption or a floating table's body outside the Aside. The float
-% package drops an [H] figure* or table* in one column, so there those float.
-% REMOVE WHEN: issue 1532 is fixed (the \par parts only).
-% Meets: ISO 14289-2:2024 8.2.5.27; ISO 32000-2:2020 14.8.4.8.4 (Caption).
+% A11Y WORKAROUND. A float right after a list or a display stops the build
+% or leaves its Caption outside the Aside; the \par ends the paragraph
+% first. figure* and table* float in one column, where the float package
+% drops [H]. REMOVE WHEN: tagging issue 1532 is fixed (the \par parts).
+% Meets: ISO 14289-2:2024 8.2.5.27; ISO 32000-2:2020 14.8.4.8.4.
 \AddToHook{env/figure/begin}{\par}
 \AddToHook{env/table/begin}{\par}
 \AddToHook{env/figure*/begin}%
@@ -187,17 +134,13 @@
 %------------------------------------------------------------------------------
 % TITLE AND HEADINGS
 %------------------------------------------------------------------------------
-% The printed title is the only H1 and every heading moves down one level, as
-% in the Graduate School's Word template: chapter H2 to subparagraph H6 in
-% report and book (paragraph and subparagraph share H6, the last HTML level),
-% section H2 to subparagraph H6 in article. Clemson's headings rule and
-% PDF/UA-1 7.4.2, which Acrobat's checker applies, require H1 first and no
-% skipped level; veraPDF's PDF/UA-2 rules do not test heading order, so it is
-% a check by hand. The plug puts the whole title of LaTeX's \maketitle in one
-% H1, one Span per line; a class with its own title page (ClemsonThesis.cls)
-% tags its title as text and leaves no H1. REMOVE WHEN: issue 1625 lands.
+% The title is the only H1 and every heading moves down one level (chapter
+% or section H2, down to H6). Acrobat's checker (PDF/UA-1 7.4.2) wants H1
+% first and no skipped level; veraPDF does not test heading order. The plug
+% puts the title of \maketitle in one H1, one Span per line.
+% REMOVE WHEN: tagging issue 1625 lands.
 % Meets: Clemson Digital Accessibility, Headings; ISO 14289-1:2014 7.4.2;
-% WCAG 2.1 SC 1.3.1; Tagged PDF BPG 1.0.1 4.2.2.2 (H1 title, the only one).
+% Tagged PDF BPG 1.0.1 4.2.2.2.
 \ifdefined\chapter
   \AssignStructureRole{sec/0/title}{H2}
   \AssignStructureRole{sec/1/title}{H3}
@@ -214,13 +157,10 @@
 \NewTaggingSocketPlug{title}{clemson-h1}
   {\tagstructbegin{tag=H1}\AssignStructureRole{para/textblock}{Span}#2\tagstructend}
 \AssignTaggingSocketPlug{title}{clemson-h1}
-% ltx-talk (the tagged slide class) tags its title page as a Title element
-% and every frame title as H4; its manual (14.2) calls that level open. A
-% deck gets the same shape as an article: the title H1 with its paragraph
-% a Span, as in the plug above, and each frame title H2. A deck that uses
-% \section gets those as H2 from the roles above, so the first \section
-% moves the frame titles to H3. The class keeps its own tag namespace
-% current, so the new-tag lines land there.
+% ltx-talk tags its title page as a Title element and frame titles as H4
+% (its manual 14.2 calls the level open). Here: title H1, frame titles H2,
+% or H3 once the deck uses \section (H2). The class keeps its own tag
+% namespace current, so the new-tag lines land there.
 % REMOVE WHEN: ltx-talk settles its heading levels.
 % Meets: Clemson Digital Accessibility, Headings; ISO 14289-1:2014 7.4.2.
 \ExplSyntaxOn
@@ -238,13 +178,11 @@
   }
   { }
 \ExplSyntaxOff
-% A11Y WORKAROUND: at the last page LaTeX 2026-06-01 hands the text of \title
-% to hyperref's pdftitle key without braces, and that key reads a comma list
-% (one title per language), so "A, B" reaches dc:title as "A". This chunk
-% runs first and sets the key from the same text inside braces, as the
-% 2026-11-01 kernel does; the kernel's chunk then finds it set and skips.
-% REMOVE WHEN: LaTeX 2026-11-01 is the installed release (tagging issue 1594).
-% Meets: ISO 14289-2:2024 8.11.1 (dc:title in the XMP metadata).
+% A11Y WORKAROUND. LaTeX 2026-06-01 hands \title's text to pdftitle
+% unbraced, and that key reads a comma list, so "A, B" reaches dc:title as
+% "A". This chunk runs first and sets the key inside braces, as 2026-11-01
+% does. REMOVE WHEN: LaTeX 2026-11-01 is installed (tagging issue 1594).
+% Meets: ISO 14289-2:2024 8.11.1 (dc:title).
 \ExplSyntaxOn
 \IfFormatAtLeastTF { 2026-11-01 } { }
   {
@@ -273,16 +211,13 @@
 %------------------------------------------------------------------------------
 % ABSTRACT
 %------------------------------------------------------------------------------
-% LaTeX tags the article abstract as a BlockQuote and report's title-page one
-% as plain text (tagging issue 1327, open), with no heading. This keeps the
-% class's own layout, tags the block Sect with an H2 heading, the level after
-% the H1 title (Clemson's headings rule; Graduate School template), and
-% bookmarks it inside the Sect; in report it prints in the text flow. The
-% \par comes first, or LaTeX 2026-06-01 stops ("text para hooks differ")
-% after a center block or a list. Article and report only.
-% REMOVE WHEN: issue 1327 gives the abstract its own tagging.
+% LaTeX tags the abstract as a BlockQuote (article) or plain text (report)
+% with no heading. This keeps the class's layout inside a Sect with an H2,
+% the level after the H1 title, and a bookmark. The \par comes first, or
+% LaTeX 2026-06-01 stops after a center block or a list.
+% REMOVE WHEN: tagging issue 1327 gives the abstract its own tagging.
 % Meets: Clemson Digital Accessibility, Headings; ISO 14289-1:2014 7.4.2;
-% ISO 32000-2:2020 14.8.4.4 (Sect), 14.8.4.5; Tagged PDF BPG 1.0.1 4.2.2, 7.2.
+% ISO 32000-2:2020 14.8.4.4 (Sect).
 \newcommand*{\clemson@abstract}{%
   \renewenvironment{abstract}{%
     \par
@@ -298,15 +233,11 @@
 %------------------------------------------------------------------------------
 % TEXT ALIGNMENT
 %------------------------------------------------------------------------------
-% Clemson's text page: "As a best practice, use left-aligned text." (WCAG 2.1
-% SC 1.4.8 is Level AAA, not required at AA.) \raggedright is LaTeX's own para
-% instance and tags body paragraphs TextAlign Start. The class's indent is
-% put back (the instance zeroes it) and \\ stays a plain line break, since the
-% one \raggedright installs ends the paragraph. Footnotes get the same setting
-% through the fntext/para hook; minipage, parbox, float and p-column text
-% stays justified, as LaTeX resets it there. Theorem and proof bodies keep
-% their justified templates; option justified keeps LaTeX's everywhere.
-% Meets: Clemson Digital Accessibility, Text; WCAG 2.1 SC 1.4.8 (Level AAA).
+% Clemson's text page: "As a best practice, use left-aligned text."
+% \raggedright is LaTeX's own para instance (TextAlign Start); the class's
+% indent is put back and \\ stays a plain line break. Footnotes get the same
+% through fntext/para. Option justified keeps LaTeX's default.
+% Meets: Clemson Digital Accessibility, Text; WCAG 2.1 SC 1.4.8 (AAA).
 \newcommand*{\clemson@ragged}{\edef\clemson@parindent{\the\parindent}%
   \raggedright\let\\\@normalcr\setlength{\parindent}{\clemson@parindent}}
 \ifclemson@justified\else
@@ -317,13 +248,9 @@
 %------------------------------------------------------------------------------
 % ENDNOTES
 %------------------------------------------------------------------------------
-% \endnote{...} writes an endnote and \printendnotes prints them (nothing when
-% there are none). The mark links to the note and, with backref, the note's
-% number links back. The notes are an enumerate list, since they are numbered;
-% the heading's optional argument puts "Notes" in the contents and bookmarks
-% at the heading itself (totoc=auto pointed before it). Roman marks stay
-% apart from arabic footnote marks. The notes are a list with links, not
-% FENote elements: enotez is listed partially compatible (tagging issue 728).
+% enotez: \endnote{...} and \printendnotes. The mark links to the note and
+% the note's number back (backref); the notes are an enumerate list with a
+% "Notes" heading in the contents; roman marks stay apart from footnotes.
 % Meets: ISO 14289-2:2024 8.2.5.8, 8.2.5.25; Tagged PDF BPG 1.0.1 4.2.8.
 \RequirePackage{enotez}
 \DeclareInstance{enotez-list}{enumerate}{list}{list-type = enumerate}
@@ -333,15 +260,12 @@
 %------------------------------------------------------------------------------
 % MATHML FILE NAME
 %------------------------------------------------------------------------------
-% A11Y WORKAROUND. When LaTeX reads MathML from files (mathml-AF, the default
-% with no math/setup key, or {mathml-SE,mathml-AF}) it expands the job name
-% into its comma list of file names: "a,b" loses every formula's MathML with
-% no error and "a, b" stops the build. The list is set again with \jobname
-% unexpanded at begindocument/before, after any math/setup; an empty list
-% (mathml-SE alone, or math/mathml/sources=) stays empty. Reads latex-lab's
-% \l__tag_math_mathml_files_clist. REMOVE WHEN: a,b.tex with mathml-AF logs
+% A11Y WORKAROUND. With MathML read from files (mathml-AF) LaTeX expands the
+% job name into a comma list of file names, so "a,b" loses every formula's
+% MathML. The list is set again with \jobname unexpanded; an empty list
+% (mathml-SE alone) stays empty. REMOVE WHEN: a,b.tex with mathml-AF logs
 % "reading mathml file a,b-luamml-mathml" without this block.
-% Meets: ISO 14289-2:2024 8.2.5.29.1 (MathML for every formula).
+% Meets: ISO 14289-2:2024 8.2.5.29.1.
 \ExplSyntaxOn
 \AddToHook { begindocument/before }
   {
@@ -359,24 +283,18 @@
 %------------------------------------------------------------------------------
 % LANGUAGES
 %------------------------------------------------------------------------------
-% babel is loaded here with no language: it takes the main language from the
-% lang key of \DocumentMetadata (babel 25.8 and later). A document adds the
-% languages it needs with \babelprovide[import]{french} after this package, or
-% loads babel with options before it. Then \foreignlanguage{french}{...} marks
-% a phrase and the otherlanguage environment a passage, and both hyphenate
-% in that language. Meets: WCAG 2.1 SC 3.1.2; ISO 32000-2:2020 14.9.2.
+% babel takes the main language from lang in \DocumentMetadata; a document
+% adds languages with \babelprovide[import]{french} after this package.
+% \foreignlanguage marks a phrase, otherlanguage a passage.
+% Meets: WCAG 2.1 SC 3.1.2; ISO 32000-2:2020 14.9.2.
 \RequirePackage{babel}
-% A11Y WORKAROUND. babel writes no /Lang. Its "foreign" hook wraps the
-% argument of \foreignlanguage (one paragraph at most) in a Span with the
-% kernel's inline socket. Its afterextras hook runs at every switch: for
-% another language it sets tagpdf's text/lang, so each element opened from
-% then on has /Lang; back in the main language it clears the key only
-% when the element that was open at the first switch is open again, because
-% an element without /Lang inherits its parent's (ISO 32000-2:2020 14.9.2.3).
-% The l3text line keeps the language name out of heading and contents /T
-% strings and the PDF title; hyperref strips it from bookmarks itself.
-% REMOVE WHEN: babel writes /Lang itself (babel discussion 357) or tagpdf
-% gets a Lang interface for marked content (tagging issue 988).
+% A11Y WORKAROUND. babel writes no /Lang. The "foreign" hook wraps a
+% \foreignlanguage phrase in a Span with the language; the afterextras hook
+% sets tagpdf's text/lang at every switch and clears it when the element
+% open at the first switch is open again (a child inherits /Lang). The
+% l3text line keeps the language name out of headings, contents and title.
+% REMOVE WHEN: babel writes /Lang (discussion 357) or tagpdf gets a Lang
+% interface for marked content (tagging issue 988).
 \ExplSyntaxOn
 \AddBabelHook { clemson } { foreign }
   { \BabelWrapText { \UseTaggingSocket { inline/begin } { tag=Span , lang=\BCPdata{tag} }
@@ -409,20 +327,14 @@
 % TABLE CELLS
 %------------------------------------------------------------------------------
 % A11Y WORKAROUND. LaTeX writes Scope, ColSpan and RowSpan as attribute
-% classes, which ISO 32000-2:2020 14.7.6.2 counts as attached to the cell and
-% veraPDF reads. PAC ignores classes (tagging-project Discussion 1324) and
-% Acrobat's Table Editor shows "scope none", so at the end of each tabular
-% every cell also gets them as a direct /A with /O /Table. No standard asks
-% for this copy. Headers are different: LaTeX writes none (see below).
-% Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, TD); 14.8.5.7 (Table 384, optional).
+% classes, which veraPDF reads but PAC and Acrobat's Table Editor ignore, so
+% every cell also gets them as a direct /A. Headers: LaTeX writes none.
+% Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, TD); 14.8.5.7 (Table 384).
 \ExplSyntaxOn
-% Headers holds "row IDs followed by column IDs" (ISO 32000-2 Table 384),
-% each list nearest first. The 14.8.4.8.3 search stops at the first data
-% cell past a header, so below a second group row the top headers are lost.
-% Here the top header rows head every data row and a group row (a lower
-% header row, or a one-cell row under the top headers) heads the rows below
-% it up to the next group; header columns work the same way from the left.
-% Meets: ISO 14289-2:2024 8.2.5.26; Tagged PDF BPG 1.0.1 5.4.1 (complex tables).
+% Headers holds row IDs then column IDs, nearest first (Table 384). The top
+% header rows head every data row; a group row heads the rows below it up to
+% the next group; header columns likewise from the left.
+% Meets: ISO 14289-2:2024 8.2.5.26; Tagged PDF BPG 1.0.1 5.4.1.
 \prop_new:N  \l__hdrs_grid_prop
 \prop_new:N  \l__hdrs_minr_prop
 \prop_new:N  \l__hdrs_maxr_prop
@@ -458,10 +370,8 @@
 \int_new:N   \l__hdrs_cc_int
 \bool_new:N  \l__hdrs_part_bool
 
-% The grid maps "row,col" to a cell's structure number, so a cell fills every
-% slot it spans. Rows come from the module's cell list; a negative entry is a
-% slot a \multicolumn covers, and an untagged slot is one a table/multirow
-% cell above covers. The first slot of a cell is its top left corner.
+% The grid maps "row,col" to a cell's structure number; a cell fills every
+% slot it spans (negative: under a \multicolumn; untagged: under a multirow).
 \cs_new:Npn \__hdrs_at:nn #1 #2
   { \prop_item:Ne \l__hdrs_grid_prop { #1 , #2 } }
 \cs_new_protected:Npn \__hdrs_record:nnn #1 #2 #3 % row, column, cell
@@ -507,9 +417,8 @@
     \int_set:Nn \l__hdrs_cc_int { \prop_item:Nn \l__hdrs_maxc_prop { #1 } }
   }
 
-% Header cells are found by the classes the table code gave them: TH-col,
-% TH-row or TH-both. A header row is a row where a column or corner header
-% starts; a full row is one cell as wide as the table. Columns likewise.
+% Header cells carry the classes TH-col, TH-row or TH-both. A header row is
+% one where a column or corner header starts; a full row is one cell wide.
 \cs_new_protected:Npn \__hdrs_mark:Nn #1 #2
   { \prop_put:Nen #1 { \int_use:N #2 } { } }
 \cs_new_protected:Npn \__hdrs_read_cell:n #1 % cell
@@ -570,12 +479,9 @@
       }
   }
 
-% The lines (rows or columns) to search for a cell that starts on line #1,
-% nearest first. A cell on a data line gets the nearest group, then the top
-% block. A group cell gets no headers from above it: Table 384 hands a
-% header's own Headers on to every cell that names it, so the column headers
-% over a group cell as wide as the table would apply to every column.
-% Meets: ISO 32000-2:2020 14.8.5.7 (Table 384, Headers).
+% Lines to search for a cell that starts on line #1, nearest first: the
+% nearest group, then the top block. A group cell gets no headers from above
+% it, or its own Headers would spread to every column (Table 384).
 \cs_new_protected:Npn \__hdrs_lines:nNN #1 #2 #3 % first line, block, headers
   {
     \clist_clear:N \l__hdrs_lines_clist
@@ -691,10 +597,8 @@
       }
   }
 
-% The finalize plug is the last point where the row and cell numbers exist:
-% its original body sets the header rows and then restores the enclosing
-% table's data. So copy them first, run it, then work on the copies; a table
-% nested in a cell has finished before its outer table starts here.
+% The finalize plug is the last point where row and cell numbers exist:
+% copy them, run the original, then work on the copies.
 \cs_new_protected:Npn \__hdrs_save:
   {
     \seq_set_eq:NN  \l__hdrs_cells_seq \g__tbl_struct_cells_seq
@@ -703,9 +607,8 @@
     \int_set:Nn \l__hdrs_cols_int { \g__tbl_table_cols_tl }
     \tl_set_eq:NN \l__hdrs_table_tl \g__tbl_struct_table_tl
   }
-% Layout tables (table/tagging=presentation or =div) have LaTeX's
-% ARIA-role-presentation class and no header cells, so they get nothing;
-% =false never gets here. Meets: WAI-ARIA 1.1 role=presentation.
+% Layout tables (table/tagging=presentation or =div) have no header cells
+% and get nothing. Meets: WAI-ARIA 1.1 role=presentation.
 \cs_new_protected:Npn \__hdrs_apply:
   {
     \str_clear:N \l__hdrs_class_str
@@ -747,13 +650,10 @@
       }
   }
 
-% Reads latex-lab-table internals (\g__tbl_struct_cells_seq,
-% \g__tbl_untagged_cells_prop, \g__tbl_table_cols_tl, \g__tbl_struct_table_tl,
-% the Table plug's csname) and tagpdf's \__tag_struct_get_id:n and struct_C
-% code. longtable is not covered: it has its own finalize plug. If one is
-% missing the build warns and writes nothing. The plug keeps its name, Table.
-% REMOVE WHEN: latex-lab-table writes Headers (the TODO in its docs,
-% tagging-project Discussion 930) and PAC and Acrobat read classes.
+% Reads latex-lab-table and tagpdf internals; if one is missing the build
+% warns and writes nothing. longtable has its own plug and is not covered.
+% REMOVE WHEN: latex-lab-table writes Headers (Discussion 930) and PAC and
+% Acrobat read classes.
 \bool_lazy_all:nTF
   {
     { \seq_if_exist_p:N \g__tbl_struct_cells_seq }
@@ -783,13 +683,11 @@
 %------------------------------------------------------------------------------
 % FOOTNOTES
 %------------------------------------------------------------------------------
-% LaTeX tags a footnote as FENote with a Ref both ways and links the mark to
-% the note, which is what PDF/UA-2 8.2.5.14 asks for. The package adds the
-% optional NoteType Footnote (WTPDF 1.0; 8.2.5.14 only limits its value, and
-% a missing one reads as None) in the fntext hook, where the FENote is the
-% open structure; the check skips a note that has no FENote (tagging
-% suspended). REMOVE WHEN: LaTeX writes NoteType itself (tagging issue 728).
-% Meets: ISO 14289-2:2024 8.2.5.14 (FENote and Ref from LaTeX; NoteType value).
+% LaTeX tags a footnote as FENote with the Ref pair and links the mark to
+% the note. The package adds NoteType Footnote in the fntext hook, skipping
+% a note with no FENote. REMOVE WHEN: LaTeX writes NoteType (tagging issue
+% 728).
+% Meets: ISO 14289-2:2024 8.2.5.14.
 \ExplSyntaxOn
 \AddToHook { fntext }
   {
@@ -800,47 +698,35 @@
       }
   }
 \ExplSyntaxOff
-% Notes at 9 pt: Clemson's text page says "Avoid small font sizes (less than
-% 9 points)"; no ISO or WCAG clause sets a size, so the rule is Clemson's.
-% \footnotesize becomes \small everywhere: footnotes, \thanks, the endnote
-% list and any \footnotesize text or table (10 and 10.95 pt with 11pt, 12pt).
+% Clemson's text page: no type under 9 pt. \footnotesize becomes \small:
+% footnotes, \thanks, endnotes.
 \renewcommand{\footnotesize}{\small}
 %------------------------------------------------------------------------------
 % LINKS
 %------------------------------------------------------------------------------
-% hyperref comes after the packages above, as its manual asks. It makes every
-% \ref, \cite, \href, \url and contents entry a link; LaTeX tags each one as
-% Link (inside Reference for citations and contents entries) with a structure
-% destination and /Tabs /S: ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3. No
-% viewer box: UNDERLINES underlines the links that leave the document, as
-% Clemson's Links page requires; links inside the document read as text.
-% Meets: Clemson Digital Accessibility, Links; WCAG 2.1 SC 1.4.1 (G182).
+% hyperref, last. LaTeX tags every link as Link with a structure destination
+% and /Tabs /S. No viewer box: UNDERLINES draws the underline in the text.
+% Meets: ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3; Clemson Links page.
 \RequirePackage{hyperref}
 \hypersetup{pdfborder={0 0 0}}
-% \strong in a section title stops the build ("Use of \bookmark doesn't
-% match its definition"): hyperref's \pdfstringdef handles \emph and \textbf
-% but not fontspec's \strong. REMOVE WHEN: hyperref handles \strong.
+% \strong in a section title stops the build: hyperref's \pdfstringdef knows
+% \emph and \textbf, not fontspec's \strong. REMOVE WHEN: hyperref handles it.
 \pdfstringdefDisableCommands{\let\strong\@firstofone}
 
 %------------------------------------------------------------------------------
 % UNDERLINES
 %------------------------------------------------------------------------------
-% Every link is underlined by lua-ul, with the rule its \underLine draws by
-% default, in the text itself: under the descenders, across line breaks, at
-% the size of the current font, in every viewer and in print. Two kinds are
-% not: contents entries, which are lines of the contents, and note marks,
-% which are superscripts. The switch runs in hyperref's own hooks: cmd/href
-% and cmd/url around links that leave the document, hyp/link/link and
-% hyp/link/cite inside every other link's group.
+% Every link is underlined by lua-ul in the text itself, in every viewer and
+% in print, except contents entries and note marks (superscripts). The
+% switch runs in hyperref's hooks: cmd/href and cmd/url around external
+% links, hyp/link/link and hyp/link/cite inside every other link's group.
 % Meets: Clemson Digital Accessibility, Links; WCAG 2.1 SC 1.4.1 (G182).
 \RequirePackage{lua-ul}
 \newunderlinetype\clemson@underline{\leaders\vrule height -.65ex depth .75ex}
-% lua-ul stores each underline rule at its first use at a given size and
-% copies it, tagging attributes included, at every later use, so each rule
-% was tagged as content of the paragraph that first used that size. Defined
-% inside an artifact, every copy is an artifact, as LaTeX's own table and
-% footnote rules are. REMOVE WHEN: lua-ul or LaTeX marks these rules as
-% artifacts (lua-ul issue 420, tagging issue 1581). Meets: ISO 14289-2 8.2.2.
+% lua-ul copies each underline rule from its first use, tagging attributes
+% included; defined inside an artifact, every copy is an artifact.
+% REMOVE WHEN: lua-ul or LaTeX marks the rules as artifacts (lua-ul issue
+% 420, tagging issue 1581). Meets: ISO 14289-2:2024 8.2.2.
 \ExplSyntaxOn
 \cs_new_protected:Npn \clemson@ulon
   { \tag_mc_end_push: \tag_mc_begin:n { artifact }
@@ -850,14 +736,11 @@
 \AddToHook{cmd/href/after}{\endgroup}
 \AddToHook{cmd/url/before}{\begingroup\clemson@ulon}
 \AddToHook{cmd/url/after}{\endgroup}
-% Inside the document: hyperref runs hyp/link/<type> at the start of every
-% GoTo link but declares only hyp/link/cite, so hyp/link/link (\ref,
-% \autoref, \eqref, \pageref, \hyperlink) is declared here and stays
-% silent once hyperref declares it. hyperref sets \l_hyp_current_dest_name_tl
-% before the hook; LaTeX's footnote marks go to footnote*.N and enotez's
-% marks and back links to enz.N, so those stay plain. The contents and the
-% two lists set the flag while they print. REMOVE WHEN: hyperref declares
-% hyp/link/link (the \ActivateGenericHook line only).
+% hyperref runs hyp/link/<type> at every GoTo link but declares only
+% hyp/link/cite, so hyp/link/link is activated here. Footnote marks go to
+% footnote*.N and enotez marks to enz.N, so those stay plain; the contents
+% and the lists set the flag while they print.
+% REMOVE WHEN: hyperref declares hyp/link/link (the \ActivateGenericHook line).
 \newif\ifclemson@incontents
 \ExplSyntaxOn
 \str_new:N \l__clemson_dest_str
@@ -879,30 +762,21 @@
 \AddToHook{cmd/listoffigures/after}{\clemson@incontentsfalse}
 \AddToHook{cmd/listoftables/before}{\clemson@incontentstrue}
 \AddToHook{cmd/listoftables/after}{\clemson@incontentsfalse}
-% \email{addr} is a mailto link whose visible text is the address, so a
-% screen reader reads the address (Clemson Links page: use the address as
-% the link text); \detokenize keeps an underscore in the address from
-% being read as math. Meets: WCAG 2.1 SC 2.4.4 (link purpose).
+% \email{addr}: a mailto link whose text is the address (Clemson Links page);
+% \detokenize keeps an underscore from being read as math.
+% Meets: WCAG 2.1 SC 2.4.4.
 \providecommand{\email}[1]{\href{mailto:#1}{\detokenize{#1}}}
-% The contents and the two lists print starred headings that get no outline
-% entry, so a reader navigating by bookmarks cannot get to them. hyperref's
-% \pdfbookmark adds one before each, at chapter level when the class has
-% chapters (a level-1 entry would nest under the previous chapter). With
-% chapters the heading starts a new page after this hook runs, so the page
-% is turned first, or the bookmark would point at the page before its
-% heading. The hooks have the label clemson/bookmark, so a class that
-% bookmarks these lists itself can remove them with \RemoveFromHook.
-% Meets: Tagged PDF BPG 1.0.1 7.2 (outlines follow the headings).
+% The contents and the two lists get a bookmark each, at chapter level with
+% chapters; the page is turned first, or the bookmark would point at the
+% page before. Label clemson/bookmark, for \RemoveFromHook.
+% Meets: Tagged PDF BPG 1.0.1 7.2.
 \newcommand*{\clemson@turnpage}{\if@openright\cleardoublepage\else\clearpage\fi}
 \newcommand*{\clemson@bookmark}[2]{\ifdefined\chapter\clemson@turnpage\pdfbookmark[0]{#1}{#2}\else\pdfbookmark[1]{#1}{#2}\fi}
 \AddToHook{cmd/tableofcontents/before}[./bookmark]{\clemson@bookmark{\contentsname}{clemson.toc}}
 \AddToHook{cmd/listoffigures/before}[./bookmark]{\clemson@bookmark{\listfigurename}{clemson.lof}}
 \AddToHook{cmd/listoftables/before}[./bookmark]{\clemson@bookmark{\listtablename}{clemson.lot}}
-% The bibliography prints a starred heading with no contents entry and no
-% bookmark. A starred heading sets its own link target, so a contents line
-% written right after it points at the heading; the hook adds that line
-% (section in article, chapter with \chapter) and hyperref makes the bookmark
-% from it. The document needs no \addcontentsline before \bibliography.
+% The bibliography's starred heading gets a contents line right after it,
+% which points at the heading, and hyperref makes the bookmark from it.
 % Meets: ISO 14289-2:2024 8.2.5.8; Tagged PDF BPG 1.0.1 4.1.4, 7.2.
 \newif\ifclemson@bib
 \AddToHook{env/thebibliography/before}[./bookmark]{\clemson@bibtrue}
