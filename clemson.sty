@@ -1,14 +1,7 @@
 % clemson.sty: accessible (tagged, PDF/UA-2) LaTeX in one package.
 % Clemson University, CCIT Internal Operations, ADA Compliance Team.
 %
-% You write: \DocumentMetadata{lang=en-US, pdfstandard={ua-2,a-4f},
-% tagging=on, check-tagging-status} above \documentclass;
-% \usepackage{clemson} after your other packages (it loads hyperref last);
-% alt={...} on every picture; the header rows or columns of every tabular
-% (\tagpdfsetup{table/header-rows={1}}). The rest is LaTeX's own tagging
-% plus the blocks below: each says what it does, the clause it meets and,
-% for a workaround, when to remove it.
-% Check: verapdf --flavour ua2, then Clemson's checks by hand.
+
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{clemson}[2026/09/29 v2.2 Accessible LaTeX (Clemson A11Y)]
 % One option: justified keeps LaTeX's justified text (TEXT ALIGNMENT below).
@@ -138,7 +131,7 @@
 % or section H2, down to H6). Acrobat's checker (PDF/UA-1 7.4.2) wants H1
 % first and no skipped level; veraPDF does not test heading order. The plug
 % puts the title of \maketitle in one H1, one Span per line.
-% REMOVE WHEN: tagging issue 1625 lands.
+% REMOVE WHEN: tagging issue 1625 is fixed.
 % Meets: Clemson Digital Accessibility, Headings; ISO 14289-1:2014 7.4.2;
 % Tagged PDF BPG 1.0.1 4.2.2.2.
 \ifdefined\chapter
@@ -698,14 +691,14 @@
       }
   }
 \ExplSyntaxOff
-% Clemson's text page: no type under 9 pt. \footnotesize becomes \small:
-% footnotes, \thanks, endnotes.
+% No type under 9pt, so \footnotesize is set to \small.
+% Meets: Clemson Digital Accessibility
 \renewcommand{\footnotesize}{\small}
+
 %------------------------------------------------------------------------------
 % LINKS
 %------------------------------------------------------------------------------
-% hyperref, last. LaTeX tags every link as Link with a structure destination
-% and /Tabs /S. No viewer box: UNDERLINES draws the underline in the text.
+% LaTeX tags every link
 % Meets: ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3; Clemson Links page.
 \RequirePackage{hyperref}
 \hypersetup{pdfborder={0 0 0}}
@@ -716,10 +709,8 @@
 %------------------------------------------------------------------------------
 % UNDERLINES
 %------------------------------------------------------------------------------
-% Every link is underlined by lua-ul in the text itself, in every viewer and
-% in print, except contents entries and note marks (superscripts). The
-% switch runs in hyperref's hooks: cmd/href and cmd/url around external
-% links, hyp/link/link and hyp/link/cite inside every other link's group.
+% Every link is underlined by lua-ul in the text itself, except contents entries
+% and note marks (superscripts).
 % Meets: Clemson Digital Accessibility, Links; WCAG 2.1 SC 1.4.1 (G182).
 \RequirePackage{lua-ul}
 \newunderlinetype\clemson@underline{\leaders\vrule height -.65ex depth .75ex}
@@ -737,9 +728,7 @@
 \AddToHook{cmd/url/before}{\begingroup\clemson@ulon}
 \AddToHook{cmd/url/after}{\endgroup}
 % hyperref runs hyp/link/<type> at every GoTo link but declares only
-% hyp/link/cite, so hyp/link/link is activated here. Footnote marks go to
-% footnote*.N and enotez marks to enz.N, so those stay plain; the contents
-% and the lists set the flag while they print.
+% hyp/link/cite, so hyp/link/link is used.
 % REMOVE WHEN: hyperref declares hyp/link/link (the \ActivateGenericHook line).
 \newif\ifclemson@incontents
 \ExplSyntaxOn
@@ -763,20 +752,17 @@
 \AddToHook{cmd/listoftables/before}{\clemson@incontentstrue}
 \AddToHook{cmd/listoftables/after}{\clemson@incontentsfalse}
 % \email{addr}: a mailto link whose text is the address (Clemson Links page);
-% \detokenize keeps an underscore from being read as math.
+% \detokenize keeps an underscore from being read as math in the output.
 % Meets: WCAG 2.1 SC 2.4.4.
 \providecommand{\email}[1]{\href{mailto:#1}{\detokenize{#1}}}
-% The contents and the two lists get a bookmark each, at chapter level with
-% chapters; the page is turned first, or the bookmark would point at the
-% page before. Label clemson/bookmark, for \RemoveFromHook.
+% The contents and the two lists get a bookmark
 % Meets: Tagged PDF BPG 1.0.1 7.2.
 \newcommand*{\clemson@turnpage}{\if@openright\cleardoublepage\else\clearpage\fi}
 \newcommand*{\clemson@bookmark}[2]{\ifdefined\chapter\clemson@turnpage\pdfbookmark[0]{#1}{#2}\else\pdfbookmark[1]{#1}{#2}\fi}
 \AddToHook{cmd/tableofcontents/before}[./bookmark]{\clemson@bookmark{\contentsname}{clemson.toc}}
 \AddToHook{cmd/listoffigures/before}[./bookmark]{\clemson@bookmark{\listfigurename}{clemson.lof}}
 \AddToHook{cmd/listoftables/before}[./bookmark]{\clemson@bookmark{\listtablename}{clemson.lot}}
-% The bibliography's starred heading gets a contents line right after it,
-% which points at the heading, and hyperref makes the bookmark from it.
+% The bibliography's starred heading
 % Meets: ISO 14289-2:2024 8.2.5.8; Tagged PDF BPG 1.0.1 4.1.4, 7.2.
 \newif\ifclemson@bib
 \AddToHook{env/thebibliography/before}[./bookmark]{\clemson@bibtrue}
