@@ -81,8 +81,7 @@ Everything else is the package or LaTeX.
 - Endnotes (enotez): marks link to notes and back, a numbered list, "Notes" in the contents.
 - Keeps the MathML file list right when the file name holds a comma.
 - Tags every `\foreignlanguage` phrase, `otherlanguage` block and `\selectlanguage` switch.
-- Footnotes: adds NoteType Footnote; the note's number links back to its mark in the text; 9 pt
-  note text.
+- Footnotes: adds NoteType Footnote; 9 pt note text.
 - Links: black, no viewer box; links that leave the document (`\href`, `\url`, `\email`) are
   underlined by LaTeX (as artifacts); links inside the document read as text.
 - Tags `\strong` as Strong; bookmarks the contents lists; lists the bibliography in the
@@ -128,8 +127,7 @@ Changed:
 - Kernel hooks, no command redefined: `cmd/strong/before|after`; `env/figure|table|figure*|table*/begin`;
   `cmd/href|url/before|after`;
   `cmd/tableofcontents|listoffigures|listoftables/before`; `env/thebibliography/before` with
-  `cmd/section|chapter/after`; `fntext`; `fntext/para` (also swaps the note's mark for a link
-  back to the text); `fnmark/end`; `begindocument/before`;
+  `cmd/section|chapter/after`; `fntext`; `fntext/para`; `begindocument/before`;
   `shipout/lastpage` (LaTeX 2026-06-01 only: sets `pdftitle` from `\title` inside braces).
 
 Internal names start with `clemson@`, `__clemson_` or `__hdrs_`. `\RemoveFromHook{<hook>}[clemson]`
@@ -278,8 +276,8 @@ number: the float `\par` hooks (tagging issue 1532), the MathML file list (job n
 comma), the babel language tags (babel discussion 357, tagging issue 988), the table cell
 attributes (Discussion 930; the block checks each latex-lab name it reads and warns instead of
 failing), the `\strong` hooks (latex2e issue 1620), the `\pdfstringdef` line, the title plug
-(issue 1625), the title metadata chunk (issue 1594), NoteType (issue 728), the footnote back link
-and the underline artifact (issue 1581). The 2026-11-01
+(issue 1625), the title metadata chunk (issue 1594), NoteType (issue 728) and the underline artifact
+(issue 1581). The 2026-11-01
 release renames the tags Acrobat shows (`text` to `text-block`, `text-unit` to `semantic-para`,
 section numbers to `heading-number`, mapped to Lbl) and makes `\rule` an artifact.
 

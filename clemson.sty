@@ -800,34 +800,6 @@
       }
   }
 \ExplSyntaxOff
-% LaTeX links a footnote's mark to its note and writes the Ref pair, which
-% is what PDF/UA-2 8.2.5.14 asks; a reader who follows the mark still has
-% no link back. So the note's number becomes a link to an anchor set right
-% after the mark in the text (the fnmark/end hook runs after LaTeX's own
-% link), the way enotez's backref works for endnotes. The swap of the mark
-% command happens inside the footnote insert (fntext/para), so the mark in
-% the text keeps LaTeX's link. The names come from LaTeX's own bookkeeping:
-% the fnmark/end hook still knows the mark's target name, and the note knows
-% its marks. REMOVE WHEN: LaTeX links the note back.
-% Meets: ISO 14289-2:2024 8.2.5.14 (Ref pair, LaTeX); WCAG 2.1 SC 2.4.4.
-\ExplSyntaxOn
-\AddToHook { fnmark/end }
-  { \MakeLinkTarget* { clemson.fnback. \l__fnote_linktarget_tl } }
-\AddToHook { fntext/para }
-  {
-    \cs_set_eq:NN \clemson@fnmark \@makefnmark
-    \cs_set:Npn \@makefnmark
-      {
-        \seq_if_empty:NTF \l__fnote_currentrefs_seq
-          { \clemson@fnmark }
-          {
-            \hyperlink
-              { clemson.fnback.footnote*. \seq_item:Nn \l__fnote_currentrefs_seq {1} }
-              { \clemson@fnmark }
-          }
-      }
-  }
-\ExplSyntaxOff
 % Notes at 9 pt: Clemson's text page says "Avoid small font sizes (less than
 % 9 points)"; no ISO or WCAG clause sets a size, so the rule is Clemson's.
 % \footnotesize becomes \small everywhere: footnotes, \thanks, the endnote
