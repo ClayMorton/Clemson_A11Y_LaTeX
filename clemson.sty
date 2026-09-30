@@ -825,12 +825,13 @@
 %------------------------------------------------------------------------------
 % UNDERLINES
 %------------------------------------------------------------------------------
-% Links that leave the document (\href, \url, \email) are underlined by
-% lua-ul, with the rule its \underLine draws by default, in the text itself:
-% under the descenders, across line breaks, at the size of the current font,
-% in every viewer and in print. Links inside the document (\ref, \autoref,
-% \cite, contents entries, note marks) read as text. The switch runs in
-% hyperref's own hooks around \href and \url.
+% Every link is underlined by lua-ul, with the rule its \underLine draws by
+% default, in the text itself: under the descenders, across line breaks, at
+% the size of the current font, in every viewer and in print. Two kinds are
+% not: contents entries, which are lines of the contents, and note marks,
+% which are superscripts. The switch runs in hyperref's own hooks: cmd/href
+% and cmd/url around links that leave the document, hyp/link/link and
+% hyp/link/cite inside every other link's group.
 % Meets: Clemson Digital Accessibility, Links; WCAG 2.1 SC 1.4.1 (G182).
 \RequirePackage{lua-ul}
 \newunderlinetype\clemson@underline{\leaders\vrule height -.65ex depth .75ex}
@@ -849,6 +850,35 @@
 \AddToHook{cmd/href/after}{\endgroup}
 \AddToHook{cmd/url/before}{\begingroup\clemson@ulon}
 \AddToHook{cmd/url/after}{\endgroup}
+% Inside the document: hyperref runs hyp/link/<type> at the start of every
+% GoTo link but declares only hyp/link/cite, so hyp/link/link (\ref,
+% \autoref, \eqref, \pageref, \hyperlink) is declared here and stays
+% silent once hyperref declares it. hyperref sets \l_hyp_current_dest_name_tl
+% before the hook; LaTeX's footnote marks go to footnote*.N and enotez's
+% marks and back links to enz.N, so those stay plain. The contents and the
+% two lists set the flag while they print. REMOVE WHEN: hyperref declares
+% hyp/link/link (the \ActivateGenericHook line only).
+\newif\ifclemson@incontents
+\ExplSyntaxOn
+\str_new:N \l__clemson_dest_str
+\cs_new_protected:Npn \clemson@ulink
+  {
+    \ifclemson@incontents \else
+      \str_set:Ne \l__clemson_dest_str { \l_hyp_current_dest_name_tl }
+      \str_if_in:NnF \l__clemson_dest_str { footnote }
+        { \str_if_in:NnF \l__clemson_dest_str { enz. } { \clemson@ulon } }
+    \fi
+  }
+\ExplSyntaxOff
+\ActivateGenericHook{hyp/link/link}
+\AddToHook{hyp/link/link}{\clemson@ulink}
+\AddToHook{hyp/link/cite}{\clemson@ulon}
+\AddToHook{cmd/tableofcontents/before}{\clemson@incontentstrue}
+\AddToHook{cmd/tableofcontents/after}{\clemson@incontentsfalse}
+\AddToHook{cmd/listoffigures/before}{\clemson@incontentstrue}
+\AddToHook{cmd/listoffigures/after}{\clemson@incontentsfalse}
+\AddToHook{cmd/listoftables/before}{\clemson@incontentstrue}
+\AddToHook{cmd/listoftables/after}{\clemson@incontentsfalse}
 % \email{addr} is a mailto link whose visible text is the address, so a
 % screen reader reads the address (Clemson Links page: use the address as
 % the link text); \detokenize keeps an underscore in the address from

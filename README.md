@@ -82,8 +82,8 @@ Everything else is the package or LaTeX.
 - Keeps the MathML file list right when the file name holds a comma.
 - Tags every `\foreignlanguage` phrase, `otherlanguage` block and `\selectlanguage` switch.
 - Footnotes: adds NoteType Footnote; 9 pt note text.
-- Links: black, no viewer box; links that leave the document (`\href`, `\url`, `\email`) are
-  underlined by LaTeX (as artifacts); links inside the document read as text.
+- Links: black, no viewer box, underlined by LaTeX (as artifacts), inside the document or out;
+  contents entries and note marks stay plain.
 - Tags `\strong` as Strong; bookmarks the contents lists; lists the bibliography in the
   contents; defines `\email`; ends proofs with QED (you can change this if you
   would like, however most screen readers will not read "end of proof" so QED
@@ -127,7 +127,8 @@ Changed:
 - Kernel hooks, no command redefined: `cmd/strong/before|after`; `env/figure|table|figure*|table*/begin`;
   `cmd/href|url/before|after`;
   `cmd/tableofcontents|listoffigures|listoftables/before`; `env/thebibliography/before` with
-  `cmd/section|chapter/after`; `fntext`; `fntext/para`; `begindocument/before`;
+  `cmd/section|chapter/after`; `fntext`; `fntext/para`; `hyp/link/link`; `hyp/link/cite`;
+  `cmd/tableofcontents|listoffigures|listoftables/after`; `begindocument/before`;
   `shipout/lastpage` (LaTeX 2026-06-01 only: sets `pdftitle` from `\title` inside braces).
 
 Internal names start with `clemson@`, `__clemson_` or `__hdrs_`. `\RemoveFromHook{<hook>}[clemson]`
