@@ -6,75 +6,65 @@
 % example.tex: the worked example. Write your own document in main.tex.
 % Build: latexmk -lualatex example.tex
 % Check: verapdf --flavour ua2 --format text example.pdf, then the log lines
-% that README.md names
+% README.md names.
 
 %------------------------------------------------------------------------------
 % METADATA AND CLASS
 %------------------------------------------------------------------------------
-% Every accessible document starts with this block, above \documentclass: it
-% turns tagging on and names the standard. Each key is explained beside it.
-% Meets: ISO 14289-2:2024 8.11 (metadata).
+% This block goes above \documentclass in every document: it turns tagging on
+% and names the standard. Meets: ISO 14289-2:2024 8.11 (metadata).
 \DocumentMetadata{
   lang          = en-US,   % the language of the whole PDF, written to /Lang
   pdfstandard   = ua-2,    % declares PDF/UA-2, the standard for PDF 2.0
   tagging       = on,      % turns tagging on
   check-tagging-status,    % appends a package report to the end of the log
 }
-% report and book work the same way: there \chapter becomes H2 and \section
-% H3. Everything below is plain LaTeX plus one package.
+% report and book work the same way; there \chapter is H2 and \section H3.
 \documentclass{article}
 
 %------------------------------------------------------------------------------
 % PACKAGES
 %------------------------------------------------------------------------------
-\usepackage{booktabs}          % \toprule, \midrule and \bottomrule in tables
-% Packages for the examples below. None of them is in section 1 (unsupported)
-% or section 2 (incompatible) of the tagging status report, and each one
-% produces Formula, list or Figure tags.
+% Load what the document uses. Every package here tags correctly: none is in
+% section 1 (unsupported) or section 2 (incompatible) of the tagging status
+% report at the end of the log. README.md lists packages by field.
 % Meets: LaTeX tagging status list, sections 1-2 (none listed).
+\usepackage{booktabs}          % \toprule, \midrule and \bottomrule in tables
 \usepackage[version=4]{mhchem} % chemical formulae and reactions
-\usepackage{siunitx}        % numbers and units (do not load physics as well)
-\usepackage{braket}         % bra-ket notation
-\usepackage{algpseudocode}  % the steps of an algorithm
-\usepackage{tikz}           % a diagram drawn in the document
-% A long \verb string or URL cannot be hyphenated and can run into the margin.
-% \emergencystretch lets TeX loosen that line instead. This is for typography
-% and has no effect on tagging.
-\setlength{\emergencystretch}{2em}
-% The kit's package, after the other packages: it loads hyperref, which its
-% manual asks to load last (a package that must follow hyperref, such as
-% cleveref, goes after this line). It also loads unicode-math, which gives
-% LaTeX's MathML the right characters, and babel, with the main language
-% taken from lang= in \DocumentMetadata.
+\usepackage{siunitx}           % numbers and units (do not load physics as well)
+\usepackage{braket}            % bra-ket notation
+\usepackage{algpseudocode}     % the steps of an algorithm
+\usepackage{tikz}              % a diagram drawn in the document
+% The kit's package, after the other packages: it loads hyperref, which must
+% come last, and unicode-math, amsmath and babel, with the main language from
+% lang= above. A package that must follow hyperref (cleveref) goes after it.
 \usepackage{clemson}
 % Pictures: LaTeX looks beside this file first, then in resources/.
 \graphicspath{{resources/}}
-% Other languages come after the package, one \babelprovide line each. babel
-% hyphenates them; the package writes their language tags: every
-% \foreignlanguage phrase (one paragraph at most) and every otherlanguage
-% block or \selectlanguage switch. Meets: WCAG 2.1 3.1.2 (language of parts).
+% Other languages: one \babelprovide line each, after the package. babel
+% hyphenates them and the package writes their language tags.
+% Meets: WCAG 2.1 3.1.2 (language of parts).
 \babelprovide[import]{french}
 
 %------------------------------------------------------------------------------
 % TITLE, ABSTRACT, CONTENTS
 %------------------------------------------------------------------------------
-% The package tags the printed title as the only H1 and moves every heading
-% down one level (\section is H2). LaTeX writes title and authors into the
-% metadata itself; this title has a comma, which LaTeX 2026-06-01 takes for a
-% list separator, so pdftitle repeats it inside doubled braces (fixed in the
-% 2026-11-01 release). pdfauthor lists the names with commas where \and is
-% not wanted in print.
+% Plain \title and \author. LaTeX writes both into the PDF metadata itself,
+% one author entry per \and. The package tags the printed title as the only
+% H1 and moves every heading down one level, so \section is H2.
 % Meets: ISO 32000-2:2020 14.8.4.5; ISO 14289-2:2024 8.11 (metadata).
-\title[pdftitle={{Accessible LaTeX, quickly}}]{Accessible LaTeX, quickly}
-\author[pdfauthor={First Author, Second Author}]{First Author and Second Author}
+\title{Accessible LaTeX, quickly}
+\author{First Author \and Second Author}
 \date{\today}
 \begin{document}
 \maketitle
 
 % The package tags the abstract as a Sect with an H2 heading, under the H1
-% title, and gives it a bookmark; the contents and the two lists below get
-% their bookmarks from the package too.
-% Meets: ISO 32000-2:2020 14.8.4.4 (Sect); Tagged PDF BPG 1.0.1 4.2.2, 7.2.
+% title, and bookmarks it. The contents and the two lists below get their
+% bookmarks from the package too; each entry is a TOCI that links to its
+% heading, and a list entry shows the short title from \caption[Short]{Long}.
+% Meets: ISO 32000-2:2020 14.8.4.4 (Sect), Annex M (TOC, TOCI);
+% Tagged PDF BPG 1.0.1 4.1.4, 4.2.2, 7.2.
 \begin{abstract}
 This file is a working example of every kind of content a paper or a report usually holds:
 headings, text, notes, cross-references, mathematics, chemistry, units, algorithms, figures
@@ -82,14 +72,7 @@ with alt text and long descriptions, tables and an appendix. All of it is tagged
 conforms to PDF/UA-2. Copy the pieces you need; the comments in the source say why each line
 is written the way it is.
 \end{abstract}
-% The table of contents is tagged TOC, with one TOCI per entry, and each entry
-% links to its heading.
-% Meets: ISO 32000-2:2020 Annex M (TOC, TOCI); Tagged PDF BPG 1.0.1 4.1.4.
 \tableofcontents
-% The list of figures and the list of tables are tagged and linked the same
-% way. Each entry is the short title from \caption[Short title]{Long caption},
-% or the whole caption if there is no short title.
-% Meets: ISO 32000-2:2020 Annex M (TOC, TOCI); Tagged PDF BPG 1.0.1 4.1.4.
 \listoffigures
 \listoftables
 
@@ -97,41 +80,35 @@ is written the way it is.
 % HOW TO USE THIS FILE
 %------------------------------------------------------------------------------
 \section{How to use this file}
-Copy the whole kit folder. Write your document in \texttt{main.tex}, the blank starter,
-and build it with \verb|latexmk -lualatex main.tex|; \verb|latexmk -lualatex example.tex|
-builds this file. Every
-example here is marked in the source by a banner comment line (\texttt{\%----}) that names
-it, so search \texttt{example.tex} for the one you need and copy the block, with its
-\verb|\usepackage| line from the PACKAGES block if it has one. Then work through five
-steps.
+Copy the whole kit folder. Write your document in \texttt{main.tex}, the blank starter, and
+build it with \verb|latexmk -lualatex main.tex|. Every example in this file sits under a
+banner comment (\texttt{\%----}) that names it: search \texttt{example.tex} for the one you
+need and copy the block, with its \verb|\usepackage| line from the PACKAGES block if it has
+one. Then:
 
 \begin{enumerate}
-  \item Keep \texttt{\% !TEX program = lualatex} on the first line, so that your editor
-    picks the engine, and the \verb|\DocumentMetadata| block above \verb|\documentclass|.
-    That block turns tagging on and names the standard.
-  \item Load your packages, then \verb|\usepackage{clemson}| after them; it loads
-    hyperref (a package that must follow hyperref, such as cleveref, goes after it).
-    Replace the title, the authors and the
-    text. Use \verb|\section|, \verb|\subsection| and \verb|\subsubsection| in order and
-    never skip a level; the package tags the title as the only H1 and the sections as
-    H2, H3 and H4.
+  \item Keep \texttt{\% !TEX program = lualatex} on the first line and the
+    \verb|\DocumentMetadata| block above \verb|\documentclass|. Together they pick the
+    engine, turn tagging on and name the standard.
+  \item Load your packages, then \verb|\usepackage{clemson}| after them (cleveref, which
+    must follow hyperref, goes after it). Write \verb|\title|, \verb|\author| and the text.
+    Use \verb|\section|, \verb|\subsection| and \verb|\subsubsection| in order and never
+    skip a level: the title is the only H1, and the sections are H2, H3 and H4.
   \item Give every picture alt text: \verb|\includegraphics[alt={...}]{file}|.
-  \item Declare the header cells of every table before its \verb|\begin{tabular}|.
-    \autoref{sec:tables} shows the nine layouts, the one caveat and the
-    \verb|\tagpdfsetup| keys each layout needs.
-  \item Build with \verb|latexmk -lualatex main.tex| and check with
-    \verb|verapdf --flavour ua2 --format text main.pdf| and the log lines
-    \texttt{README.md} names. A
-    script cannot judge everything, so finish with five checks by hand: read every alt
-    text back, then look at the tags, the reading order, the links and the use of color
-    in Acrobat Pro: All tools, Prepare for accessibility, Check for accessibility.
-    \texttt{README.md} links Clemson's manual checks, which the five are adapted from.
+  \item Declare the header cells of every table before its \verb|\begin{tabular}|;
+    \autoref{sec:tables} shows the layouts and the \verb|\tagpdfsetup| keys each one needs.
+  \item Build, then check with \verb|verapdf --flavour ua2 --format text main.pdf| and the
+    log lines \texttt{README.md} names. A script cannot judge everything, so finish with
+    five checks by hand in Acrobat Pro (All tools, Prepare for accessibility, Check for
+    accessibility): read every alt text back, then look at the tags, the reading order,
+    the links and the use of color. \texttt{README.md} links Clemson's manual checks, which
+    the five are adapted from.
 \end{enumerate}
 
 The package sets the text ragged right, as Clemson's text guidance asks;
 \verb|\usepackage[justified]{clemson}| keeps the justified look some journals require.
-\texttt{README.md} has the full instructions and the list of packages to use and to avoid
-in each field.
+\texttt{README.md} has the full instructions and the packages to use and to avoid in each
+field.
 
 %------------------------------------------------------------------------------
 % TEXT EXAMPLES
@@ -152,17 +129,16 @@ of the document, after the appendices and before the works cited.}
 %---- Links, citations --------------------------------------------------------
 \subsection{Links}
 A link carries its own text, so name the destination rather than writing ``click here'' or
-``more''. Link text stays black here, and the underline is drawn by LaTeX in the text
-itself (the package loads lua-ul), so every viewer shows it and no link is marked by color
-alone; the link text says where it goes in every viewer. \verb|\href| prints words
-instead of an address: \href{https://latex3.github.io/tagging-project/}{the LaTeX tagging
-project}. \verb|\url| prints the address itself, \url{https://www.clemson.edu/accessibility/};
-avoid a raw address as the only link text, because a screen reader may announce each
-individual character of it. Name the file type when a link opens a document, as in
+``more''. The package underlines every web and email link in the text itself, so every viewer
+shows the underline and no link depends on color; links inside the document (contents,
+citations, cross-references) are not underlined. \verb|\href| prints words instead of an
+address: \href{https://latex3.github.io/tagging-project/}{the LaTeX tagging project}.
+\verb|\url| prints the address itself, \url{https://www.clemson.edu/accessibility/}; avoid a
+raw address as the only link text, because a screen reader may spell it out. Name the file
+type when a link opens a document, as in
 \href{https://mirrors.ctan.org/macros/latex/contrib/tagpdf/tagpdf.pdf}{the tagpdf package
-manual (PDF)}, and write an email address as its own link with
-\verb|\email|, which the package defines: \email{first.last@clemson.edu}.
-Citations are links too~\cite{knuth1984,lamport1994}.
+manual (PDF)}. Write an email address with \verb|\email|, which the package defines:
+\email{first.last@clemson.edu}. Citations are links too~\cite{knuth1984,lamport1994}.
 %---- Cross-references --------------------------------------------------------
 \subsection{Cross-references}
 Write \verb|\autoref{sec:math}| rather than ``the section above'': the whole phrase becomes
@@ -172,8 +148,8 @@ page~\pageref{sec:math}, \autoref{sec:notation}, \autoref{fig:lab} on page~\page
 \autoref{tab:headerrow}, Equation~\eqref{eq:gauss}, \autoref{alg:max}, \autoref{app:example},
 and a citation with a page number~\cite[p.~3]{knuth1984lp}. Theorem-like blocks work the
 same way, since the package names each environment for \verb|\autoref|:
-\autoref{lem:title}. Equations keep \verb|\eqref| for the
-parentheses; \verb|\pageref| links the page number alone.
+\autoref{lem:title}. Equations keep \verb|\eqref| for the parentheses; \verb|\pageref| links
+the page number alone.
 %---- Lists -------------------------------------------------------------------
 \subsection{Lists}
 Bulleted, numbered and description lists are tagged as lists, with a label and a body
@@ -231,12 +207,10 @@ verapdf --flavour ua2 --format text main.pdf
 %------------------------------------------------------------------------------
 \section{Mathematics}
 \label{sec:math}
-Mathematics is written into the PDF as MathML, which lets a MathCAT-class reader speak the
-real structure of a formula; LaTeX writes it itself, and every formula is a Formula element.
-The package writes the MathML into the tag tree as structure elements
-(\verb|mathml-SE|), the form the tagging project and the PDF Association's Math BPG
-recommend and the one Acrobat hands to a screen reader; \texttt{README.md} explains the
-other form, an attached file per formula.
+Mathematics is written into the PDF as MathML, so a MathCAT-class reader speaks the real
+structure of a formula. LaTeX writes the MathML itself and tags every formula as a Formula;
+the package puts the MathML in the tag tree, the form the tagging project and the PDF
+Association's Math BPG recommend and the one Acrobat hands to a screen reader.
 
 %---- Inline and display math -------------------------------------------------
 Inline mathematics sits in the sentence: $e^{i\pi} + 1 = 0$. A displayed equation takes
@@ -269,11 +243,9 @@ with its own MathML, and \verb|\eqref| links to the number.
 Equations~\eqref{eq:group-a} and~\eqref{eq:group-b} are the two members of the group.
 \begin{gather} x = 1 \\ y = 2 \end{gather}
 %---- Long formula (multline) -------------------------------------------------
-% multline splits a formula that is too long for one line: the first part goes
-% at the left margin, the rest at the right. With MathML structure elements
-% the numbered form makes tagpdf warn "structure with label 0 is unknown" on
-% every run (tagging-project issue 1407), so this uses the starred form and
-% the equation is not referenced by number.
+% multline splits a formula that is too long for one line. Use the starred
+% form: the numbered one makes tagpdf warn "structure with label 0 is
+% unknown" on every run (tagging issue 1407), so it cannot be cited by number.
 % Meets: ISO 32000-2:2020 14.8.6.3 (Formula, MathML); WCAG 2.1 1.1.1.
 A formula too long for one line goes in \texttt{multline}, which sets its first part at
 the left margin and the rest at the right:
@@ -282,11 +254,10 @@ the left margin and the rest at the right:
   + b_1 + b_2 + b_3 + b_4 + b_5 + b_6 + b_7 + b_8 + b_9 + b_{10} = s
 \end{multline*}
 %---- MathML intent -----------------------------------------------------------
-% The same overline means "mean of x" in statistics and "complex conjugate of
-% x" in analysis. \MathMLintent names the meaning in the MathML so a screen
-% reader speaks it; \MathMLarg names the part it applies to. Keep the double
-% braces around the argument: a scripted single atom loses the intent with no
-% warning. Check the result in example-luamml-mathml.html.
+% \MathMLintent names what a formula means, so a screen reader speaks it;
+% \MathMLarg names the part it applies to. Keep the double braces around the
+% argument: a scripted single atom loses the intent with no warning. Check
+% the result in example-luamml-mathml.html.
 % Meets: Math in PDF BPG 1.0 p.15 (intent); WCAG 2.1 1.1.1.
 \subsection{What a formula means}
 MathML records how a formula looks, not what it means: an $x$ with a bar over it is
@@ -309,19 +280,16 @@ Write chemistry with \verb|\ce| from \texttt{mhchem}, numbers and units with \ve
 \verb|\num| from \texttt{siunitx}, and quantum states with \verb|\braket| and \verb|\ket| from
 \texttt{braket}. Each one becomes a Formula with MathML, exactly like ordinary
 mathematics: a MathML reader hears a value and its unit as structure.
-% Carbon-14 is written out in words because, with MathML structure elements,
-% $\ce{^{14}C}$ makes tagpdf report "structure with label 36 has already been
-% used" (tagging-project issue 793).
+% Two limits: an isotope such as $\ce{^{14}C}$ makes tagpdf warn "structure
+% with label ... has already been used" (tagging issue 793), so carbon-14 is
+% written in words; \qtyrange loses its numbers in the MathML, so a range is
+% two quantities.
 % Meets: ISO 32000-2:2020 14.8.6.3 (Formula, MathML); WCAG 2.1 1.1.1.
-Water is $\ce{H2O}$ and the sulfate ion is
-$\ce{SO4^2-}$; carbon-14 is written out in words.
-Standard gravity is \qty{9.81}{\metre\per\second\squared}, room temperature is
-\qty{25}{\celsius}, and \num{12345.678} is grouped by \verb|\num| rather than by
-hand. A state is $\ket{0}$ and an inner product is
-$\braket{\psi|\phi}$. Write a range as two
-quantities, \qty{10}{\celsius} to
-\qty{20}{\celsius}: \verb|\qtyrange| loses its numbers in the
-MathML.
+Water is $\ce{H2O}$ and the sulfate ion is $\ce{SO4^2-}$; carbon-14 is written out in
+words. Standard gravity is \qty{9.81}{\metre\per\second\squared}, room temperature is
+\qty{25}{\celsius}, and \num{12345.678} is grouped by \verb|\num| rather than by hand. A
+state is $\ket{0}$ and an inner product is $\braket{\psi|\phi}$. Write a range as two
+quantities, \qty{10}{\celsius} to \qty{20}{\celsius}.
 \begin{equation}\label{eq:burn} \ce{CH4 + 2O2 -> CO2 + 2H2O} \end{equation}
 %---- Theorems and algorithm --------------------------------------------------
 \subsection{Theorems, proofs and algorithms}
@@ -336,11 +304,11 @@ name. LaTeX tags each block as theorem-like, with its head as a caption:
 \begin{example} A table of results has one header row; its first row is tagged TH. \end{example}
 \begin{remark} The proof above ends with the word QED on its own; a screen reader reads
 it, while LaTeX's open square is drawn with rules and announces nothing. \end{remark}
-% The algorithm block is theorem-like, not a float. The algorithm package is
-% listed "Currently incompatible", and an algorithmic body inside a figure
-% aborts the build. This gives a tagged Caption and a label \ref can reach. The
-% steps are an unordered list because algpseudocode prints the step numbers
-% itself instead of using a list counter. The labels are still Lbl.
+% algorithm is a theorem-like block the package defines, not a float: the
+% algorithm package is listed incompatible, and an algorithmic body inside a
+% figure aborts the build. The head is a tagged Caption that \ref can reach.
+% algpseudocode prints the step numbers itself, so the steps are a list
+% whose labels are still Lbl.
 % Meets: ISO 32000-2:2020 14.8.4.8.4 (Caption), 14.8.4.8.2 (L); Clemson lists.
 \begin{algorithm}[Find the largest value]\label{alg:max}
 Input: the values $a_1,\dots,a_n$. Output: the largest of them.
@@ -361,15 +329,12 @@ Complex pictures follow in \autoref{sec:longdesc}.
 %---- Picture with alt text ---------------------------------------------------
 Every informative picture needs \verb|alt={...}|. Write what the picture shows and why it is
 in the document, in one or two sentences, as if describing it to a friend. Do not describe
-the file, and do not repeat the caption, which the reader hears anyway. Clemson's pattern for people is
-``[name] and [name] [action] [location]'', as in ``Dr.~Ellis and two students test a screen
-reader in Cooper Library''; no picture in this kit shows people, so the pattern is written out here.
+the file, and do not repeat the caption, which the reader hears anyway. Clemson's pattern for
+people is ``[name] and [name] [action] [location]'', as in ``Dr.~Ellis and two students test
+a screen reader in Cooper Library''; no picture in this kit shows people.
 
-% Every informative picture needs alt={...}: one or two sentences on what it
-% shows and why it is here. Do not use the file name or repeat the caption. No
-% kit picture shows people, so Clemson's people pattern is in the prose above.
-% \caption goes above the image in every float. LaTeX always writes the
-% Caption first, so a caption printed below would contradict the tag order.
+% \caption goes above the picture in every float: LaTeX writes the Caption
+% tag first, so a caption printed below would contradict the tag order.
 % Meets: ISO 32000-2:2020 14.8.4.8.5 (Figure Alt); Clemson tags (tag order).
 \begin{figure}\centering
   \caption{An informative picture with alt text}\label{fig:lab}
@@ -382,9 +347,7 @@ alt text, and write one caption that names the panels. \texttt{subcaption} and \
 are not compatible with tagging, so lay the panels out with \verb|\hfill|, as here.
 \autoref{fig:panels} uses \verb|trim| and \verb|clip| to show two halves of the picture above.
 
-% Two panels in one figure: one \includegraphics per panel, each with its own
-% alt text, and one caption that names the panels. subcaption and subfig are
-% incompatible with tagging, so \hfill places the panels.
+% One \includegraphics per panel, each with its own alt text, one caption.
 % Meets: Tagged PDF BPG 1.0.1 5.5.2 (alternative text on each panel).
 \begin{figure}\centering
   \caption{Two panels: (a) the left half and (b) the right half of the wall}\label{fig:panels}
@@ -397,8 +360,7 @@ are not compatible with tagging, so lay the panels out with \verb|\hfill|, as he
 A caption that runs to three lines would fill the List of Figures. Give \verb|\caption| a short
 title in brackets: the long form is printed with the figure, and the short form goes into the list.
 
-% \caption[short]{long}: the long form is printed here and the short one goes
-% into the list.
+% \caption[short]{long}.
 % Meets: Tagged PDF BPG 1.0.1 4.1.3 (Caption); ISO 32000-2:2020 14.8.4.8.4.
 \begin{figure}\centering
   \caption[A short title for the List of Figures]{A caption long enough to be
@@ -412,8 +374,8 @@ title in brackets: the long form is printed with the figure, and the short form 
 A diagram drawn in the document is a picture too. \texttt{tikz} takes the same
 \verb|alt| key, so the drawing is tagged Figure with alt text and needs no export step.
 
-% A drawing needs alt text just like a photograph. tikzpicture takes the alt
-% key directly. pgfplots does not tag, so export a plot as an image instead.
+% tikzpicture takes the alt key directly. pgfplots does not tag, so export a
+% plot as an image instead.
 % Meets: ISO 32000-2:2020 14.8.4.8.5 (Figure Alt); WCAG 2.1 1.1.1.
 \begin{figure}\centering
   \caption{A diagram drawn in the document with \texttt{tikz}}\label{fig:tikz}
@@ -432,10 +394,8 @@ in for one. When the picture has to stay, give it \verb|actualtext={...}|, the w
 themselves, and a reader hears the words. A picture that carries no information at all gets
 \verb|artifact|, and is skipped.
 
-% actualtext={...} holds the words in a picture of text; a screen reader reads
-% them instead. artifact marks a decorative picture, which is skipped. The
-% first picture stands in for a logo (essential under WCAG 2.1 1.4.5); redraw
-% any other picture of words as text.
+% actualtext={...}: the words in a picture of text, read in its place.
+% artifact: a decorative picture, skipped by every reader.
 % Meets: ISO 32000-2:2020 14.9.4 (ActualText); WCAG 2.1 1.4.5.
 {\centering\vspace{1ex}\includegraphics[height=0.8cm,actualtext={Clemson University}]{text-image}\par}
 {\centering\vspace{1ex}\includegraphics[width=0.35\linewidth,artifact]{ornament}\par}
@@ -452,10 +412,9 @@ into the document, where every reader can find it. Keep the description beside t
 when it runs to a few sentences; move it to an appendix when it is long or when many figures
 need one.
 
-% A complex image: alt states the point and says where the description is, and
-% the same numbers follow as text and as a table. The chart is placed at its
-% natural size, with no width key: scaling a vector graphic scales the type
-% inside it, and 0.62\linewidth took its 9 pt labels down to 6.9 pt.
+% alt states the point and says where the description is; the numbers follow
+% as text and as a table. No width key: scaling a vector graphic scales the
+% type inside it, and this chart's 9 pt labels must stay 9 pt.
 % Meets: Tagged PDF BPG 1.0.1 5.5.2 (Alt); Clemson text concept (9 pt floor).
 \begin{figure}\centering
   \caption[Visitors to four South Carolina destinations]{Visitors to four South
@@ -469,10 +428,9 @@ destinations. The vertical axis is ``Visitors (thousands)'' and runs from 0 to 1
 destinations drew more visitors than the two inland ones, and Myrtle Beach drew six times as
 many as Aiken. \autoref{tab:chartdata} lists the same numbers.
 
-% The chart's data is the description a reader can check, so it goes in a real
-% table with a header row and a header column rather than in a picture. The
-% short title has no \ref: in a List of Tables entry it would be a link inside
-% the entry's own link, which is not a legal pair of tags.
+% The chart's data goes in a real table with a header row and a header
+% column. The short title has no \ref: in a List of Tables entry it would be
+% a link inside the entry's own link.
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, Scope); WCAG 2.1 1.1.1.
 \begin{table}\centering
   \caption[The numbers behind the visitor chart]{The numbers behind
@@ -487,9 +445,9 @@ many as Aiken. \autoref{tab:chartdata} lists the same numbers.
   \end{tabular}
 \end{table}
 %---- Long description in appendix --------------------------------------------
-% The other pattern: the caption names the appendix and the appendix entry
-% names the figure, so a reader can follow the link either way. alt has no
-% \ref, because alt is written to the PDF as a plain string.
+% The caption names the appendix and the appendix entry names the figure, so
+% a reader can follow the link either way. alt has no \ref: alt is written to
+% the PDF as a plain string.
 % Meets: Tagged PDF BPG 1.0.1 5.5.2; WCAG 2.1 1.1.1.
 \begin{figure}\centering
   \caption[The cable wall, described in an appendix]{The cable wall in the
@@ -498,50 +456,41 @@ many as Aiken. \autoref{tab:chartdata} lists the same numbers.
 \end{figure}
 %---- Rule, language, abbreviation, color -------------------------------------
 \subsection{Decorative rules, other languages and abbreviations}
-Four small things that come up in any paper; the first two need a command, shown after the list.
-% A rule inside a paragraph is decoration. LaTeX 2026-11-01 marks \rule as an
-% artifact by itself; on 2026-06-01 the rule is content without text, which
-% no reader hears and veraPDF passes.
-% Meets: ISO 32000-2:2020 14.8.2.2 (artifacts); Tagged PDF BPG 1.0.1 3.7.
+Four small things that come up in any paper.
+% \rule is decoration: no reader hears it (LaTeX 2026-11-01 marks it as an
+% artifact, 2026-06-01 leaves it as content without text; both pass).
+% \foreignlanguage{french}{...} marks a phrase inside a paragraph: the
+% package wraps it in a Span with lang=fr and babel hyphenates it as French.
+% A whole passage goes in otherlanguage, after this list.
+% Meets: ISO 32000-2:2020 14.8.2.2 (artifacts), 14.9.2 (Lang); WCAG 2.1 3.1.2.
 \begin{description}
-  \item[A decorative rule] A rule that only separates words carries no meaning:
-    \rule{2cm}{0.4pt} and the sentence carries on after it.
-  % A foreign phrase needs its own /Lang so a screen reader changes voice.
-  % babel writes none; the clemson package wraps every \foreignlanguage phrase
-  % in a Span with lang=fr (inline, inside the paragraph), and babel hyphenates
-  % it as French. Whole paragraphs go in otherlanguage, shown after this list.
-  % Meets: ISO 32000-2:2020 14.9.2 (Lang); WCAG 2.1 3.1.2 (language of parts).
-  \item[A phrase in another language] The French for ``right away'' is
-    \foreignlanguage{french}{tout de suite}, tagged as a Span whose language is French.
-    A whole passage in another language is a block, not a phrase; the paragraph after
-    this list shows one.
+  \item[A decorative rule] \verb|\rule{2cm}{0.4pt}| draws a rule that only separates
+    words: \rule{2cm}{0.4pt} and the sentence carries on after it.
+  \item[A phrase in another language] \verb|\foreignlanguage{french}{tout de suite}|
+    gives \foreignlanguage{french}{tout de suite}, tagged as a Span whose language is
+    French. A whole passage in another language is a block, not a phrase; the paragraph
+    after this list shows one.
   \item[An abbreviation] Write it out the first time it appears: Americans with
-    Disabilities Act (ADA). PDF has an \verb|/E| attribute for an expansion, but it is not needed once the
-    expansion is in the text, where every reader gets it.
+    Disabilities Act (ADA). PDF has an \verb|/E| attribute for an expansion, but it is not
+    needed once the expansion is in the text, where every reader gets it.
   \item[Color] Color is never the only signal. \autoref{fig:chart} draws every bar in one
     shade and names each bar on the axis, so nothing depends on telling colors apart.
 \end{description}
 
-% A passage in another language is a block: otherlanguage with a blank line
-% before and after it. The package gives every paragraph, list, footnote or
-% heading inside the block its /Lang, and babel hyphenates it. Without the
-% blank lines the block joins the paragraph next to it and loses the tag.
+% A passage in another language: otherlanguage with a blank line before and
+% after it, so it is its own block. The package gives every paragraph, list,
+% footnote or heading inside it the language, and babel hyphenates it.
+% Without the blank lines the block joins the paragraph next to it and loses
+% the tag.
 % Meets: ISO 32000-2:2020 14.9.2 (Lang); WCAG 2.1 3.1.2 (language of parts).
-\noindent A whole paragraph in French, tagged as a block whose language is French:
+\noindent A whole paragraph in French, written as
+\verb|\begin{otherlanguage}{french} ... \end{otherlanguage}|:
 
 \begin{otherlanguage}{french}
 Un document accessible porte, en plus de la page imprim\'ee, un arbre de balises que le
 lecteur d'\'ecran suit; chaque passage dans une autre langue y porte sa propre \'etiquette de
 langue.
 \end{otherlanguage}
-
-\noindent The commands behind the rule, the phrase and the block, copied from the source of
-this file:
-\begin{verbatim}
-\rule{2cm}{0.4pt}
-\foreignlanguage{french}{tout de suite}
-\begin{otherlanguage}{french} ... \end{otherlanguage}
-\end{verbatim}
 
 %------------------------------------------------------------------------------
 % TABLE EXAMPLES
@@ -551,7 +500,7 @@ this file:
 A table is accessible when a reader can tell which cells are headers and what each header
 covers. Declare the header cells with \verb|\tagpdfsetup| before \verb|\begin{tabular}|, put the
 caption above the table, as above every figure in this file, and keep notes outside it. The
-nine layouts below, and the one caveat among them, cover the cases that come up in a thesis.
+layouts below cover the cases that come up in a thesis.
 
 % Layouts follow Clemson's tables guide:
 % https://www.clemson.edu/accessibility/digital/concepts/tables.html
@@ -561,7 +510,7 @@ nine layouts below, and the one caveat among them, cover the cases that come up 
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, Scope); Tagged PDF BPG 1.0.1 4.2.6.2.
 
 %---- Table: header row -------------------------------------------------------
-% 1. Simple table, header row: each cell in row 1 is a TH with Scope=Column.
+% 1. Header row: each cell in row 1 is a TH with Scope=Column.
 \begin{table}\centering
   \caption{Simple table: the first row is the header (column scope)}\label{tab:headerrow}
   \tagpdfsetup{table/header-rows={1}}
@@ -572,7 +521,7 @@ nine layouts below, and the one caveat among them, cover the cases that come up 
   \end{tabular}
 \end{table}
 %---- Table: header column ----------------------------------------------------
-% 2. Simple table, header column: each cell in column 1 is a TH with Scope=Row.
+% 2. Header column: each cell in column 1 is a TH with Scope=Row.
 \begin{table}\centering
   \caption[Simple table: the first column is the header]{Simple table: the first
     column is the header (row scope); the three data columns are trials 1 to 3}
@@ -596,11 +545,10 @@ nine layouts below, and the one caveat among them, cover the cases that come up 
   \end{tabular}
 \end{table}
 %---- Table: two-level, merged headers ----------------------------------------
-% 4. Complex table, multi-level header: two header rows; \multicolumn cells get
-% ColSpan automatically. table/multirow=2 makes the corner cell span both rows,
-% so the blank cell under it is not an empty header (leave that cell empty).
-% Set header-columns={1} too: without it the row labels are data cells, and
-% each number names its two column headers but not its method.
+% 4. Two header rows: declare both, and header-columns={1} so the row labels
+% are headers too. \multicolumn cells get ColSpan by themselves;
+% table/multirow=2 before the corner cell makes it span both rows, so the
+% blank cell under it is not an empty header (leave that cell empty).
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (Scope, ColSpan); Clemson complex tables.
 \begin{table}\centering
   \caption{Complex table: a two-level header with merged header cells}
@@ -616,11 +564,11 @@ nine layouts below, and the one caveat among them, cover the cases that come up 
   \end{tabular}
 \end{table}
 %---- Table: merged cells -----------------------------------------------------
-% 5. Complex table, merged data and header cells: a row header that spans two
-% rows (table/multirow=2, RowSpan=2) and a data cell that spans two columns
-% (ColSpan=2). A cell that spans rows AND columns takes the key inside the
-% \multicolumn text: \multicolumn{2}{l}{\tagpdfsetup{table/multirow=2}Text}.
-% Placed before \multicolumn, the key aborts the build.
+% 5. Merged cells: table/multirow=2 before a cell makes it span two rows
+% (RowSpan); \multicolumn spans columns (ColSpan). A cell that spans both
+% takes the key inside the \multicolumn text:
+% \multicolumn{2}{l}{\tagpdfsetup{table/multirow=2}Text}. Before
+% \multicolumn, the key aborts the build.
 \begin{table}\centering
   \caption{Complex table: merged cells carry their row and column spans}
   \tagpdfsetup{table/header-rows={1}, table/header-columns={1}}
@@ -636,9 +584,7 @@ nine layouts below, and the one caveat among them, cover the cases that come up 
 \end{table}
 %---- Table: one per group ----------------------------------------------------
 % 6. One table per group, as Clemson's tables guide recommends: each group
-% gets its own caption and header row, so nothing depends on a header row in
-% the middle of a table. The package writes each cell's Scope and Headers
-% directly, so Acrobat's Table Editor shows them.
+% gets its own caption and header row.
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, Scope, Headers); Clemson tables.
 \begin{table}\centering
   \caption{One table per group: fall semester}
@@ -659,11 +605,10 @@ nine layouts below, and the one caveat among them, cover the cases that come up 
   \end{tabular}
 \end{table}
 %---- Table: group rows -------------------------------------------------------
-% 7. Group rows. A header row after data rows ("Fall semester") heads the rows
-% below it up to the next group row, and the column headers in row 1 head
-% every row. Declare every header row (table/header-rows={1,2,5}), one
-% \multicolumn cell per group. Each data cell then lists its row header, its
-% group and its column header in /Headers, so a screen reader hears all three.
+% 7. Group rows: a header row in the middle ("Fall semester") heads the rows
+% below it up to the next one. Declare every header row
+% (table/header-rows={1,2,5}), one \multicolumn cell per group; each data
+% cell then lists its row header, its group and its column header.
 % Meets: ISO 32000-2:2020 14.8.5.7 (Headers); Clemson complex tables.
 \begin{table}\centering
   \caption{Group rows: a header row in the middle of the table}
@@ -679,9 +624,9 @@ nine layouts below, and the one caveat among them, cover the cases that come up 
   \end{tabular}
 \end{table}
 %---- Table: note outside, no empty cells -------------------------------------
-% 8. Title and notes outside the table; no empty data cells. The \caption is
-% the title; the List of Tables prints its short form. A note is a paragraph
-% after the table, not a row in it. A cell with no value says so ("n/a").
+% 8. Title and notes outside the table; no empty data cells. \caption is the
+% title. A note is a paragraph after the table, not a row in it. A cell with
+% no value says so ("n/a").
 \begin{table}\centering
   \caption[A table with no empty cells]{A table with no empty cells; its note
     follows as a paragraph}
@@ -695,31 +640,23 @@ nine layouts below, and the one caveat among them, cover the cases that come up 
 \noindent Note: the South site opened in 2025, so it has no 2024 value.
 
 %---- Long tables (caveat) ----------------------------------------------------
-% Caveat, not one of the nine layouts: a table that runs over a page break.
-% longtable keeps it one Table across pages, as the BPG asks, and repeats the
-% head as an artifact; but its \caption is tagged as a header cell, not as a
-% Caption (a latex-lab-table limit). Put the title in a paragraph before the
-% table until that is fixed. lscape and pdflscape are listed compatible.
+% A table that runs over a page break: longtable keeps it one Table across
+% pages and repeats the head as an artifact, but tags its \caption as a
+% header cell, not a Caption. Put the title in a paragraph before the table
+% until that is fixed. lscape and pdflscape are listed compatible.
 % Meets: Tagged PDF BPG 1.0.1 3.4 (content that spans pages).
 
 %---- Side by side, not a table -----------------------------------------------
-Two names side by side are not a table: they hold no data and no headers, and Clemson's tables
-guide says to use tables for data, not for layout. Clemson's reading-order guide gives two
-patterns for text set side by side. Tabs read left to right, then the next line; columns read
-top to bottom, then left to right. A \texttt{tabular} reads like tabs, row by row: with both
-names in its first row and both universities in its second, a screen reader reads ``First
-Author Second Author Clemson University Clemson University''. Each author in a
-\texttt{minipage}, as below, reads like columns, and each name is read with its own
-university. A \texttt{tabular} kept for layout gets
-\verb|\tagpdfsetup{table/tagging=presentation}| inside a group, the tagging project's
-documented choice for a layout table (it adds the ARIA role), or \verb|=div|; \verb|=false|
-suits only l, c and r columns. Acrobat's checker still reports a presentation table under
-its Headers rule, and each form still reads row by row.
+Two names side by side are not a table: they hold no data and no headers, and Clemson's
+tables guide keeps tables for data. A \texttt{tabular} used for layout is read row by row:
+``First Author Second Author Clemson University Clemson University''. Put each author in a
+\texttt{minipage} instead, as below; each one is read to its end, so every name is read with
+its own university.
 
-% 9. Side-by-side text: each author is a minipage, tagged Div and read to its
-% end before the next. Layout tabular: table/tagging=presentation (ARIA role)
-% or =div in a group (left open, it changes later tables); =false only for
-% l/c/r columns. Meets: ISO 32000-2:2020 14.8.2.5.1; Tagged PDF BPG 1.0.1 4.2.6.2.
+% 9. Side-by-side text: one minipage per column, tagged Div and read to its
+% end before the next. A tabular kept for layout needs
+% {\tagpdfsetup{table/tagging=presentation} ...} and still reads row by row.
+% Meets: ISO 32000-2:2020 14.8.2.5.1; Tagged PDF BPG 1.0.1 4.2.6.2.
 \begin{center}
 \begin{minipage}[t]{0.4\linewidth}\centering
   First Author\\ Clemson University
@@ -740,12 +677,9 @@ mark; an endnote is an item in a tagged list whose number links back to the mark
 mark links to the note, so a reader can follow either and come straight back. Footnote marks
 are arabic and endnote marks roman, so the two series cannot be confused.
 
-% Endnotes use enotez, which the package loads and configures. The mark links
-% to the note and the note's number links back; the list is tagged L/LI/LBody.
-% Rejected: the endnotes package (plain superscript marks, no Link or Ref, so
-% the note cannot be reached) and hand-rolled \hypertarget/\hyperlink pairs (a
-% Link both ways, but the list is plain text with no note structure or Ref).
-% Meets: ISO 32000-2:2020 14.8.4.7 (Link).
+% Endnotes come from enotez, which the package loads and sets up: the mark
+% links to the note, the note's number links back, and the list is tagged
+% L/LI/LBody. Meets: ISO 32000-2:2020 14.8.4.7 (Link).
 Write a footnote where it is needed, with \verb|\footnote{...}|,\footnote{The second
 footnote in the file; its mark is the arabic 2.} and an endnote in the same place in the
 text, with \verb|\endnote{...}|.\endnote{The second endnote. Inside a note, write
@@ -757,20 +691,15 @@ its own text and cannot sit inside the argument of another command.}
 %------------------------------------------------------------------------------
 %---- Appendix A: table, figure -----------------------------------------------
 \appendix
-% In the article class \appendix letters the sections but leaves floats
-% numbered straight through. \counterwithin adds the section letter and
-% restarts the count, giving Table A.1 and Figure A.1 as in the Word template.
-\counterwithin{figure}{section}
-\counterwithin{table}{section}
 \section{An appendix}
 \label{app:example}
 An appendix holds material that supports the text but would interrupt it: survey instruments,
-long tables of results, proofs, source code. Its sections are lettered, its figures and
-tables are numbered A.1, B.1 and so on, and it appears in the table of contents like any
-other section. Tables and figures in an appendix are tagged exactly as in the body.
+long tables of results, proofs, source code. \verb|\appendix| letters the sections that
+follow, and they appear in the table of contents like any other section. Tables and figures
+in an appendix are tagged exactly as in the body.
 
 \begin{table}\centering
-  \caption{A table in an appendix, numbered A.1}
+  \caption{A table in an appendix}
   \tagpdfsetup{table/header-rows={1}}
   \begin{tabular}{lr}
     \toprule Instrument & Responses \\ \midrule
@@ -780,7 +709,7 @@ other section. Tables and figures in an appendix are tagged exactly as in the bo
 \end{table}
 
 \begin{figure}\centering
-  \caption{A figure in an appendix, numbered A.1}
+  \caption{A figure in an appendix}
   \includegraphics[width=0.35\linewidth,alt={Coiled gray network cables on a beige pegboard wall, shown again here as an example of a figure inside an appendix.}]{cables}
 \end{figure}
 %---- Appendix B: image descriptions ------------------------------------------
