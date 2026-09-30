@@ -44,7 +44,7 @@ Copy the folder, write in `main.tex`. Its first lines:
   `\PassOptionsToPackage{...}{hyperref}` before it.
 - `report` gives chapters (`\chapter` is H2, `\section` H3). `book` works but has no abstract.
 - Title and authors: plain `\title` and `\author`, with `\and` between authors (one metadata
-  entry each).
+  entry each) and `\thanks{...}` on a name for a title-page footnote.
 - Build: `latexmk -lualatex main.tex`. Check: see Checking.
 
 ## What you write
@@ -256,9 +256,8 @@ Work on a copy.
 
 ## After a LaTeX update
 
-Build `example.tex` and run veraPDF on it; PASS and a log without tagging warnings mean the
-release still validates the whole example. Every block in `clemson.sty` that works around a LaTeX,
-hyperref, babel or lua-ul gap carries a `REMOVE WHEN` line with the condition and the issue
+Every block in `clemson.sty` that works around a LaTeX,
+hyperref, babel or lua-ul gap has a `REMOVE WHEN` line with the condition and the issue
 number: the float `\par` hooks (tagging issue 1532), the MathML file list (job names with a
 comma), the babel language tags (babel discussion 357, tagging issue 988), the table cell
 attributes (Discussion 930; the block checks each latex-lab name it reads and warns instead of

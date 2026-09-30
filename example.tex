@@ -50,11 +50,14 @@
 % TITLE, ABSTRACT, CONTENTS
 %------------------------------------------------------------------------------
 % Plain \title and \author. LaTeX writes both into the PDF metadata itself,
-% one author entry per \and. The package tags the printed title as the only
-% H1 and moves every heading down one level, so \section is H2.
+% one author entry per \and. \thanks hangs a footnote on a name or on the
+% title (funding, affiliation, corresponding author); LaTeX keeps it out of
+% the metadata. The package tags the printed title as the only H1 and moves
+% every heading down one level, so \section is H2.
 % Meets: ISO 32000-2:2020 14.8.4.5; ISO 14289-2:2024 8.11 (metadata).
 \title{Accessible LaTeX, quickly}
-\author{First Author \and Second Author}
+\author{First Author\thanks{Corresponding author. Supported by a university fellowship.}
+  \and Second Author}
 \date{\today}
 \begin{document}
 \maketitle
