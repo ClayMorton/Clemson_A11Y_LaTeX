@@ -32,6 +32,28 @@
 \graphicspath{{resources/}}
 \babelprovide[import]{french}
 
+%------------------------------------------------------------------------------
+% LOOK
+%------------------------------------------------------------------------------
+% The class's own templates (ltx-talk manual, section 15; its
+% header-footer-color and footer-text examples). Contrast: white on Clemson
+% purple 10.3:1, black on Clemson orange 6.8:1, purple on white 10.3:1
+% (WCAG 2.1 1.4.3). Footer text is \small, not the class's \tiny (Clemson
+% Digital Accessibility, Text: no type under 9 pt).
+\definecolor{clemsonpurple}{HTML}{522D80}
+\definecolor{clemsonorange}{HTML}{F56600}
+\definecolor{structure}{HTML}{522D80}
+\EditInstance{header}{std}{background-color = clemsonpurple, color = white}
+\EditInstance{footer}{std}{
+  background-color = clemsonorange,
+  color            = black,
+  font             = \small,
+  element-order    = {title, framenumber},
+  separator        = \hfill,
+}
+\EditInstance{titlepage-element}{title}{font = \LARGE\bfseries}
+\renewcommand{\labelitemfont}{\normalfont\color{clemsonpurple}}
+
 \title{Accessible LaTeX with the Clemson package}
 \subtitle{Plain LaTeX, one package, a PDF/UA-2 file}
 \author{Clay Morton}

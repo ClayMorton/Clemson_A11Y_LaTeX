@@ -288,4 +288,5 @@ the title H1 and each frame title H2; a deck that uses `\section` gets sections 
 titles at H3 (the class alone writes a Title element and H4 frame titles). Tables, pictures,
 links, notes and math work as in a document. A frame that holds `\verb` or `verbatim` is a
 `frame*`. `Clemson_LaTeX_Accessibility_Talk.tex` is a worked deck:
-`latexmk -lualatex Clemson_LaTeX_Accessibility_Talk.tex`.
+`latexmk -lualatex Clemson_LaTeX_Accessibility_Talk.tex`. Its LOOK block sets the Clemson colors,
+header and footer through the class's own templates; copy it into a deck that wants them.
