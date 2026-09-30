@@ -117,12 +117,17 @@ next section gives, for each kind of content, the rule, the reason and the `%---
 
 The package tags the printed title as the only H1 and moves every heading down one level:
 `\section` is H2, `\subsection` H3 and `\subsubsection` H4; in `report` and `book`, `\chapter` is
-H2, `\section` H3 and so on, as in the Graduate School's Word template. LaTeX's own choice is the
-PDF 2.0 Title element with `\section` as H1 (Tagged PDF BPG 1.0.1 4.2.2.2); both forms pass
-PDF/UA-2. The title plug works on the kernel's `\maketitle` and puts the whole title, even one
-written on two lines, in one H1; a class with its own title page (ClemsonThesis.cls) tags its title
-as ordinary text, and the document then has no H1. Use the heading commands in order and never skip a level: veraPDF has
-no rule on skipped levels, but Acrobat's checker and WCAG 2.1 technique G141 expect H1 then H2.
+H2, `\section` H3 and so on, as in the Graduate School's Word template. This is what Clemson's
+headings rule asks ("Headings should start with a level 1 heading (H1) and be nested in sequential
+order throughout") and what PDF/UA-1 7.4.2, the standard Acrobat's checker applies, requires ("If
+any heading tags are used, H1 shall be the first", and a sequence "shall not skip an intervening
+heading level"); WCAG 2.1 1.3.1 asks that the structure be programmatic. veraPDF's PDF/UA-2 rules
+do not test heading order, so this is one of the checks by hand. LaTeX's own default, a PDF 2.0
+Title element with `\section` as H1 (Tagged PDF BPG 1.0.1 4.2.2.2), passes veraPDF but not
+Clemson's rule. The title plug works on the kernel's `\maketitle` and puts the whole title, even
+one written on two lines, in one H1; a class with its own title page (ClemsonThesis.cls) tags its
+title as ordinary text, and the document then has no H1 and fails that rule. Use the heading
+commands in order and never skip a level.
 `\section*[Acknowledgments]{Acknowledgments}` gives a starred heading a contents entry and a
 bookmark (a kernel key; `toc=` and `bookmark=` set the two texts separately). In `article` and
 `report` the abstract is tagged as a Sect with an H2 heading under the H1 title and gets a
@@ -448,9 +453,9 @@ font, and the font passes every veraPDF font rule.
 | Behavior | Who does it | Clause |
 | --- | --- | --- |
 | Engine and release guard; no PDF without tagging | clemson.sty | ISO 14289-2:2024 6.2, 8.2.1 |
-| Title as the only H1; metadata title and author | clemson.sty (title plug); LaTeX 2026-06-01 | ISO 32000-2:2020 14.8.4.5; ISO 14289-2:2024 8.11 |
-| Headings H2 to H6, one level below the title; heading bookmarks; linked contents | clemson.sty (levels); LaTeX 2026-06-01 with hyperref | ISO 32000-2:2020 14.8.4.5, Annex M; Tagged PDF BPG 1.0.1 4.1.4 |
-| Abstract as Sect with an H2 heading; bookmarks for abstract, contents, list of figures and list of tables | clemson.sty | ISO 32000-2:2020 14.8.4.4; Tagged PDF BPG 1.0.1 7.2 |
+| Title as the only H1; metadata title and author | clemson.sty (title plug); LaTeX 2026-06-01 | Clemson Headings; ISO 14289-1:2014 7.4.2; WCAG 2.1 1.3.1; ISO 32000-2:2020 14.8.4.5; ISO 14289-2:2024 8.11 |
+| Headings H2 to H6, one level below the title, no skipped level; heading bookmarks; linked contents | clemson.sty (levels); LaTeX 2026-06-01 with hyperref | Clemson Headings; ISO 14289-1:2014 7.4.2; ISO 32000-2:2020 14.8.4.5, Annex M; Tagged PDF BPG 1.0.1 4.1.4 |
+| Abstract as Sect with an H2 heading; bookmarks for abstract, contents, list of figures and list of tables | clemson.sty | Clemson Headings; ISO 32000-2:2020 14.8.4.4; Tagged PDF BPG 1.0.1 7.2 |
 | Lists L, LI, Lbl, LBody | LaTeX 2026-06-01 | ISO 32000-2:2020 14.8.4.8.2 |
 | Tables TH, TD, Scope and spans as attribute classes | LaTeX 2026-06-01, from the author's keys | ISO 32000-2:2020 14.8.4.8.3 |
 | Scope, ColSpan, RowSpan and Headers as direct attributes on every `tabular` cell (for Acrobat and PAC; no standard requires the copies, Headers matter for group rows) | clemson.sty (TABLE CELLS) | ISO 32000-2:2020 14.8.4.8.3, Table 384; ISO 14289-2:2024 8.2.5.26 |
