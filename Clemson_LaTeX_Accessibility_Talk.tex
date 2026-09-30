@@ -2,14 +2,12 @@
 % !TEX TS-program = lualatex
 
 % Clemson_LaTeX_Accessibility_Talk.tex: the kit's examples as slides, one
-% example per frame with its source beside it. Build: latexmk -lualatex
-% Clemson_LaTeX_Accessibility_Talk.tex. Check as README.md says.
-% Frames follow the PDF Association's webinar deck of 2026-06-16 (ltx-talk).
-% A frame that holds \verb or verbatim is a frame*, as that deck does.
-% The comments inside the frames are the speaker notes.
-% \pause is fine here: the class tags only the last slide of a frame and
-% marks the earlier slides as artifacts (ltx-talk manual 14.3), so a screen
-% reader reads each frame once; the footer shows the frame number.
+% example per frame with its source beside it.
+% Build: latexmk -lualatex Clemson_LaTeX_Accessibility_Talk.tex
+% Check: verapdf --flavour ua2 --format text Clemson_LaTeX_Accessibility_Talk.pdf
+% A frame that holds \verb or verbatim is a frame*. The comments inside the
+% frames are the speaker notes. \pause is fine: the class tags only a frame's
+% last slide (ltx-talk manual 14.3).
 
 %------------------------------------------------------------------------------
 % METADATA AND CLASS
@@ -104,8 +102,7 @@
 
 \begin{frame}
   \frametitle{What the package does}
-  % Everything else is plain LaTeX. The full list is in README.md under
-  % "Commands and settings the package defines or changes".
+  % Everything else is plain LaTeX.
   \begin{itemize}
     \item Stops the build when tagging is off
     \item Puts every formula's MathML in the tag tree
@@ -938,8 +935,7 @@ grep -n -A2 '^!\|tagpdf Warning\|clemson' \
 %------------------------------------------------------------------------------
 \begin{frame*}
   \frametitle{Copy the kit and write}
-  % main.tex is the blank starter, example.tex the worked example, README.md
-  % the instructions.
+  % main.tex is the blank starter, example.tex the worked example.
   \begin{enumerate}
     \item \verb|\DocumentMetadata| above \verb|\documentclass|; your packages, then
       \verb|\usepackage{clemson}|

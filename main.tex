@@ -1,61 +1,40 @@
 % !TEX program = lualatex
 % !TEX TS-program = lualatex
 
-% main.tex: your document. Build it with latexmk -lualatex main.tex and check
-% it with verapdf --flavour ua2 --format text main.pdf and the log lines
-% README.md names.
-% example.tex has every kind of content, tagged and explained. Find the block
-% you need by its banner line (search for "%----") and copy it here.
+% main.tex: your document. Build: latexmk -lualatex main.tex
+% Check: verapdf --flavour ua2 --format text main.pdf
+% example.tex shows every kind of content; copy the block you need.
 
 %------------------------------------------------------------------------------
 % METADATA AND CLASS
 %------------------------------------------------------------------------------
-% Keep this block above \documentclass: it turns tagging on and names the
-% standard. Meets: ISO 14289-2:2024 8.11 (metadata).
+% Above \documentclass: turns tagging on and names the standards.
 \DocumentMetadata{
-  % The language of the whole PDF, written to /Lang. Phrases in another
-  % language are marked in the text; example.tex shows how.
-  lang          = en-US,
-  % Declares PDF/UA-2, the accessibility standard for PDF 2.0. veraPDF checks
-  % the file against it with --flavour ua2.
-  pdfstandard   = {ua-2,a-4f},
-  % Turns tagging on; pdfstandard alone does not, and LaTeX would write an
-  % untagged PDF with no warning. The clemson package stops the build instead.
-  tagging       = on,
-  % Appends a report on the loaded packages near the end of main.log;
-  % sections 1 and 2 name packages to replace.
-  check-tagging-status,
+  lang          = en-US,   % the language of the whole PDF
+  pdfstandard   = {ua-2,a-4f}, % PDF/UA-2 and PDF/A-4f
+  tagging       = on,      % or the package stops the build
+  check-tagging-status,    % a package report at the end of the log
 }
-% Use report for chapters (\chapter becomes H2, \section H3). book works too
-% but has no abstract, so delete the abstract below.
+% report gives chapters (\chapter is H2, \section H3).
 \documentclass{article}
 
 %------------------------------------------------------------------------------
 % PACKAGES
 %------------------------------------------------------------------------------
-% Add only what you use; README.md ("Packages by field") says which packages
-% tag correctly and which to avoid; example.tex loads the ones for chemistry,
-% units, algorithms and drawings.
-\usepackage{booktabs}          % \toprule, \midrule and \bottomrule in tables
+% Supported packages: https://latex3.github.io/tagging-project/tagging-status/
+\usepackage{booktabs}
 
-% The kit's package, after your other packages: it loads hyperref, which its
-% manual asks to load last, and babel with the main language from lang=
-% above. A package that must follow hyperref (cleveref) goes after this line.
+% The kit's package, after your other packages (it loads hyperref last).
 \usepackage{clemson}
-% Pictures: LaTeX looks beside this file first, then in resources/.
 \graphicspath{{resources/}}
 
-% Other languages: one \babelprovide line each, after the package. babel
-% hyphenates them and the package writes their language tags.
+% Other languages: one \babelprovide line each, after the package.
 % \babelprovide[import]{french}
 
 %------------------------------------------------------------------------------
 % TITLE AND ABSTRACT
 %------------------------------------------------------------------------------
-% LaTeX writes the title and the authors into the PDF metadata itself (the
-% window title, and the first thing a screen reader reads); separate authors
-% with \and, one metadata entry each.
-% The package tags the printed title as the only H1 and \section as H2.
+% LaTeX writes the title and the authors into the metadata; \and between authors.
 \title{Title of the document}
 \author{First Author \and Second Author}
 \date{\today}
@@ -70,7 +49,6 @@ One paragraph that says what the document is about.
 %------------------------------------------------------------------------------
 % CONTENTS AND LISTS
 %------------------------------------------------------------------------------
-% Uncomment the ones the document needs; each gets a bookmark from the package.
 % \tableofcontents
 % \listoffigures
 % \listoftables
@@ -79,20 +57,14 @@ One paragraph that says what the document is about.
 % BODY
 %------------------------------------------------------------------------------
 \section{Introduction}
-Write here. Use \verb|\section|, \verb|\subsection| and \verb|\subsubsection| in order
-and never skip a level. Give every picture alt text and declare the header cells of every
-table; \texttt{example.tex} shows both.
+Write here. Use \verb|\section|, \verb|\subsection| and \verb|\subsubsection| in order.
+Give every picture alt text and declare the header cells of every table.
 
 %------------------------------------------------------------------------------
 % ENDNOTES AND BIBLIOGRAPHY
 %------------------------------------------------------------------------------
-% \printendnotes prints the endnotes written with \endnote and nothing when
-% there are none. Uncomment the two bibliography lines once something is
-% cited; with no \cite they print an empty References heading. Entries go in
-% references.bib; latexmk runs BibTeX. VS Code runs it once you add
-% "% !BIB program = bibtex" and "% !BIB TS-program = bibtex" under line 2. In
-% TeXShop, run Typeset, BibTeX, Typeset, Typeset by hand.
-
+% \printendnotes prints the endnotes, nothing when there are none. Uncomment
+% the bibliography lines once something is cited; entries go in references.bib.
 \printendnotes
 % \bibliographystyle{plain}
 % \bibliography{references}
