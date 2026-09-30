@@ -4,8 +4,8 @@
 % What you write; the package cannot do these for you (details in README.md):
 %   1. % !TEX program = lualatex  on the first line, so editors pick LuaLaTeX.
 %   2. \DocumentMetadata{lang=en-US, pdfstandard=ua-2, tagging=on,
-%        tagging-setup={math/setup=mathml-SE}, check-tagging-status}
-%      above \documentclass. It turns tagging on and names the standard.
+%        check-tagging-status} above \documentclass. It turns tagging on and
+%      names the standard.
 %   3. \usepackage{clemson} after your other packages; it loads hyperref. A
 %      package that must follow hyperref (cleveref) goes after it, and a
 %      hyperref option that works only at load time goes in
@@ -15,8 +15,9 @@
 % What the package does, with article, report, book or a class built on them:
 % stops the build unless LuaLaTeX, LaTeX 2026-06-01 or newer and
 % \DocumentMetadata with tagging are in use (tagging=draft builds, with a
-% warning); loads unicode-math (the right characters in LaTeX's MathML),
-% defines theorem, lemma, proposition, corollary, definition, example, remark
+% warning); puts every formula's MathML in the tag tree and loads unicode-math
+% (its characters); defines theorem, lemma, proposition, corollary, definition,
+% example, remark
 % and algorithm (LaTeX supplies amsthm's commands itself under tagging), loads
 % enotez (endnotes), graphicx, float ([H] placement), babel (add languages
 % with \babelprovide), hyperref and lua-ul (links that leave the document
@@ -85,6 +86,13 @@
 % fontspec, which defines \strong. Meets: ISO 14289-2:2024 8.2.5.29.1 (MathML;
 % Math in PDF BPG 1.0 p. 4).
 \IfPackageLoadedTF{lua-unicode-math}{\RequirePackage{fontspec}}{\RequirePackage{unicode-math}}
+% Every formula's MathML goes into the tag tree as structure elements
+% (mathml-SE), the form the tagging project and the Math BPG put first and
+% the one Acrobat hands to a screen reader; LaTeX's own default attaches a
+% file per formula instead. A document that also wants the file writes
+% \tagpdfsetup{math/setup={mathml-SE,mathml-AF}} after this package.
+% Meets: ISO 14289-2:2024 8.2.5.29.1 (MathML; Math in PDF BPG 1.0 pp. 4-5).
+\tagpdfsetup{math/setup=mathml-SE}
 % \strong (fontspec) is tagged Strong through the kernel's inline socket, the
 % way LaTeX tags \emph as Em; \textbf only changes the letters, so bold used
 % for meaning is lost to a screen reader. Keep it to words in a sentence; the

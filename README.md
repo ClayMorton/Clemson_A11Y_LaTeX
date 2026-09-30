@@ -25,7 +25,6 @@ Copy the folder, write in `main.tex`. Its first lines:
   lang          = en-US,
   pdfstandard   = ua-2,
   tagging       = on,
-  tagging-setup = {math/setup=mathml-SE},
   check-tagging-status,
 }
 \documentclass{article}
@@ -39,8 +38,7 @@ Copy the folder, write in `main.tex`. Its first lines:
 - `\DocumentMetadata` goes above `\documentclass`. `lang` is the document language (ISO
   14289-2:2024 8.4.4). `pdfstandard=ua-2` declares the standard. `tagging=on` turns tagging on;
   `pdfstandard` alone does not, and LaTeX then writes an untagged PDF without a word, so the
-  package stops instead. `tagging-setup` puts the MathML of every formula in the tag tree.
-  `check-tagging-status` adds a package report to the log.
+  package stops instead. `check-tagging-status` adds a package report to the log.
 - `\usepackage{clemson}` comes after the other packages: it loads hyperref, which its manual asks
   to load last. `cleveref` goes after it. A hyperref option that works only at load time goes in
   `\PassOptionsToPackage{...}{hyperref}` before it.
@@ -65,7 +63,8 @@ Everything else is the package or LaTeX.
 
 - Stops the build unless LuaLaTeX, LaTeX 2026-06-01 or newer and `\DocumentMetadata` with
   tagging are in use (`tagging=draft` builds and warns at the end).
-- Loads unicode-math, graphicx, float, enotez, babel, hyperref and lua-ul.
+- Puts every formula's MathML in the tag tree; loads unicode-math, graphicx, float, enotez,
+  babel, hyperref and lua-ul.
 - Tags the title as the only H1, every heading one level down, the abstract as a Sect with an H2
   (Clemson Headings page; ISO 14289-1:2014 7.4.2; Graduate School template).
 - Keeps each figure and table in the tag tree where it is written and prints it there (`[H]`).
@@ -106,7 +105,7 @@ Changed:
   (`\chapter*` with chapters).
 - babel: loaded with no options; the main language comes from `lang`; two babel hooks add the
   language tags.
-- tagpdf keys: `float/here`; `math/mathml/sources` set again when the job name has a comma and
+- tagpdf keys: `math/setup=mathml-SE`; `float/here`; `math/mathml/sources` set again when the job name has a comma and
   files are read; roles `sec/N/title` one level down; the `title` socket plug `clemson-h1`; the
   table finalize plug `Table` replaced by a copy that also writes the cell attributes; NoteType
   added in the `fntext` hook.
@@ -145,8 +144,9 @@ Each item names the `%----` banner in `example.tex` that shows it.
   fixed in 2026-11-01).
 - Lists. `itemize`, `enumerate`, `description` are tagged; `\begin{enumerate}[label=(\alph*)]`
   is a kernel key; `enumitem` cannot be loaded. Two levels at most. "Lists".
-- Mathematics. `mathml-SE` puts MathML in the tag tree (the form Acrobat passes to a screen
-  reader); `math/setup={mathml-SE,mathml-AF}` also attaches the file Foxit and Firefox read.
+- Mathematics. The package puts every formula's MathML in the tag tree (`mathml-SE`, the form
+  Acrobat passes to a screen reader); `\tagpdfsetup{math/setup={mathml-SE,mathml-AF}}` after
+  the package also attaches the file Foxit and Firefox read.
   Write `\symbf{v}`, `\symbfit{v}`, `\symcal{A}`; `bm` does not work with unicode-math, and
   `amssymb` after the package stops the build (load it before). Numbered `multline` warns (issue
   1407; use `multline*`). `\MathMLintent{mean($x)}{{...}}` names what a formula means. "Inline

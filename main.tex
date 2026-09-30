@@ -11,7 +11,7 @@
 % METADATA AND CLASS
 %------------------------------------------------------------------------------
 % Keep this block above \documentclass: it turns tagging on and names the
-% standard. Meets: ISO 14289-2:2024 8.11 (metadata), 8.2.5.29 (MathML).
+% standard. Meets: ISO 14289-2:2024 8.11 (metadata).
 \DocumentMetadata{
   % The language of the whole PDF, written to /Lang. Phrases in another
   % language are marked in the text; example.tex shows how.
@@ -22,9 +22,6 @@
   % Turns tagging on; pdfstandard alone does not, and LaTeX would write an
   % untagged PDF without a word. The clemson package stops the build instead.
   tagging       = on,
-  % Writes the MathML of every formula into the tag tree as structure
-  % elements, the recommended form; LaTeX's default attaches files instead.
-  tagging-setup = {math/setup=mathml-SE},
   % Appends a report on the loaded packages near the end of main.log;
   % sections 1 and 2 name packages to replace.
   check-tagging-status,
