@@ -75,8 +75,8 @@ Everything else is the package or LaTeX.
 - Keeps the MathML file list right when the file name holds a comma.
 - Tags every `\foreignlanguage` phrase, `otherlanguage` block and `\selectlanguage` switch.
 - Footnotes: adds NoteType Footnote; 9 pt note text, 7 pt marks.
-- Links: black, underlined by LaTeX (as artifacts), no viewer box; the contents lists and the
-  footnote and endnote marks stay plain.
+- Links: black, no viewer box; links that leave the document (`\href`, `\url`, `\email`) are
+  underlined by LaTeX (as artifacts); links inside the document read as text.
 - Tags `\strong` as Strong; bookmarks the contents lists; lists the bibliography in the
   contents; sets `\autoref` names; defines `\email`; ends proofs with QED.
 
@@ -113,8 +113,7 @@ Changed:
   table finalize plug `Table` replaced by a copy that also writes the cell attributes; NoteType
   added in the `fntext` hook.
 - Kernel hooks, no command redefined: `cmd/strong/before|after`; `env/figure|table|figure*|table*/begin`;
-  `cmd/href|url/before|after`; `hyp/link/link` (declared here; footnote and endnote links are
-  skipped by their destination name) and `hyp/link/cite`;
+  `cmd/href|url/before|after`;
   `cmd/tableofcontents|listoffigures|listoftables/before`; `env/thebibliography/before` with
   `cmd/section|chapter/after`; `fntext`; `fntext/para`; `begindocument/before`.
 
@@ -160,11 +159,10 @@ Each item names the `%----` banner in `example.tex` that shows it.
 - Footnotes and endnotes. `\footnote{...}` and `\endnote{...}`; `\printendnotes` prints the list
   where it stands (nothing when there are none). "Emphasis, footnote, endnote".
 - Links. Name the destination, never "click here". `\href{url}{words}`, `\url{...}`,
-  `\email{...}`, `\autoref{sec:x}` ("Section 3"). Every link is underlined except the contents
-  lists and the footnote and endnote marks. To drop the underlines, remove the package's code
-  from `hyp/link/link`, `hyp/link/cite`, `cmd/href/before`, `cmd/href/after`, `cmd/url/before`
-  and `cmd/url/after`, and drop `\hypersetup{pdfborder={0 0 0}}`, or the links get no cue at
-  all. "Links, citations", "Cross-references".
+  `\email{...}`, `\autoref{sec:x}`. Links that leave the document are underlined; links inside
+  it are not. To drop the underlines, remove the package's code from `cmd/href/before`,
+  `cmd/href/after`, `cmd/url/before` and `cmd/url/after`. "Links, citations",
+  "Cross-references".
 - Language. After the package, one `\babelprovide[import]{french}` per extra language. A phrase:
   `\foreignlanguage{french}{...}` (one paragraph at most). A passage: `otherlanguage` with a blank
   line before and after it. A `\usepackage[french]{babel}` line with options must come before the

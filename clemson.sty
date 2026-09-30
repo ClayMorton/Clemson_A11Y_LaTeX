@@ -19,8 +19,8 @@
 % defines theorem, lemma, proposition, corollary, definition, example, remark
 % and algorithm (LaTeX supplies amsthm's commands itself under tagging), loads
 % enotez (endnotes), graphicx, float ([H] placement), babel (add languages
-% with \babelprovide), hyperref and lua-ul (links underlined by LaTeX, black,
-% plain in the contents);
+% with \babelprovide), hyperref and lua-ul (links that leave the document
+% underlined by LaTeX; all links black, no viewer box);
 % tags the title as the only H1 with the headings one level down and the
 % abstract as a Sect with an H2; keeps each figure and table in the tag tree
 % where it is written; writes Scope, spans and Headers on the cells of every
@@ -751,8 +751,8 @@
 % \ref, \cite, \href, \url and contents entry a link; LaTeX tags each one as
 % Link (inside Reference for citations and contents entries) with a structure
 % destination and /Tabs /S: ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3. No
-% viewer box: UNDERLINES underlines the text, as Clemson's Links page
-% requires, so every viewer shows the link and none relies on color alone.
+% viewer box: UNDERLINES underlines the links that leave the document, as
+% Clemson's Links page requires; links inside the document read as text.
 % Meets: Clemson Digital Accessibility, Links; WCAG 2.1 SC 1.4.1 (G182).
 \RequirePackage{hyperref}
 \hypersetup{pdfborder={0 0 0}}
@@ -764,14 +764,12 @@
 %------------------------------------------------------------------------------
 % UNDERLINES
 %------------------------------------------------------------------------------
-% Links are underlined by lua-ul, with the rule its \underLine draws by
-% default, in the text itself: under the descenders, across line breaks and
-% at the size of the current font. The switch runs in hyperref's own link
-% hooks (hyp/link/link is declared here; hyperref declares only the cite one)
-% and in a group around \href and \url. The contents and the two lists stay
-% plain, since every line there is a link. Clemson's Links page requires
-% underlined links; drawn in the page, the underline shows in every viewer
-% and in print, which a viewer-drawn border does not.
+% Links that leave the document (\href, \url, \email) are underlined by
+% lua-ul, with the rule its \underLine draws by default, in the text itself:
+% under the descenders, across line breaks, at the size of the current font,
+% in every viewer and in print. Links inside the document (\ref, \autoref,
+% \cite, contents entries, note marks) read as text. The switch runs in
+% hyperref's own hooks around \href and \url.
 % Meets: Clemson Digital Accessibility, Links; WCAG 2.1 SC 1.4.1 (G182).
 \RequirePackage{lua-ul}
 \newunderlinetype\clemson@underline{\leaders\vrule height -.65ex depth .75ex}
@@ -786,35 +784,10 @@
   { \tag_mc_end_push: \tag_mc_begin:n { artifact }
     \clemson@underline \tag_mc_end: \tag_mc_begin_pop:n { } }
 \ExplSyntaxOff
-\newif\ifclemson@ul
-\clemson@ultrue
-% Footnote and endnote marks and the endnotes' back-links stay plain (Clemson
-% style). They come through the same hook as every other internal link, so
-% the hook reads the link's destination name, which hyperref stores in
-% \l_hyp_current_dest_name_tl (a footnote link's name holds "footnote", an
-% enotez link's "enz."), and skips those.
-\ExplSyntaxOn
-\str_new:N \l__clemson_dest_str
-\cs_new_protected:Npn \clemson@ullink
-  {
-    \str_set:Ne \l__clemson_dest_str { \l_hyp_current_dest_name_tl }
-    \str_if_in:NnF \l__clemson_dest_str { footnote }
-      { \str_if_in:NnF \l__clemson_dest_str { enz. } { \clemson@ulon } }
-  }
-\ExplSyntaxOff
-\IfHookExistsTF{hyp/link/link}{}{\NewHook{hyp/link/link}}
-\AddToHook{hyp/link/link}{\ifclemson@ul\clemson@ullink\fi}
-\AddToHook{hyp/link/cite}{\ifclemson@ul\clemson@ulon\fi}
-\AddToHook{cmd/href/before}{\begingroup\ifclemson@ul\clemson@ulon\fi}
+\AddToHook{cmd/href/before}{\begingroup\clemson@ulon}
 \AddToHook{cmd/href/after}{\endgroup}
-\AddToHook{cmd/url/before}{\begingroup\ifclemson@ul\clemson@ulon\fi}
+\AddToHook{cmd/url/before}{\begingroup\clemson@ulon}
 \AddToHook{cmd/url/after}{\endgroup}
-\AddToHook{cmd/tableofcontents/before}{\clemson@ulfalse}
-\AddToHook{cmd/tableofcontents/after}{\clemson@ultrue}
-\AddToHook{cmd/listoffigures/before}{\clemson@ulfalse}
-\AddToHook{cmd/listoffigures/after}{\clemson@ultrue}
-\AddToHook{cmd/listoftables/before}{\clemson@ulfalse}
-\AddToHook{cmd/listoftables/after}{\clemson@ultrue}
 % \email{addr} is a mailto link whose visible text is the address, so a
 % screen reader hears the address (Clemson Links page: use the address as
 % the link text); \detokenize keeps an underscore in the address from
