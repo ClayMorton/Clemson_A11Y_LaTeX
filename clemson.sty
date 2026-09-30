@@ -27,8 +27,9 @@
 % tabular (not longtable or layout tables); sets left-aligned text (option
 % justified turns that off); tags \strong and babel language switches; keeps
 % the MathML file list right when the file name holds a comma; adds NoteType
-% to footnotes; adds bookmarks for the front matter, \autoref names, \email
-% and the word QED at the end of a proof. The rest is LaTeX's own tagging.
+% to footnotes; adds bookmarks for the front matter and the bibliography,
+% \email and the word QED at the end of a proof. The rest is LaTeX's own
+% tagging.
 % Meets: ISO 14289-2:2024 (PDF/UA-2) machine rules, checked with veraPDF
 % --flavour ua2; the checks by hand in README.md cover the rest.
 \NeedsTeXFormat{LaTeX2e}
@@ -740,10 +741,7 @@
 % 9 points)"; no ISO or WCAG clause sets a size, so the rule is Clemson's.
 % \footnotesize becomes \small everywhere: footnotes, \thanks, the endnote
 % list and any \footnotesize text or table (10 and 10.95 pt with 11pt, 12pt).
-% At 9 pt the script size goes from LaTeX's 6 pt to 7 pt, the size of the
-% marks in 10 pt text; raised marks and scripts stay below 9 pt.
 \renewcommand{\footnotesize}{\small}
-\DeclareMathSizes{9}{9}{7}{5}
 %------------------------------------------------------------------------------
 % LINKS
 %------------------------------------------------------------------------------
@@ -819,13 +817,4 @@
   \addcontentsline{toc}{section}{\ifdefined\refname\refname\else\bibname\fi}\fi}
 \AddToHook{cmd/chapter/after}[./bookmark]{\ifclemson@bib\clemson@bibfalse
   \addcontentsline{toc}{chapter}{\bibname}\fi}
-% \autoref{label} makes the whole phrase the link ("Section 3", "Figure 1").
-% hyperref's English names for sections are lowercase, and babel re-applies
-% its names each time the main language is selected, so the capitalized ones
-% go into that language's extras (babel and hyperref manuals); the other
-% names are hyperref's own. \ref in a sentence already meets WCAG 2.1 SC
-% 2.4.4 (Level A); the whole phrase helps SC 2.4.9 (Level AAA).
-\expandafter\addto\csname extras\mainlocalename\endcsname{%
-  \def\sectionautorefname{Section}\def\subsectionautorefname{Section}%
-  \def\subsubsectionautorefname{Section}\def\chapterautorefname{Chapter}}
 \endinput

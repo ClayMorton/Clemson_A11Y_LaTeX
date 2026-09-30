@@ -74,11 +74,11 @@ Everything else is the package or LaTeX.
 - Endnotes (enotez): marks link to notes and back, a numbered list, "Notes" in the contents.
 - Keeps the MathML file list right when the file name holds a comma.
 - Tags every `\foreignlanguage` phrase, `otherlanguage` block and `\selectlanguage` switch.
-- Footnotes: adds NoteType Footnote; 9 pt note text, 7 pt marks.
+- Footnotes: adds NoteType Footnote; 9 pt note text.
 - Links: black, no viewer box; links that leave the document (`\href`, `\url`, `\email`) are
   underlined by LaTeX (as artifacts); links inside the document read as text.
 - Tags `\strong` as Strong; bookmarks the contents lists; lists the bibliography in the
-  contents; sets `\autoref` names; defines `\email`; ends proofs with QED.
+  contents; defines `\email`; ends proofs with QED.
 
 ## Commands and settings the package defines or changes
 
@@ -96,14 +96,12 @@ Changed:
   (`\renewcommand{\qedsymbol}{\openbox}` after the package brings the square back.)
 - `abstract` (article, report): the class's own layout inside a Sect with an H2 heading and a
   bookmark.
-- `\footnotesize` is `\small`; at 9 pt the script size is 7 pt (`\DeclareMathSizes{9}{9}{7}{5}`).
+- `\footnotesize` is `\small` (9 pt notes).
 - `\raggedright` at `\begin{document}`, with the class's `\parindent` kept and `\\` a plain line
   break; the same in footnotes. Option `justified` turns it off.
 - Default float placement `H` for `figure` and `table`; `figure*` and `table*` float in one column.
 - hyperref: `pdfborder={0 0 0}`; `\strong` is allowed in bookmark text.
-- `\autoref` names Section and Chapter (added to babel's names for the main language) and the
-  theorem-like names above; hyperref's own names for figures, tables, equations, appendices,
-  footnotes and items stay.
+- `\autoref` names for the theorem-like environments above; hyperref's own names stay.
 - enotez: `backref=true`, an enumerate list, roman marks, heading through `\section*[Notes]{Notes}`
   (`\chapter*` with chapters).
 - babel: loaded with no options; the main language comes from `lang`; two babel hooks add the
