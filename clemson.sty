@@ -788,8 +788,22 @@
 \ExplSyntaxOff
 \newif\ifclemson@ul
 \clemson@ultrue
+% Footnote and endnote marks and the endnotes' back-links stay plain (Clemson
+% style). They come through the same hook as every other internal link, so
+% the hook reads the link's destination name, which hyperref stores in
+% \l_hyp_current_dest_name_tl (a footnote link's name holds "footnote", an
+% enotez link's "enz."), and skips those.
+\ExplSyntaxOn
+\str_new:N \l__clemson_dest_str
+\cs_new_protected:Npn \clemson@ullink
+  {
+    \str_set:Ne \l__clemson_dest_str { \l_hyp_current_dest_name_tl }
+    \str_if_in:NnF \l__clemson_dest_str { footnote }
+      { \str_if_in:NnF \l__clemson_dest_str { enz. } { \clemson@ulon } }
+  }
+\ExplSyntaxOff
 \IfHookExistsTF{hyp/link/link}{}{\NewHook{hyp/link/link}}
-\AddToHook{hyp/link/link}{\ifclemson@ul\clemson@ulon\fi}
+\AddToHook{hyp/link/link}{\ifclemson@ul\clemson@ullink\fi}
 \AddToHook{hyp/link/cite}{\ifclemson@ul\clemson@ulon\fi}
 \AddToHook{cmd/href/before}{\begingroup\ifclemson@ul\clemson@ulon\fi}
 \AddToHook{cmd/href/after}{\endgroup}
