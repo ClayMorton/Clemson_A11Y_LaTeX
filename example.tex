@@ -57,12 +57,6 @@
 % \foreignlanguage phrase (one paragraph at most) and every otherlanguage
 % block or \selectlanguage switch. Meets: WCAG 2.1 3.1.2 (language of parts).
 \babelprovide[import]{french}
-% LaTeX tags caption and theorem numbers Lbl, as PDF/UA-2 and the Tagged PDF
-% BPG expect. Acrobat's checker (PDF/UA-1) reports every Lbl outside a list as
-% "Lbl and LBody - Failed", a false positive. Uncomment to get Span instead.
-% \AssignStructureRole{float/figure/label}{Span}
-% \AssignStructureRole{float/table/label}{Span}
-% \AssignStructureRole{block/theorem-like/label}{Span}
 
 %------------------------------------------------------------------------------
 % TITLE, ABSTRACT, CONTENTS
@@ -445,13 +439,10 @@ themselves, and a reader hears the words. A picture that carries no information 
 % actualtext={...} holds the words in a picture of text; a screen reader reads
 % them instead. artifact marks a decorative picture, which is skipped. The
 % first picture stands in for a logo (essential under WCAG 2.1 1.4.5); redraw
-% any other picture of words as text. The artifact's own line has paragraph
-% tagging off, since a paragraph holding only an artifact is an empty tag.
+% any other picture of words as text.
 % Meets: ISO 32000-2:2020 14.9.4 (ActualText); WCAG 2.1 1.4.5.
 {\centering\vspace{1ex}\includegraphics[height=0.8cm,actualtext={Clemson University}]{text-image}\par}
-\begingroup\tagpdfsetup{para/tagging=false}%
-{\centering\vspace{1ex}\includegraphics[width=0.35\linewidth,artifact]{ornament}\par}%
-\endgroup
+{\centering\vspace{1ex}\includegraphics[width=0.35\linewidth,artifact]{ornament}\par}
 
 \noindent The first image above is a picture of words, so a screen reader says ``Clemson
 University'' instead of naming a file. The rule below it is decoration: it is marked as
@@ -512,16 +503,13 @@ many as Aiken. \autoref{tab:chartdata} lists the same numbers.
 %---- Rule, language, abbreviation, color -------------------------------------
 \subsection{Decorative rules, other languages and abbreviations}
 Four small things that come up in any paper; the first two need a command, shown after the list.
-% A rule inside a paragraph is decoration, so it is marked as an artifact. In
-% Lua mode the artifact state is global, so \tagmcend must be followed at once
-% by \tagmcbegin{tag=text}; without it the rest of the paragraph is written as
-% an artifact and lost. Both are documented tagpdf commands. LaTeX 2026-11-01
-% marks \rule as an artifact by itself, so these three commands can then go.
+% A rule inside a paragraph is decoration. LaTeX 2026-11-01 marks \rule as an
+% artifact by itself; on 2026-06-01 the rule is content without text, which
+% no reader hears and veraPDF passes.
 % Meets: ISO 32000-2:2020 14.8.2.2 (artifacts); Tagged PDF BPG 1.0.1 3.7.
 \begin{description}
   \item[A decorative rule] A rule that only separates words carries no meaning:
-    \tagmcbegin{artifact}\rule{2cm}{0.4pt}\tagmcend%
-    \tagmcbegin{tag=text} and the sentence carries on after it.
+    \rule{2cm}{0.4pt} and the sentence carries on after it.
   % A foreign phrase needs its own /Lang so a screen reader changes voice.
   % babel writes none; the clemson package wraps every \foreignlanguage phrase
   % in a Span with lang=fr (inline, inside the paragraph), and babel hyphenates
@@ -554,8 +542,7 @@ langue.
 \noindent The commands behind the rule, the phrase and the block, copied from the source of
 this file:
 \begin{verbatim}
-\tagmcbegin{artifact}\rule{2cm}{0.4pt}\tagmcend%
-\tagmcbegin{tag=text}
+\rule{2cm}{0.4pt}
 \foreignlanguage{french}{tout de suite}
 \begin{otherlanguage}{french} ... \end{otherlanguage}
 \end{verbatim}
@@ -734,19 +721,17 @@ suits only l, c and r columns. Acrobat's checker still reports a presentation ta
 its Headers rule, and each form still reads row by row.
 
 % 9. Side-by-side text: each author is a minipage, tagged Div and read to its
-% end before the next. Paragraph tagging is off in the group, so no empty P;
-% keep both \par (else the para hooks differ). Other text there is an artifact.
-% Layout tabular: table/tagging=presentation (ARIA role) or =div in a group
-% (left open, it changes later tables); =false only for l/c/r columns.
-% Meets: ISO 32000-2:2020 14.8.2.5.1; Tagged PDF BPG 1.0.1 3.5, 4.2.6.2.
-\par\begingroup\tagpdfsetup{para/tagging=false}\centering
+% end before the next. Layout tabular: table/tagging=presentation (ARIA role)
+% or =div in a group (left open, it changes later tables); =false only for
+% l/c/r columns. Meets: ISO 32000-2:2020 14.8.2.5.1; Tagged PDF BPG 1.0.1 4.2.6.2.
+\begin{center}
 \begin{minipage}[t]{0.4\linewidth}\centering
   First Author\\ Clemson University
 \end{minipage}\hspace{1em}%
 \begin{minipage}[t]{0.4\linewidth}\centering
   Second Author\\ Clemson University
-\end{minipage}\par
-\endgroup
+\end{minipage}
+\end{center}
 \noindent Never nest a table inside a table; split it into two tables instead.
 
 %------------------------------------------------------------------------------
