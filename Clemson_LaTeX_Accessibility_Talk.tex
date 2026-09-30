@@ -32,27 +32,16 @@
 \graphicspath{{resources/}}
 \babelprovide[import]{french}
 
-%------------------------------------------------------------------------------
-% LOOK
-%------------------------------------------------------------------------------
-% The class's own templates (ltx-talk manual, section 15; its
-% header-footer-color and footer-text examples). Contrast: white on Clemson
-% purple 10.3:1, black on Clemson orange 6.8:1, purple on white 10.3:1
-% (WCAG 2.1 1.4.3). Footer text is \small, not the class's \tiny (Clemson
-% Digital Accessibility, Text: no type under 9 pt).
+% The look: the class's own templates (ltx-talk manual, section 15; its
+% header-footer-color and footer-text examples): a Clemson purple band with
+% white frame titles, a footer with the title and the frame number.
+% Contrast: white on purple 10.3:1 (WCAG 2.1 SC 1.4.3). Footer text \small
+% (Clemson Digital Accessibility, Text: no type under 9 pt).
 \definecolor{clemsonpurple}{HTML}{522D80}
-\definecolor{clemsonorange}{HTML}{F56600}
 \definecolor{structure}{HTML}{522D80}
 \EditInstance{header}{std}{background-color = clemsonpurple, color = white}
-\EditInstance{footer}{std}{
-  background-color = clemsonorange,
-  color            = black,
-  font             = \small,
-  element-order    = {title, framenumber},
-  separator        = \hfill,
-}
+\EditInstance{footer}{std}{font = \small, color = black, element-order = {title, framenumber}, separator = \hfill}
 \EditInstance{titlepage-element}{title}{font = \LARGE\bfseries}
-\renewcommand{\labelitemfont}{\normalfont\color{clemsonpurple}}
 
 \title{Accessible LaTeX with the Clemson package}
 \subtitle{Plain LaTeX, one package, a PDF/UA-2 file}
@@ -493,8 +482,6 @@ a state is $\ket{0}$.
     \begin{column}[t]{.55\textwidth}
 \small
 \begin{verbatim}
-\usepackage{algpseudocode}
-...
 \begin{algorithm}[Find the largest
   value]\label{alg:max}
   Input: $a_1,\dots,a_n$.
@@ -902,11 +889,11 @@ grep -n -A2 '^!\|tagpdf Warning\|clemson' \
       your packages, then \verb|\usepackage{clemson}|.
     \item Write plain LaTeX: \verb|\section| in order, \verb|\autoref|,
       \verb|\emph| and \verb|\strong|.
-    \item Give every picture \texttt{alt=} and every table its header cells.
-    \item Build with latexmk, check with veraPDF and the five checks by hand.
+    \item Give every picture \texttt{alt=} and every table its header cells;
+      build with latexmk, then check with veraPDF and the five checks by hand.
   \end{enumerate}
 
-  \bigskip
+  \medskip
 
   The kit: \url{https://github.com/ClayMorton/Clemson_A11Y_LaTeX}.
   \texttt{main.tex} is the blank starter, \texttt{example.tex} the worked
