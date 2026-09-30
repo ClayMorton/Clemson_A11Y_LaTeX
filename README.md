@@ -99,8 +99,9 @@ What the package does: it stops the build unless LuaLaTeX, LaTeX 2026-06-01 or n
 unicode-math, which gives LaTeX's MathML the right characters; defines the environments theorem,
 lemma, proposition, corollary, definition, example, remark and algorithm (LaTeX supplies amsthm's
 commands itself under tagging); loads enotez for endnotes, graphicx, float with `[H]` as the
-default placement, babel (add languages with `\babelprovide`), hyperref and lua-ul (links
-underlined by LaTeX, black, plain in the contents); tags the title as the only H1 with the headings
+default placement, babel (add languages with `\babelprovide`), tocbibind (the bibliography in the
+contents), hyperref and lua-ul (links underlined by LaTeX, black, plain in the contents); tags the
+title as the only H1 with the headings
 one level down, and the abstract as a Sect with an H2; keeps each figure and table in the tag tree
 where it is written; writes Scope, spans and Headers on the cells of every `tabular`; sets
 left-aligned text; tags `\strong` and babel's language switches; keeps the MathML file list right
@@ -308,8 +309,12 @@ footnotes and items. A name of your own for a section-level counter goes into
 `\addto\extrasamerican{...}` (for `lang=en-US`). `\tableofcontents`, `\listoffigures` and
 `\listoftables` print starred headings with no outline entry, so the package adds a bookmark
 before each (at chapter level in `report` and `book`, where it also turns the page first, so the
-bookmark points at the heading's page) and one inside the abstract. Banners: "Links, citations",
-"Cross-references".
+bookmark points at the heading's page) and one inside the abstract. The bibliography's starred
+heading gets its contents entry and bookmark from `tocbibind`, which the package loads with the
+options `nottoc,notlof,notlot`; a `\phantomsection` and `\addcontentsline` pair before
+`\bibliography` is not needed and would aim the entry at the element before the heading. Without
+those three options the contents and the two lists appear in the contents themselves, as in the
+Graduate School template. Banners: "Links, citations", "Cross-references".
 
 ### Language
 
@@ -510,7 +515,9 @@ Work on a copy of the project.
    options must come before it); delete `polyglossia`. `\newtheorem` lines in the preamble can
    stay, because the package skips every theorem environment the preamble defines; a
    `\graphicspath` line stays as it is; a `\pdfbookmark` line before `\tableofcontents` goes,
-   since the package adds that bookmark. Keep the rest, including `amsmath`. Add
+   since the package adds that bookmark, and so does a `\phantomsection` plus `\addcontentsline`
+   pair before `\bibliography`, since the package (tocbibind) lists the bibliography with the
+   entry aimed at its heading. Keep the rest, including `amsmath`. Add
    `\usepackage{clemson}` after the other `\usepackage` lines (`cleveref`, if used, goes after
    it); keep `\title` and `\author` as they are unless the title has a comma. A
    class of your own built on `article`, `report` or `book` can stay; journal classes are listed
