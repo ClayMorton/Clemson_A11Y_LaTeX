@@ -214,6 +214,37 @@
 \NewTaggingSocketPlug{title}{clemson-h1}
   {\tagstructbegin{tag=H1}\AssignStructureRole{para/textblock}{Span}#2\tagstructend}
 \AssignTaggingSocketPlug{title}{clemson-h1}
+% A11Y WORKAROUND: at the last page LaTeX 2026-06-01 hands the text of \title
+% to hyperref's pdftitle key without braces, and that key reads a comma list
+% (one title per language), so "A, B" reaches dc:title as "A". This chunk
+% runs first and sets the key from the same text inside braces, as the
+% 2026-11-01 kernel does; the kernel's chunk then finds it set and skips.
+% REMOVE WHEN: LaTeX 2026-11-01 is the installed release (tagging issue 1594).
+% Meets: ISO 14289-2:2024 8.11.1 (dc:title in the XMP metadata).
+\ExplSyntaxOn
+\IfFormatAtLeastTF { 2026-11-01 } { }
+  {
+    \str_new:N \l__clemson_title_str
+    \AddToHook { shipout/lastpage } [ clemson/title ]
+      {
+        \tl_if_empty:eT { \GetDocumentProperty { hyperref/pdftitle } }
+          {
+            \group_begin:
+            \cs_set_eq:NN \thanks \use_none:n
+            \str_set:Ne \l__clemson_title_str
+              { \text_purify:n { \g__tag_title_title_tl } }
+            \str_if_empty:NF \l__clemson_title_str
+              {
+                \keys_set:ne { hyp }
+                  { pdftitle = {{ \exp_not:V \l__clemson_title_str }} }
+              }
+            \group_end:
+          }
+      }
+    \DeclareHookRule { shipout/lastpage } { clemson/title } { before }
+      { latex-lab-testphase-title }
+  }
+\ExplSyntaxOff
 
 %------------------------------------------------------------------------------
 % ABSTRACT
