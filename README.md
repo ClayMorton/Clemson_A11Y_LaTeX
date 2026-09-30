@@ -26,7 +26,7 @@ file:
 % !TEX TS-program = lualatex
 \DocumentMetadata{
   lang          = en-US,
-  pdfstandard   = ua-2,
+  pdfstandard={UA-2,A-4f}
   tagging       = on,
   check-tagging-status,
 }
