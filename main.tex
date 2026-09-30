@@ -100,14 +100,15 @@ table; \texttt{example.tex} shows both.
 % ENDNOTES AND BIBLIOGRAPHY
 %------------------------------------------------------------------------------
 % \printendnotes prints the endnotes written with \endnote and nothing when
-% there are none. Uncomment the two bibliography lines once something is
-% cited; with no \cite they print an empty References heading, which the
-% package lists in the contents and bookmarks. Entries go in references.bib;
-% latexmk runs BibTeX. VS Code runs it once you add "% !BIB program = bibtex"
-% and "% !BIB TS-program = bibtex" under line 2. In TeXShop, run Typeset,
-% BibTeX, Typeset, Typeset by hand.
+% there are none. Uncomment the four bibliography lines
+% once something is cited; with no \cite they print an empty References
+% heading. Entries go in references.bib; latexmk runs BibTeX. VS Code runs it
+% once you add "% !BIB program = bibtex" and "% !BIB TS-program = bibtex"
+% under line 2. In TeXShop, run Typeset, BibTeX, Typeset, Typeset by hand.
 
 \printendnotes
+% \phantomsection
+% \addcontentsline{toc}{section}{\refname}  % report/book: {chapter}{\bibname}
 % \bibliographystyle{plain}
 % \bibliography{references}
 \end{document}

@@ -823,9 +823,11 @@ equipment in service.
 % reader looks for the notes. It also adds "Notes" to the contents.
 \printendnotes
 
-% The bibliography heading is a starred section; the package (tocbibind) lists
-% it in the contents and bookmarks it, with the entry aimed at the heading.
-% Meets: ISO 14289-2:2024 8.2.5.8 (TOCI Ref); Tagged PDF BPG 1.0.1 4.1.4, 7.2.
+% The bibliography heading is a starred section, so \phantomsection puts a link
+% target here and \addcontentsline lists it in the contents.
+% Meets: ISO 32000-2:2020 14.8.4.5 (headings); Tagged PDF BPG 1.0.1 4.1.4.
+\phantomsection
+\addcontentsline{toc}{section}{\refname}
 \bibliographystyle{plain}
 \bibliography{references}
 \end{document}

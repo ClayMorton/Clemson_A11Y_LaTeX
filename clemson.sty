@@ -754,14 +754,6 @@
 % viewer box: UNDERLINES underlines the text, as Clemson's Links page
 % requires, so every viewer shows the link and none relies on color alone.
 % Meets: Clemson Digital Accessibility, Links; WCAG 2.1 SC 1.4.1 (G182).
-% The bibliography prints a starred heading with no contents entry and no
-% bookmark, and a \phantomsection before it points the entry at the element
-% before the heading. tocbibind (listed compatible) writes the entry after
-% the heading, so the contents line and the bookmark reach the heading. The
-% three options keep the contents and the two lists out of the contents;
-% without them the entries appear there, as in the Graduate School template.
-% Meets: ISO 14289-2:2024 8.2.5.8 (TOCI Ref); Tagged PDF BPG 1.0.1 4.1.4, 7.2.
-\RequirePackage[nottoc,notlof,notlot]{tocbibind}
 \RequirePackage{hyperref}
 \hypersetup{pdfborder={0 0 0}}
 % \strong in a section title stops the build ("Use of \bookmark doesn't
