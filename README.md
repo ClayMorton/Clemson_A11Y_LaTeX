@@ -16,7 +16,9 @@ comment on each block and the clause it meets), `references.bib` and `resources/
 
 ## Quick start
 
-Copy the folder, write in `main.tex`. Its first lines:
+Copy the folder, write in `main.tex`. Or, if converting an older project,
+drop in clemson.sty, and copy these lines at the very top of your main .tex 
+file:
 
 ```latex
 % !TEX program = lualatex
@@ -28,7 +30,7 @@ Copy the folder, write in `main.tex`. Its first lines:
   check-tagging-status,
 }
 \documentclass{article}
-\usepackage{booktabs}          % your packages
+\usepackage{booktabs}          % your packages (use only tag-supporting pacakges)
 \usepackage{clemson}           % after your packages
 \graphicspath{{resources/}}
 \title{Title of the document}
@@ -45,9 +47,11 @@ Copy the folder, write in `main.tex`. Its first lines:
 - `report` gives chapters (`\chapter` is H2, `\section` H3). `book` works but has no abstract.
 - Title and authors: plain `\title` and `\author`, with `\and` between authors (one metadata
   entry each) and `\thanks{...}` on a name for a title-page footnote.
-- Build: `latexmk -lualatex main.tex`. Check: see Checking.
+- Build: `latexmk -lualatex main.tex`. (in VSCode with latex compilations set to
+"on save" this will automatically be done using the magic comments at the top
+of your .tex file)
 
-## What you write
+## What you have to write
 
 1. `% !TEX program = lualatex` on the first line.
 2. The `\DocumentMetadata` block above.
@@ -55,18 +59,21 @@ Copy the folder, write in `main.tex`. Its first lines:
    picture of text; `artifact` for decoration.
 4. The header cells of every table: `\tagpdfsetup{table/header-rows={1}}` or
    `table/header-columns={1}` (or both) on the line before `\begin{tabular}`, inside the `table`
-   environment; `\tagpdfsetup{table/multirow=2}` at the start of a cell that spans rows.
+   environment; `\tagpdfsetup{table/multirow=2}` at the start of a cell that spans rows. See the
+   examples in example.tex for more complex examples and proper coding practices.
+5. Remove any bracketed arguments on figures (i.e. `[!hbt]`) so that the package
+can ensure that they go to the proper place in the reading order and tag tree.
 
 Everything else is the package or LaTeX.
 
-## What the package does
+## What the package does for accessibility in LaTeX
 
 - Stops the build unless LuaLaTeX, LaTeX 2026-06-01 or newer and `\DocumentMetadata` with
   tagging are in use (`tagging=draft` builds and warns at the end).
 - Puts every formula's MathML in the tag tree; loads unicode-math, graphicx, float, enotez,
   babel, hyperref and lua-ul.
 - Tags the title as the only H1, every heading one level down, the abstract as a Sect with an H2
-  (Clemson Headings page; ISO 14289-1:2014 7.4.2; Graduate School template).
+  (See Clemson Headings page; ISO 14289-1:2014 7.4.2).
 - Keeps each figure and table in the tag tree where it is written and prints it there (`[H]`).
 - Writes Scope, ColSpan, RowSpan and Headers as direct attributes on every `tabular` cell.
 - Left-aligns text, footnotes included, and keeps the class's paragraph indent.
@@ -77,17 +84,21 @@ Everything else is the package or LaTeX.
 - Links: black, no viewer box; links that leave the document (`\href`, `\url`, `\email`) are
   underlined by LaTeX (as artifacts); links inside the document read as text.
 - Tags `\strong` as Strong; bookmarks the contents lists; lists the bibliography in the
-  contents; defines `\email`; ends proofs with QED.
+  contents; defines `\email`; ends proofs with QED (you can change this if you
+  would like, however most screen readers will not read "end of proof" so QED
+  is a safer way to ensure the reader knows the proof is ending).
 
 ## Commands and settings the package defines or changes
 
 New:
 
-- `\email{address}`: a mailto link whose text is the address.
+- `\email{address}`: a mailto link whose text is the address. (shorthand command
+added in for your convenience)
 - Environments `theorem`, `lemma`, `proposition`, `corollary`, `definition`, `example` and
-  `remark` (one counter) and `algorithm`, each only if the preamble has not defined it. Each is
-  also its `\autoref` name ("Lemma 2").
-- Package option `justified`: keeps LaTeX's justified text.
+  `remark` (one counter) and `algorithm`, each of these only if the preamble has not defined it. Each is
+  also its `\autoref` name ("Lemma 2") this allows you to write faster and keep
+  your preamble shorter.
+- Package option `justified`: keeps LaTeX's justified text if you want it.
 
 Changed:
 
@@ -104,7 +115,8 @@ Changed:
 - enotez: `backref=true`, an enumerate list, roman marks, heading through `\section*[Notes]{Notes}`
   (`\chapter*` with chapters).
 - babel: loaded with no options; the main language comes from `lang`; two babel hooks add the
-  language tags.
+  language tags. This allows you to tag inline language changes for proper screen
+  reader pronunciation (See example doc)
 - tagpdf keys: `math/setup=mathml-SE`; `float/here`; `math/mathml/sources` set again when the job name has a comma and
   files are read; roles `sec/N/title` one level down; the `title` socket plug `clemson-h1`; the
   table finalize plug `Table` replaced by a copy that also writes the cell attributes; NoteType
@@ -121,7 +133,8 @@ definitions `clemson/theorems`.
 
 ## Writing the document
 
-Each item names the `%----` banner in `example.tex` that shows it.
+Each item has the `%----` banner in `example.tex` so you can easily identify
+each type of item quickly (or use `ctrl + f`)
 
 - Headings. Use `\section`, `\subsection`, `\subsubsection` in order; never skip a level.
   `\section*[Acknowledgments]{Acknowledgments}` gives a starred heading a contents entry and a
@@ -202,9 +215,7 @@ header, underlines or reading order, so these checks by hand are part of conform
 4. Link text names the destination; Tab reaches every link.
 5. Nothing is said by color alone; 4.5:1 contrast for text, 3:1 for graphics.
 
-A screen reader (NVDA with Firefox or Acrobat) is the final test.
-
-Acrobat's checker tests PDF/UA-1. It reports "Lbl and LBody - Failed" for every caption number,
+KNOWN ISSUE: Acrobat's checker tests PDF/UA-1. It reports "Lbl and LBody - Failed" for every caption number,
 theorem number and footnote mark: LaTeX tags them Lbl as ISO 32000-2:2020 Table 368 and the Tagged
 PDF BPG expect, and Acrobat applies its list rule outside lists. It is a false positive; veraPDF
 passes. "Headers" fails on a layout table tagged presentation. The Tags panel shows LaTeX's names
