@@ -295,4 +295,6 @@ links, notes and math work as in a document. A frame that holds `\verb` or `verb
 frame number in the footer) is set in the deck through the class's own header, footer and title
 templates; copy that block into a deck that wants it. The spectrum theme from TeX Live draws its
 title page inside a `picture`, which becomes a Figure with no real alt text and no H1, so it is
-not used.
+not used. `\pause` is fine: the class tags only the last slide of a frame and marks the earlier
+slides as artifacts (ltx-talk manual 14.3), so a screen reader reads each frame once, and the page
+labels carry the frame number.

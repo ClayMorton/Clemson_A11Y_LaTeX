@@ -6,6 +6,10 @@
 % Clemson_LaTeX_Accessibility_Talk.tex. Check as README.md says.
 % Frames follow the PDF Association's webinar deck of 2026-06-16 (ltx-talk).
 % A frame that holds \verb or verbatim is a frame*, as that deck does.
+% The comments inside the frames are the speaker notes.
+% \pause is fine here: the class tags only the last slide of a frame and
+% marks the earlier slides as artifacts (ltx-talk manual 14.3), so a screen
+% reader reads each frame once; the footer shows the frame number.
 
 %------------------------------------------------------------------------------
 % METADATA AND CLASS
@@ -60,22 +64,24 @@
 %------------------------------------------------------------------------------
 \begin{frame*}
   \frametitle{The preamble}
-  An untagged PDF looks normal and fails the check, and LaTeX
-  writes one with no warning (ISO 14289-2:2024 8.11; LaTeX tagging status list).
+  % An untagged PDF looks normal and fails the check, and LaTeX writes one
+  % with no warning (ISO 14289-2:2024 8.11). The block goes above
+  % \documentclass. lang: the language of the whole PDF. pdfstandard: declares
+  % PDF/UA-2. tagging: on, or the package stops the build. check-tagging-status:
+  % a package report at the end of the log. The package comes last because it
+  % loads hyperref.
+  An untagged PDF looks normal and fails the check.
 
   \medskip
 
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
       \begin{itemize}
-        \item \texttt{lang}: the language of the whole PDF
-        \item \texttt{pdfstandard}: declares PDF/UA-2
-        \item \texttt{tagging}: turns tagging on; the package stops the build
-          when it is off
-        \item \texttt{check-tagging-status}: a package report at the end of
-          the log
-        \item The package comes after the other packages: it loads hyperref,
-          which must come last
+        \item \texttt{lang}: the whole PDF
+        \item \texttt{pdfstandard}: PDF/UA-2
+        \item \texttt{tagging}: on, or the build stops
+        \item \texttt{check-tagging-status}: a report in the log
+        \item The package comes last
       \end{itemize}
     \end{column}
     \begin{column}[t]{.55\textwidth}
@@ -98,22 +104,22 @@
 
 \begin{frame}
   \frametitle{What the package does}
+  % Everything else is plain LaTeX. The full list is in README.md under
+  % "Commands and settings the package defines or changes".
   \begin{itemize}
-    \item Stops the build when tagging is off; warns on \texttt{tagging=draft}
-    \item Loads hyperref, unicode-math and babel; writes every formula's
-      MathML into the tag tree
-    \item Tags the title as the only H1 and moves every heading one level down
-    \item Keeps every figure and table where it is written, caption first
-    \item Writes the scope and the headers of every table cell
-    \item Underlines web and email links; defines \texttt{\textbackslash email}
-    \item Tags footnotes as notes and foreign phrases with their language;
-      defines theorem, lemma, proof and friends
-    \item Sets the text ragged right; \texttt{[justified]} keeps it justified
+    \item Stops the build when tagging is off
+    \item Puts every formula's MathML in the tag tree
+    \item Title H1, every heading one level down
+    \item Figures and tables where they are written, caption first
+    \item Scope and headers on every table cell
+    \item Web and email links underlined; \texttt{\textbackslash email}
+    \item Notes, other languages, theorems and proofs tagged
+    \item Text ragged right (\texttt{[justified]} to keep it justified)
   \end{itemize}
 
   \medskip
 
-  Everything else is plain LaTeX: nothing to learn, nothing to work around.
+  Everything else is plain LaTeX.
 \end{frame}
 
 %------------------------------------------------------------------------------
@@ -121,22 +127,23 @@
 %------------------------------------------------------------------------------
 \begin{frame*}
   \frametitle{Title, authors, headings}
-  A screen reader uses headings to move around, so the title is the only H1
-  and no level is skipped (Clemson Digital Accessibility, Headings; PDF/UA-1
-  7.4.2).
+  % A screen reader moves by headings, so the title is the only H1 and no
+  % level is skipped (Clemson Digital Accessibility, Headings; PDF/UA-1
+  % 7.4.2). In a document: title H1, \section H2, \subsection H3. In this
+  % deck: title H1, frame title H2. Only the title text is the heading;
+  % authors and date are paragraphs. \thanks adds a footnote to a name and
+  % stays out of the metadata. Nothing to write: the package sets the levels.
+  One H1, no skipped level.
 
   \medskip
 
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
-      In a document: title H1, \verb|\section| H2, \verb|\subsection| H3. In
-      this deck: title H1, frame title H2. Only the title text is
-      the heading; authors and date are paragraphs.
-
-      \medskip
-
-      \verb|\thanks| adds a footnote to a name; LaTeX leaves it out of the
-      metadata. The package sets the levels; nothing to write.
+      \begin{itemize}
+        \item Document: title H1, \verb|\section| H2, \verb|\subsection| H3
+        \item Deck: title H1, frame title H2
+        \item \verb|\thanks|: a footnote, kept out of the metadata
+      \end{itemize}
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -159,25 +166,25 @@
 %------------------------------------------------------------------------------
 \begin{frame*}
   \frametitle{Emphasis and notes}
-  Emphasis, notes, links and lists have their own tags, so a
-  screen reader says what each one is, not just its letters (ISO 32000-2:2020
-  14.8.4.7, 14.8.4.8.2).
+  % \emph and \strong are tagged; \textbf only changes how letters look and
+  % a screen reader does not report it (ISO 32000-2:2020 14.8.4.7). A
+  % footnote is tagged as a note; its mark links to it and the note links
+  % back. Long asides go in an endnote, printed near the end of a document.
+  Tags say what a thing is, not how it looks.
 
   \medskip
 
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
-      Use \verb|\emph| for \emph{emphasis} and \verb|\strong| for
-      \strong{important text}; both are tagged, while \verb|\textbf| only
-      changes how letters are drawn.\footnote{A footnote is tagged as a note;
-      its mark links to it and the note links back.} A long aside goes in an
-      endnote, printed near the end of a document.
+      \emph{Emphasis} and \strong{important text} are tagged;
+      \verb|\textbf| is not.\footnote{A footnote: mark and note link to each
+      other.} Long asides go in an endnote.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
 \begin{verbatim}
-Use \emph{emphasis} and
-\strong{important text}.
+\emph{Emphasis} and
+\strong{important text} are tagged.
 A footnote.\footnote{A note at
   the foot of the page.}
 An aside.\endnote{Printed near
@@ -191,19 +198,17 @@ An aside.\endnote{Printed near
 
 \begin{frame*}
   \frametitle{Links}
+  % A link's text names the destination, never "click here". The package
+  % underlines web and email links in the text itself; links inside the
+  % document (citations, cross-references) are not underlined (Clemson
+  % Digital Accessibility, Links). \email is the package's command.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
-      A link has its own text, so name the destination:
-      \href{https://www.clemson.edu/accessibility/}{Clemson accessibility}, or
-      print the address, \url{https://verapdf.org/}. Write an email address
-      with \verb|\email|: \email{first.last@clemson.edu}.
+      \href{https://www.clemson.edu/accessibility/}{Clemson accessibility}
 
-      \medskip
+      \url{https://verapdf.org/}
 
-      The package underlines web and email links in the text itself, so every
-      viewer shows it. Links inside the document, such as citations and
-      cross-references, are not underlined (Clemson Digital Accessibility,
-      Links).
+      \email{first.last@clemson.edu}
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -215,16 +220,21 @@ An aside.\endnote{Printed near
 \end{verbatim}
     \end{column}
   \end{columns}
+
+  \medskip
+
+  Name the destination. External links are underlined; internal ones are not.
 \end{frame*}
 
 \begin{frame*}
   \frametitle{Cross-references}
+  % \autoref makes the whole phrase one link, so a screen reader reads
+  % "Theorem 1", not a bare number, and it stays right when the text moves.
+  % The package names theorem-like blocks for \autoref.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
-      Write \verb|\autoref| rather than ``the section above'': the whole
-      phrase is one link, and a screen reader reads ``Theorem 1'', not a bare
-      number. See \autoref{thm:one} on page~\pageref{thm:one},
-      \autoref{alg:max} and Equation~\eqref{eq:gauss}.
+      See \autoref{thm:one} on page~\pageref{thm:one}, \autoref{alg:max} and
+      Equation~\eqref{eq:gauss}.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -234,22 +244,23 @@ page~\pageref{thm:one},
 \autoref{alg:max} and
 Equation~\eqref{eq:gauss}.
 \end{verbatim}
-      Theorem-like blocks work too: the package names each one for
-      \verb|\autoref|.
     \end{column}
   \end{columns}
+
+  \medskip
+
+  \verb|\autoref|: the whole phrase is the link, and it reads as ``Theorem 1''.
 \end{frame*}
 
 \begin{frame*}
   \frametitle{Lists}
+  % Every list is tagged with a label and a body per item. The kernel's
+  % label key replaces enumitem, which is incompatible with tagging.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
-      Every list is tagged with a label and a body per item. The kernel's
-      \texttt{label} key replaces enumitem, which is incompatible with
-      tagging.
       \begin{enumerate}[label=(\alph*)]
         \item Lettered items come from a kernel key.
-        \item The letters are labels, not typed-in text.
+        \item The letters are labels, not typed text.
       \end{enumerate}
       \begin{description}
         \item[Alt text] What a picture shows and why it is there.
@@ -262,7 +273,7 @@ Equation~\eqref{eq:gauss}.
   \item Lettered items come from
     a kernel key.
   \item The letters are labels,
-    not typed-in text.
+    not typed text.
 \end{enumerate}
 \begin{description}
   \item[Alt text] What a picture
@@ -271,20 +282,23 @@ Equation~\eqref{eq:gauss}.
 \end{verbatim}
     \end{column}
   \end{columns}
+
+  \medskip
+
+  \texttt{label=} is a kernel key; enumitem is incompatible with tagging.
 \end{frame*}
 
 \begin{frame*}
   \frametitle{Quotations, special characters, code}
+  % quote is tagged BlockQuote. Reserved characters take a backslash. A
+  % command in a sentence goes in \verb; a block goes in verbatim, tagged as
+  % code, one code line per line. LaTeX tags all of this by itself.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
-      A quotation longer than a line goes in \texttt{quote}, tagged
-      BlockQuote:
       \begin{quote}
         Tagging writes down what each part of a document is.
       \end{quote}
-      Reserved characters take a backslash: 100\%, R\&D. A command in a
-      sentence goes in \verb|\verb|; a block of code goes in
-      \texttt{verbatim}, tagged as code, one code line per line.
+      Reserved characters: 100\%, R\&D. A command in a sentence: \verb|\emph|.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -293,13 +307,15 @@ Equation~\eqref{eq:gauss}.
   Tagging writes down what each
   part of a document is.
 \end{quote}
-Reserved characters take a
-backslash: 100\%, R\&D. A command
-in a sentence goes in \verb|\emph|.
+Reserved characters: 100\%, R\&D.
+A command in a sentence: \verb|\emph|.
 \end{verbatim}
-      LaTeX tags all of this by itself.
     \end{column}
   \end{columns}
+
+  \medskip
+
+  LaTeX tags all of this by itself.
 \end{frame*}
 
 %------------------------------------------------------------------------------
@@ -307,26 +323,26 @@ in a sentence goes in \verb|\emph|.
 %------------------------------------------------------------------------------
 \begin{frame*}
   \frametitle{Inline and displayed formulas}
-  Every formula goes into the PDF as MathML, so a screen reader reads
-  its structure, not a string of symbols (ISO 14289-2:2024 8.2.5.29.1; PDF
-  Association Math BPG 1.0).
+  % Every formula goes into the PDF as MathML, so a screen reader reads its
+  % structure, not a string of symbols (ISO 14289-2:2024 8.2.5.29.1; PDF
+  % Association Math BPG 1.0). LaTeX writes the MathML; the package puts it in
+  % the tag tree. Nothing to write.
+  Every formula is MathML: a screen reader reads its structure.
 
   \medskip
 
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
-      Inline mathematics is part of the sentence: $e^{i\pi} + 1 = 0$. A displayed
-      equation takes a label so that it can be cited:
+      Inline: $e^{i\pi} + 1 = 0$. Displayed, with a label:
       \begin{equation}\label{eq:gauss}
         \int_{-\infty}^{\infty} e^{-x^2}\,dx = \sqrt{\pi}
       \end{equation}
-      Equation~\eqref{eq:gauss} is cited by number, and the number is a link.
+      Equation~\eqref{eq:gauss} is cited by number.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
 \begin{verbatim}
-Inline mathematics is part of the
-sentence: $e^{i\pi} + 1 = 0$.
+Inline: $e^{i\pi} + 1 = 0$.
 \begin{equation}\label{eq:gauss}
   \int_{-\infty}^{\infty}
     e^{-x^2}\,dx = \sqrt{\pi}
@@ -334,17 +350,17 @@ sentence: $e^{i\pi} + 1 = 0$.
 Equation~\eqref{eq:gauss} is
 cited by number.
 \end{verbatim}
-      LaTeX writes the MathML and the package puts it in the tag tree.
     \end{column}
   \end{columns}
 \end{frame*}
 
 \begin{frame*}
   \frametitle{Aligned steps and cases}
+  % amsmath comes with the package. Every line is a Formula with its own
+  % MathML. One limit: a numbered multline warns on every run, so use
+  % multline*.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
-      Matrices, cases, sums and aligned steps come from amsmath, which the
-      package loads:
       \begin{align}
         (a+b)^2 &= a^2 + 2ab + b^2 \\
                 &= a^2 + b^2 + 2ab
@@ -366,20 +382,24 @@ cited by number.
   \end{cases}
 \end{equation}
 \end{verbatim}
-      Every line is a Formula with its own MathML. One limit: a numbered
-      \texttt{multline} warns on every run, so use \texttt{multline*}.
     \end{column}
   \end{columns}
+
+  \medskip
+
+  Plain amsmath. A numbered \texttt{multline} warns; use \texttt{multline*}.
 \end{frame*}
 
 \begin{frame*}
   \frametitle{What a formula means}
+  % MathML records how a formula looks, not what it means: an x with a bar is
+  % "x bar" whether it is a mean or a complex conjugate. \MathMLintent adds
+  % the meaning, \MathMLarg names the part it applies to (Math BPG 1.0,
+  % intent). Keep the double braces: a scripted single atom loses the intent
+  % with no warning.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
-      MathML records how a formula looks, not what it means: an $x$ with a bar
-      is ``x bar'' whether it is a mean or a complex conjugate.
-      \verb|\MathMLintent| adds the meaning and \verb|\MathMLarg| names the
-      part it applies to, so a reader says ``mean of x'' for
+      ``Mean of x'', not ``x bar'':
       \begin{equation}
         \MathMLintent{mean($x)}{{\overline{\MathMLarg{x}{x}}}}
         = \frac{1}{n} \sum_{i=1}^{n} x_i
@@ -394,22 +414,26 @@ cited by number.
   = \frac{1}{n} \sum_{i=1}^{n} x_i
 \end{equation}
 \end{verbatim}
-      Keep the double braces: a scripted single atom loses the intent with no
-      warning (Math BPG 1.0, intent).
     \end{column}
   \end{columns}
+
+  \medskip
+
+  \verb|\MathMLintent| says what the formula means. Keep the double braces.
 \end{frame*}
 
-% The reaction arrow in example.tex, \ce{->}, makes tagpdf warn about the
-% MathML nesting in ltx-talk (not in a document), so the reaction stays there.
 \begin{frame*}
   \frametitle{Chemistry, units and other notation}
+  % mhchem, siunitx and braket each become a Formula with MathML, like
+  % ordinary mathematics; nothing to add. Do not load physics as well. The
+  % reaction arrow of example.tex warns under ltx-talk, so it is not here.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
-      Water is $\ce{H2O}$ and the sulfate ion is $\ce{SO4^2-}$. Standard
-      gravity is \qty{9.81}{\metre\per\second\squared}; a state is $\ket{0}$.
-      mhchem, siunitx and braket each become a Formula with MathML, like
-      ordinary mathematics. Do not load physics as well.
+      Water is $\ce{H2O}$; the sulfate ion is $\ce{SO4^2-}$.
+
+      Standard gravity: \qty{9.81}{\metre\per\second\squared}.
+
+      A state: $\ket{0}$.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -418,19 +442,26 @@ cited by number.
 \usepackage{siunitx}
 \usepackage{braket}
 ...
-Water is $\ce{H2O}$ and the
+Water is $\ce{H2O}$; the
 sulfate ion is $\ce{SO4^2-}$.
-Standard gravity is
-\qty{9.81}{\metre\per\second\squared};
-a state is $\ket{0}$.
+Standard gravity:
+\qty{9.81}{\metre\per\second\squared}.
+A state: $\ket{0}$.
 \end{verbatim}
-      These packages tag by themselves.
     \end{column}
   \end{columns}
+
+  \medskip
+
+  These packages tag by themselves. Not the physics package.
 \end{frame*}
 
 \begin{frame*}
   \frametitle{Theorems and proofs}
+  % The package defines theorem, lemma, proposition, corollary, definition,
+  % example, remark and algorithm; LaTeX tags each block with its head as a
+  % caption. No \newtheorem, no \qedsymbol: the proof ends with QED as a word,
+  % which a screen reader reads; the open square is not read.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
       \begin{theorem}\label{thm:one}
@@ -439,10 +470,6 @@ a state is $\ket{0}$.
       \begin{proof}
         The package moves every heading one level down.
       \end{proof}
-      The package defines theorem, lemma, proposition, corollary, definition,
-      example, remark and algorithm; LaTeX tags each block with its head as a
-      caption. The proof ends with the word QED, which a screen reader reads; the
-      open square is not read.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -456,14 +483,19 @@ a state is $\ket{0}$.
   one level down.
 \end{proof}
 \end{verbatim}
-      No \verb|\newtheorem| line: the package defines them. No
-      \verb|\qedsymbol|: the proof ends with QED as a word.
     \end{column}
   \end{columns}
+
+  \medskip
+
+  No \verb|\newtheorem|, no \verb|\qedsymbol|. QED is a word a screen reader reads.
 \end{frame*}
 
 \begin{frame*}
   \frametitle{Algorithms}
+  % algorithm is a theorem-like block the package defines, not a float: the
+  % algorithm package is incompatible with tagging. algpseudocode prints the
+  % step numbers itself.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
       \begin{algorithm}[Find the largest value]\label{alg:max}
@@ -476,8 +508,6 @@ a state is $\ket{0}$.
           \State \Return $m$
         \end{algorithmic}
       \end{algorithm}
-      The package's \texttt{algorithm} is a theorem-like block, not a float:
-      the algorithm package is incompatible with tagging.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -498,6 +528,10 @@ a state is $\ket{0}$.
 \end{verbatim}
     \end{column}
   \end{columns}
+
+  \medskip
+
+  A theorem-like block from the package, not a float.
 \end{frame*}
 
 %------------------------------------------------------------------------------
@@ -505,8 +539,12 @@ a state is $\ket{0}$.
 %------------------------------------------------------------------------------
 \begin{frame*}
   \frametitle{A picture with alt text}
-  A screen reader skips a picture unless alt text says what it
-  shows (WCAG 2.1 1.1.1; ISO 32000-2:2020 14.8.4.8.5).
+  % A screen reader skips a picture unless alt text says what it shows
+  % (WCAG 2.1 1.1.1; ISO 32000-2:2020 14.8.4.8.5). Say what it shows and why
+  % it is here, never the file name. The caption comes first: LaTeX writes the
+  % Caption tag first, so a caption printed below would contradict the tag
+  % order.
+  Alt text says what the picture shows and why it is here.
 
   \medskip
 
@@ -528,15 +566,16 @@ a state is $\ket{0}$.
       beige pegboard wall.}]{cables}
 \end{figure}
 \end{verbatim}
-      The caption comes first: LaTeX writes the Caption tag first, so a caption
-      printed below would contradict the tag order. Say what the picture shows
-      and why it is here, never the file name.
+      Caption first. Never the file name.
     \end{column}
   \end{columns}
 \end{frame*}
 
 \begin{frame*}
   \frametitle{Two panels in one figure}
+  % One caption names the panels; each panel has its own alt text.
+  % subcaption and subfig are incompatible with tagging, so \hfill places
+  % the panels.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
       \begin{figure}
@@ -545,9 +584,6 @@ a state is $\ket{0}$.
         \hfill
         \includegraphics[width=.45\linewidth,trim=160 0 0 0,clip,alt={Panel (b): the right half of the same wall.}]{cables}
       \end{figure}
-      One caption names the panels and each panel has its own alt text.
-      subcaption and subfig are incompatible with tagging, so \verb|\hfill|
-      places the panels.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -567,10 +603,16 @@ a state is $\ket{0}$.
 \end{verbatim}
     \end{column}
   \end{columns}
+
+  \medskip
+
+  One alt text per panel. subcaption and subfig are incompatible with tagging.
 \end{frame*}
 
 \begin{frame*}
   \frametitle{A drawing made in the document}
+  % tikz takes the same alt key, so the drawing is a Figure with alt text and
+  % needs no export step. pgfplots does not tag: export a plot as an image.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
       \begin{figure}
@@ -581,9 +623,6 @@ a state is $\ket{0}$.
           \draw (3.8,0) rectangle (6.2,1) node[midway]{tagged PDF};
         \end{tikzpicture}
       \end{figure}
-      tikz takes the same \texttt{alt} key, so the drawing is a Figure with
-      alt text and needs no export step. pgfplots does not tag: export a plot
-      as an image.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -601,20 +640,22 @@ a state is $\ket{0}$.
 \end{verbatim}
     \end{column}
   \end{columns}
+
+  \medskip
+
+  tikz takes \texttt{alt}. pgfplots does not tag: export the plot as an image.
 \end{frame*}
 
 \begin{frame*}
   \frametitle{A picture of words, and decoration}
+  % Real text is always better; WCAG 2.1 1.4.5 allows an image of text only
+  % for a logo or a scan. actualtext gives its words, so a screen reader reads
+  % "Clemson University". artifact marks decoration, which is skipped.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
       \includegraphics[height=0.8cm,actualtext={Clemson University}]{text-image}
 
       \includegraphics[width=.6\linewidth,artifact]{ornament}
-
-      Real text is always better; WCAG 2.1 1.4.5 allows an image of text only
-      for a logo or a scan. The first picture has its words in
-      \texttt{actualtext}, so a screen reader reads ``Clemson University''. The rule
-      under it is decoration, marked \texttt{artifact} and skipped.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -628,16 +669,23 @@ a state is $\ket{0}$.
 \end{verbatim}
     \end{column}
   \end{columns}
+
+  \medskip
+
+  \texttt{actualtext}: the words in the picture. \texttt{artifact}: skipped.
 \end{frame*}
 
 \begin{frame*}
   \frametitle{A chart: short alt text, full description in the text}
+  % A chart needs more than one sentence: alt states the point and says where
+  % the rest is; the full description, and the numbers as a real table, follow
+  % in the text, where every reader finds them. The chart is at its natural
+  % size: scaling would shrink its 9 pt labels.
   {\centering\includegraphics[alt={Bar chart of visitors to four destinations: Myrtle Beach most, Aiken fewest. Described below.}]{chart}\par}
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
-      \strong{Description.} Aiken had 250 thousand visitors, Charleston 1200,
-      Greenville 700 and Myrtle Beach 1500. The numbers also go in a real
-      table, where every reader finds them.
+      \strong{Description.} Aiken 250 thousand visitors, Charleston 1200,
+      Greenville 700, Myrtle Beach 1500. The numbers also go in a table.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -656,16 +704,17 @@ a state is $\ket{0}$.
 %------------------------------------------------------------------------------
 \begin{frame*}
   \frametitle{A phrase or a passage in another language}
-  A screen reader changes voice only when the PDF marks the
-  language of the phrase (WCAG 2.1 3.1.2; ISO 32000-2:2020 14.9.2).
+  % A screen reader changes voice only when the PDF marks the language of the
+  % phrase (WCAG 2.1 3.1.2; ISO 32000-2:2020 14.9.2). One \babelprovide line
+  % per language, after the package: babel hyphenates, the package writes the
+  % language tag. A passage is a block with a blank line before and after.
+  The PDF marks the language; the screen reader changes voice.
 
   \medskip
 
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
-      The French for ``right away'' is \foreignlanguage{french}{tout de
-      suite}, tagged as a Span whose language is French. A whole passage is a
-      block with a blank line before and after it:
+      ``Right away'': \foreignlanguage{french}{tout de suite}.
 
       \begin{otherlanguage}{french}
       Un document accessible porte un arbre de balises que le lecteur
@@ -685,8 +734,6 @@ arbre de balises que le lecteur
 d'\'ecran suit.
 \end{otherlanguage}
 \end{verbatim}
-      One \verb|\babelprovide| line per language, after the package: babel
-      hyphenates, the package writes the language tag.
     \end{column}
   \end{columns}
 \end{frame*}
@@ -696,9 +743,12 @@ d'\'ecran suit.
 %------------------------------------------------------------------------------
 \begin{frame*}
   \frametitle{A header row}
-  LaTeX marks header cells, but Acrobat and PAC do not read its
-  scope classes and nothing ties a cell to its headers; the package writes
-  Scope and Headers on every cell (ISO 32000-2:2020 14.8.4.8.3, 14.8.5.7).
+  % LaTeX marks header cells, but Acrobat and PAC do not read its scope
+  % classes and nothing ties a cell to its headers; the package writes Scope
+  % and Headers on every cell (ISO 32000-2:2020 14.8.4.8.3, 14.8.5.7). Declare
+  % the header cells before \begin{tabular}: each cell in row 1 becomes a TH
+  % with column scope.
+  Declare the header cells; the package writes Scope and Headers.
 
   \medskip
 
@@ -713,8 +763,6 @@ d'\'ecran suit.
           Beta  & 18 & 60\% \\ \bottomrule
         \end{tabular}
       \end{table}
-      Declare the header cells before \verb|\begin{tabular}|: each cell in
-      row 1 becomes a TH with column scope.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -736,6 +784,8 @@ d'\'ecran suit.
 
 \begin{frame*}
   \frametitle{A header column}
+  % Each cell in column 1 is a TH with row scope. Give both keys when a table
+  % has both; the corner cell then has both scopes.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
       \begin{table}
@@ -747,8 +797,6 @@ d'\'ecran suit.
           Median & 4.0 & 4.5 & 3.9 \\ \bottomrule
         \end{tabular}
       \end{table}
-      Each cell in column 1 is a TH with row scope. Give both keys when a
-      table has both; the corner cell then has both scopes.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -763,10 +811,17 @@ d'\'ecran suit.
 \end{verbatim}
     \end{column}
   \end{columns}
+
+  \medskip
+
+  Both keys when a table has both; the corner cell gets both scopes.
 \end{frame*}
 
 \begin{frame*}
   \frametitle{A complex table: two header rows, merged cells}
+  % Both header rows are declared. \multicolumn cells get their column span
+  % by themselves; table/multirow=2 makes the corner cell span both rows, so
+  % the blank cell under it is not an empty header.
   \begin{columns}
     \begin{column}[t]{.44\textwidth}
       \begin{table}
@@ -782,9 +837,6 @@ d'\'ecran suit.
           Proposed & 0.91 & 0.86 & 0.88 & 0.81 \\ \bottomrule
         \end{tabular}
       \end{table}
-      Both header rows are declared. \verb|\multicolumn| cells get their
-      column span by themselves; \texttt{table/multirow=2} makes the corner
-      cell span both rows, so the blank cell under it is not an empty header.
     \end{column}
     \begin{column}[t]{.53\textwidth}
 \small
@@ -805,10 +857,18 @@ d'\'ecran suit.
 \end{verbatim}
     \end{column}
   \end{columns}
+
+  \medskip
+
+  Declare both header rows. \texttt{multirow=2} makes the corner cell span both.
 \end{frame*}
 
 \begin{frame*}
   \frametitle{Side by side is not a table}
+  % A layout tabular is read row by row: "First Author Second Author Clemson
+  % University Clemson University". A minipage per author is read to its end.
+  % Also: caption above the table, notes as a paragraph after it, no empty
+  % cells, one table per group, never a table inside a table.
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
       \begin{minipage}[t]{0.45\linewidth}\centering
@@ -817,12 +877,6 @@ d'\'ecran suit.
       \begin{minipage}[t]{0.45\linewidth}\centering
         Second Author\\ Clemson University
       \end{minipage}
-
-      \medskip
-
-      A layout tabular is read row by row: ``First Author Second Author
-      Clemson University Clemson University''. A minipage per author is read
-      to its end, so each name comes with its own university.
     \end{column}
     \begin{column}[t]{.55\textwidth}
 \small
@@ -836,10 +890,12 @@ d'\'ecran suit.
   Second Author\\ Clemson University
 \end{minipage}
 \end{verbatim}
-      Also: caption above the table, notes as a paragraph after it, no empty
-      cells, one table per group, never a table inside a table.
     \end{column}
   \end{columns}
+
+  \medskip
+
+  A layout tabular reads row by row. A minipage per author reads to its end.
 \end{frame*}
 
 %------------------------------------------------------------------------------
@@ -847,22 +903,22 @@ d'\'ecran suit.
 %------------------------------------------------------------------------------
 \begin{frame*}
   \frametitle{Check the PDF}
-  veraPDF tests the machine rules; five checks by hand cover
-  what no script can judge (Clemson Digital Accessibility, PDF manual checks).
+  % veraPDF tests the machine rules; five checks by hand cover what no
+  % script can judge (Clemson Digital Accessibility, PDF manual checks). PASS
+  % or FAIL on the first line, then each failed clause. The log lines list
+  % errors, tagging warnings and every picture without alt text.
+  veraPDF tests the machine rules. Five checks by hand cover the rest.
 
   \medskip
 
   \begin{columns}
     \begin{column}[t]{.42\textwidth}
       \begin{enumerate}
-        \item Every alt text says what the picture shows and why it is here.
-        \item Acrobat Pro, Check for accessibility: the title is the only H1,
-          the sections start at H2, the reading order follows the page.
-        \item Every table declared its header cells; the Table Editor shows
-          them.
-        \item Link text names the destination; Tab reaches every link.
-        \item Nothing is said by color alone; 4.5:1 contrast for text, 3:1 for
-          graphics.
+        \item Alt text: what and why
+        \item Acrobat: one H1, sections at H2, reading order
+        \item Tables: header cells declared
+        \item Links: text names the destination
+        \item Color: never the only signal; 4.5:1
       \end{enumerate}
     \end{column}
     \begin{column}[t]{.55\textwidth}
@@ -873,8 +929,6 @@ verapdf --flavour ua2 --format text main.pdf
 grep -n -A2 '^!\|tagpdf Warning\|clemson' \
   main.log
 \end{verbatim}
-      PASS or FAIL on the first line, then each failed clause. The log lines
-      list errors, tagging warnings and every picture without alt text.
     \end{column}
   \end{columns}
 \end{frame*}
@@ -884,20 +938,19 @@ grep -n -A2 '^!\|tagpdf Warning\|clemson' \
 %------------------------------------------------------------------------------
 \begin{frame*}
   \frametitle{Copy the kit and write}
+  % main.tex is the blank starter, example.tex the worked example, README.md
+  % the instructions.
   \begin{enumerate}
-    \item Keep \verb|\DocumentMetadata| above \verb|\documentclass|; load
-      your packages, then \verb|\usepackage{clemson}|.
-    \item Write plain LaTeX: \verb|\section| in order, \verb|\autoref|,
-      \verb|\emph| and \verb|\strong|.
-    \item Give every picture \texttt{alt=} and every table its header cells;
-      build with latexmk, then check with veraPDF and the five checks by hand.
+    \item \verb|\DocumentMetadata| above \verb|\documentclass|; your packages, then
+      \verb|\usepackage{clemson}|
+    \item Plain LaTeX: \verb|\section| in order, \verb|\autoref|, \verb|\emph|, \verb|\strong|
+    \item \texttt{alt=} on every picture, header cells on every table
+    \item latexmk, veraPDF, five checks by hand
   \end{enumerate}
 
   \medskip
 
-  The kit: \url{https://github.com/ClayMorton/Clemson_A11Y_LaTeX}.
-  \texttt{main.tex} is the blank starter, \texttt{example.tex} the worked
-  example, \texttt{README.md} the instructions.
+  \url{https://github.com/ClayMorton/Clemson_A11Y_LaTeX}
 \end{frame*}
 
 \begin{frame}
