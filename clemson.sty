@@ -147,16 +147,18 @@
 % default moves it to figures and tables sections at the end of the tree:
 % floats are consultation objects, and PDF 1.7 readers show an Aside as a
 % Note. float/here, a documented key, keeps every float's Aside where it is
-% written ([H] floats stay there anyway). House style: with [H], tag order
-% then matches the page (Clemson PDF manual checks; ISO 32000-2:2020
-% 14.8.2.5.1, a should). Meets: WCAG 2.1 SC 1.3.2 either way.
+% written ([H] floats stay there anyway), so the tag order matches the page,
+% which Clemson's PDF manual checks require and ISO 32000-2:2020 14.8.2.5.1
+% asks for. Meets: Clemson PDF manual checks (tags, reading order); ISO
+% 32000-2:2020 14.8.2.5.1; WCAG 2.1 SC 1.3.2.
 \tagpdfsetup{float/here}
 % Figures and tables print where they are written: the float package's [H]
 % is their default placement; \floatplacement{figure}{tbp} lets figures float.
 % float is listed incompatible (status 2): \newfloat and \restylefloat break
 % the tagging (latex-lab-firstaid 2.8), [!] and [] stop the build with [H] as
 % default, and an [H] float with its \caption in a minipage fails PDF/UA-2
-% 8.2.5.27 (tagging issue 1549). House style; no standard requires it.
+% 8.2.5.27 (tagging issue 1549). Meets: Clemson PDF manual checks (tag order
+% matches the page).
 \RequirePackage{float}
 \floatplacement{figure}{H}
 \floatplacement{table}{H}
@@ -734,8 +736,8 @@
       }
   }
 \ExplSyntaxOff
-% House style: notes at 9 pt, as Clemson's text page advises ("Avoid small
-% font sizes (less than 9 points)"); no ISO or WCAG clause sets a size.
+% Notes at 9 pt: Clemson's text page says "Avoid small font sizes (less than
+% 9 points)"; no ISO or WCAG clause sets a size, so the rule is Clemson's.
 % \footnotesize becomes \small everywhere: footnotes, \thanks, the endnote
 % list and any \footnotesize text or table (10 and 10.95 pt with 11pt, 12pt).
 % At 9 pt the script size goes from LaTeX's 6 pt to 7 pt, the size of the
@@ -748,9 +750,10 @@
 % hyperref comes after the packages above, as its manual asks. It makes every
 % \ref, \cite, \href, \url and contents entry a link; LaTeX tags each one as
 % Link (inside Reference for citations and contents entries) with a structure
-% destination and /Tabs /S: ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3. House
-% style (Clemson Links page): no viewer box; UNDERLINES underlines the text,
-% so no link relies on color alone. Meets: WCAG 2.1 SC 1.4.1 either way.
+% destination and /Tabs /S: ISO 14289-2:2024 8.2.5.20, 8.8, 8.9.3.3. No
+% viewer box: UNDERLINES underlines the text, as Clemson's Links page
+% requires, so every viewer shows the link and none relies on color alone.
+% Meets: Clemson Digital Accessibility, Links; WCAG 2.1 SC 1.4.1 (G182).
 \RequirePackage{hyperref}
 \hypersetup{pdfborder={0 0 0}}
 % \strong in a section title stops the build ("Use of \bookmark doesn't
@@ -766,9 +769,10 @@
 % at the size of the current font. The switch runs in hyperref's own link
 % hooks (hyp/link/link is declared here; hyperref declares only the cite one)
 % and in a group around \href and \url. The contents and the two lists stay
-% plain, since every line there is a link. House style: Clemson's Links page
-% asks for underlined links; WCAG 2.1 SC 1.4.1 holds either way, since the
-% links are black (LaTeX's default viewer border would meet it too).
+% plain, since every line there is a link. Clemson's Links page requires
+% underlined links; drawn in the page, the underline shows in every viewer
+% and in print, which a viewer-drawn border does not.
+% Meets: Clemson Digital Accessibility, Links; WCAG 2.1 SC 1.4.1 (G182).
 \RequirePackage{lua-ul}
 \newunderlinetype\clemson@underline{\leaders\vrule height -.65ex depth .75ex}
 % lua-ul stores each underline rule at its first use at a given size and

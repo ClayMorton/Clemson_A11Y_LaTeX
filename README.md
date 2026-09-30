@@ -189,9 +189,9 @@ the "Table:" blocks and "Side by side, not a table".
 LaTeX tags each `figure` and `table` as an Aside whose first child is the Caption, but by default
 it defers those structures to the end of the tree, its choice for PDF 1.7 readers that show an
 Aside as a Note. The package sets `float/here`, so each structure stays where the float is
-written, next to the text that cites it (house style: Clemson's PDF manual checks ask that tag
-order match the page, and ISO 32000-2:2020 14.8.2.5.1 says it should; LaTeX's deferred form
-passes too). The package also loads `float` and makes `[H]` the default placement for `figure`
+written, next to the text that cites it: Clemson's PDF manual checks require that the tag order
+match the page, and ISO 32000-2:2020 14.8.2.5.1 says it should (LaTeX's deferred form passes
+veraPDF but not that check). The package also loads `float` and makes `[H]` the default placement for `figure`
 and `table`, so each one prints where it is written; `\floatplacement{figure}{tbp}` in the
 document lets figures float again, and the tag-tree position stays the same either way. `[!]` and
 `[]` stop the build with `[H]` as default, and an `[H]` float with its caption inside a minipage
@@ -290,9 +290,9 @@ and is underlined by LaTeX itself, not by the viewer: the package loads `lua-ul`
 underline in the text (under the descenders, across line breaks, in the size of the current font,
 so a footnote mark gets a mark-sized line), and switches it on inside hyperref's own link hooks,
 `hyp/link/link` and `hyp/link/cite` for internal links and the `\href` and `\url` hook pairs for web
-links; the rules are artifacts, like LaTeX's own rules. Every viewer shows the same underline and
-no viewer border is drawn. This is Clemson's link style (the Links page asks for underlined links);
-WCAG 2.1 1.4.1 holds either way, because the links are black. The contents and the lists of figures
+links; the rules are artifacts, like LaTeX's own rules. Every viewer shows the same underline, in
+print too, and no viewer border is drawn: Clemson's Links page requires underlined links, and
+WCAG 2.1 1.4.1 (technique G182) names the underline as the cue. The contents and the lists of figures
 and tables stay plain, because every line there is a link. To drop the underlines, remove the
 package's code from all six hooks: `\RemoveFromHook{hyp/link/link}[clemson]` and the same for
 `hyp/link/cite`, `cmd/href/before`, `cmd/href/after`, `cmd/url/before` and `cmd/url/after` (the
@@ -459,7 +459,7 @@ font, and the font passes every veraPDF font rule.
 | Lists L, LI, Lbl, LBody | LaTeX 2026-06-01 | ISO 32000-2:2020 14.8.4.8.2 |
 | Tables TH, TD, Scope and spans as attribute classes | LaTeX 2026-06-01, from the author's keys | ISO 32000-2:2020 14.8.4.8.3 |
 | Scope, ColSpan, RowSpan and Headers as direct attributes on every `tabular` cell (for Acrobat and PAC; no standard requires the copies, Headers matter for group rows) | clemson.sty (TABLE CELLS) | ISO 32000-2:2020 14.8.4.8.3, Table 384; ISO 14289-2:2024 8.2.5.26 |
-| Floats as Aside with Caption first; structure kept where written; `[H]` placement with the `\par` hooks | LaTeX 2026-06-01; clemson.sty (`float/here`, float) | ISO 32000-2:2020 14.8.4.8.4, 14.8.2.5.1 (house style); ISO 14289-2:2024 8.2.5.27 |
+| Floats as Aside with Caption first; structure kept where written; `[H]` placement with the `\par` hooks | LaTeX 2026-06-01; clemson.sty (`float/here`, float) | ISO 32000-2:2020 14.8.4.8.4, 14.8.2.5.1; Clemson PDF manual checks; ISO 14289-2:2024 8.2.5.27 |
 | Figure with Alt, ActualText or artifact | LaTeX 2026-06-01, from the author's keys | ISO 32000-2:2020 14.8.4.8.5, 14.9.4 |
 | Formula with MathML, kept when the file name holds a comma | LaTeX 2026-06-01 with unicode-math; clemson.sty | ISO 14289-2:2024 8.2.5.29.1 |
 | Theorems as Sect with Caption and Lbl; the environments, their `\autoref` names and the word QED | LaTeX 2026-06-01 (amsthm's commands built in); clemson.sty (environments, QED) | ISO 32000-2:2020 14.8.4.8.4; ISO 14289-2:2024 8.2.5.27 |
