@@ -63,16 +63,6 @@ See the things you need to check using [Clemson's manual check guide](https://ww
 Acrobat's checker tests PDF/UA-1 and reports "Lbl and LBody" for caption numbers, theorem
 numbers and note marks. That is a false positive in Acrobat, do not worry about that.
 
-## What the package does
-
-- The Build will stop if tagging is not turned on.
-- Every formula gets its proper MathML tags.
-- Properly tags the title as the only H1, every heading (section or chapter) 
-gets one level down, the abstract is also re-labeled as a Sect with an H2.
-- Every table now gets Scope and Headers written to the cells.
-- Sets the text ragged right, and increases the size of note(s) font so that the
-size meets accessibility standards. 
-
 ## Commands and settings the package defines or changes
 
 **New:**
