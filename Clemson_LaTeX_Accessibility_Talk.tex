@@ -900,11 +900,8 @@ d'\'ecran suit.
 %------------------------------------------------------------------------------
 \begin{frame*}
   \frametitle{Check the PDF}
-  % veraPDF tests the machine rules; five checks by hand cover what no
-  % script can judge (Clemson Digital Accessibility, PDF manual checks). PASS
-  % or FAIL on the first line, then each failed clause. The log lines list
-  % errors, tagging warnings and every picture without alt text.
-  veraPDF tests the machine rules. Five checks by hand cover the rest.
+
+  Clemson's Digital Accessibility team checks every PDF with Acrobat's Accessibility Checker. 
 
   \medskip
 
@@ -922,9 +919,6 @@ d'\'ecran suit.
 \small
 \begin{verbatim}
 latexmk -lualatex main.tex
-verapdf --flavour ua2 --format text main.pdf
-grep -n -A2 '^!\|tagpdf Warning\|clemson' \
-  main.log
 \end{verbatim}
     \end{column}
   \end{columns}
