@@ -1,40 +1,43 @@
 % !TEX program = lualatex
 % !TEX TS-program = lualatex
 
-% main.tex: your document. Build: latexmk -lualatex main.tex
-% Check: verapdf --flavour ua2 --format text main.pdf
-% example.tex shows every kind of content; copy the block you need.
+% main.tex: write your document here.
+% Build: latexmk -lualatex main.tex
+% example.tex shows every kind of content, so copy the blocks you need from it.
 
 %------------------------------------------------------------------------------
 % METADATA AND CLASS
 %------------------------------------------------------------------------------
-% Above \documentclass: turns tagging on and names the standards.
+% This block MUST come before \documentclass. It turns tagging on and sets the
+% language and the standards for the whole PDF.
 \DocumentMetadata{
-  lang          = en-US,   % the language of the whole PDF
+  lang          = en-US,       % the language of the whole PDF
   pdfstandard   = {ua-2,a-4f}, % PDF/UA-2 and PDF/A-4f
-  tagging       = on,      % or the package stops the build
-  check-tagging-status,    % a package report at the end of the log
+  tagging       = on,          % the package stops the build without it
+  check-tagging-status,        % adds a package report to the end of the log
 }
-% report gives chapters (\chapter is H2, \section H3).
+% Use report if you want chapters, there \chapter is H2 and \section is H3.
 \documentclass{article}
 
 %------------------------------------------------------------------------------
 % PACKAGES
 %------------------------------------------------------------------------------
-% Supported packages: https://latex3.github.io/tagging-project/tagging-status/
+% Check that your packages are supported first:
+% https://latex3.github.io/tagging-project/tagging-status/
 \usepackage{booktabs}
 
-% The kit's package, after your other packages (it loads hyperref last).
+% Load the package after your other packages, since it loads hyperref last.
 \usepackage{clemson}
 \graphicspath{{resources/}}
 
-% Other languages: one \babelprovide line each, after the package.
+% Other languages: add one \babelprovide line each, after the package.
 % \babelprovide[import]{french}
 
 %------------------------------------------------------------------------------
 % TITLE AND ABSTRACT
 %------------------------------------------------------------------------------
-% LaTeX writes the title and the authors into the metadata; \and between authors.
+% LaTeX writes the title and the authors into the PDF's metadata. Put \and
+% between authors.
 \title{Title of the document}
 \author{First Author \and Second Author}
 \date{\today}
@@ -49,6 +52,7 @@ One paragraph that says what the document is about.
 %------------------------------------------------------------------------------
 % CONTENTS AND LISTS
 %------------------------------------------------------------------------------
+% Uncomment these once your document has sections, figures or tables.
 % \tableofcontents
 % \listoffigures
 % \listoftables
@@ -63,8 +67,9 @@ Give every picture alt text and declare the header cells of every table.
 %------------------------------------------------------------------------------
 % ENDNOTES AND BIBLIOGRAPHY
 %------------------------------------------------------------------------------
-% \printendnotes prints the endnotes, nothing when there are none. Uncomment
-% the bibliography lines once something is cited; entries go in references.bib.
+% \printendnotes prints the endnotes, and nothing when there aren't any.
+% Uncomment the bibliography lines once you cite something, the entries go in
+% references.bib.
 \printendnotes
 % \bibliographystyle{plain}
 % \bibliography{references}

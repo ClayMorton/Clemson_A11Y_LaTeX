@@ -3,181 +3,183 @@
 % !BIB program = bibtex
 % !BIB TS-program = bibtex
 
-% example.tex: every kind of content, tagged. Write your document in main.tex.
+% example.tex: every kind of content you're likely to need, tagged and ready
+% to copy. Write your own document in main.tex.
 % Build: latexmk -lualatex example.tex
-% Check: verapdf --flavour ua2 --format text example.pdf
 
 %------------------------------------------------------------------------------
 % METADATA AND CLASS
 %------------------------------------------------------------------------------
-% Above \documentclass: turns tagging on and names the standards.
+% This block MUST come before \documentclass. It turns tagging on and sets the
+% language and the standards for the whole PDF.
 \DocumentMetadata{
-  lang          = en-US,   % the language of the whole PDF, written to /Lang
-  pdfstandard   = {ua-2,a-4f}, % PDF/UA-2 (accessibility) and PDF/A-4f (archiving)
-  tagging       = on,      % turns tagging on
-  check-tagging-status,    % appends a package report to the end of the log
+  lang          = en-US,       % the language of the whole PDF
+  pdfstandard   = {ua-2,a-4f}, % PDF/UA-2 (accessibility), PDF/A-4f (archiving)
+  tagging       = on,          % the package stops the build without it
+  check-tagging-status,        % adds a package report to the end of the log
 }
-% report and book work the same way; there \chapter is H2 and \section H3.
-\documentclass{article}
+% report and book work the same way, there \chapter is H2 and \section is H3.
+\documentclass[12pt]{article}
 
 %------------------------------------------------------------------------------
 % PACKAGES
 %------------------------------------------------------------------------------
 % Every package here is on the tagging project's supported list.
+\usepackage[margin=1in]{geometry} % page margins
 \usepackage{booktabs}          % \toprule, \midrule and \bottomrule in tables
-\usepackage[version=4]{mhchem} % chemical formulae and reactions
-\usepackage{siunitx}           % numbers and units (do not load physics as well)
+\usepackage[version=4]{mhchem} % chemical formulas and reactions
+\usepackage{siunitx}           % numbers and units (don't load physics too)
 \usepackage{braket}            % bra-ket notation
 \usepackage{algpseudocode}     % the steps of an algorithm
-\usepackage{tikz}              % a diagram drawn in the document
-% The kit's package, after the other packages (it loads hyperref last).
-\usepackage{clemson}
-% Pictures: LaTeX looks beside this file first, then in resources/.
-\graphicspath{{resources/}}
-% Other languages: one \babelprovide line each, after the package.
-\babelprovide[import]{french}
+\usepackage{tikz}              % drawings made in the document
+\usepackage{clemson}           % after your other packages (it loads hyperref)
+\graphicspath{{resources/}}    % LaTeX looks in resources/ for pictures
+\babelprovide[import]{french}  % one line per extra language, after the package
 
 %------------------------------------------------------------------------------
 % TITLE, ABSTRACT, CONTENTS
 %------------------------------------------------------------------------------
-% Plain \title and \author; LaTeX writes the metadata. \thanks adds a note to a
-% name. The package tags the title H1 and \section H2.
-\title{Accessible LaTeX, quickly}
-\author{First Author\thanks{Corresponding author. Supported by a university fellowship.}
-  \and Second Author}
+% Plain \title and \author are all you need, LaTeX writes them into the PDF's
+% metadata. The package tags the title as the only H1.
+\title{Accessible LaTeX: A Worked Example}
+\author{First Author\thanks{Corresponding author. Supported by a university
+  fellowship.} \and Second Author}
 \date{\today}
 \begin{document}
 \maketitle
 
-% The abstract is a Sect with an H2; the contents and the lists get bookmarks.
 \begin{abstract}
-This file is a working example of every kind of content a paper or a report usually holds:
-headings, text, notes, cross-references, mathematics, chemistry, units, algorithms, figures
-with alt text and long descriptions, tables and an appendix. All of it is tagged, so the PDF
-conforms to PDF/UA-2. Copy the pieces you need; the comments in the source say why each line
-is written the way it is.
+This document shows how to write an accessible PDF from LaTeX with the
+\texttt{clemson} package. It works through the content found in most papers,
+theses and reports: headings, text, notes, links, mathematics, figures, tables
+and appendices. Each example builds to a tagged PDF that conforms to PDF/UA-2
+and follows Clemson's digital accessibility standards, and the source for each
+one is ready to copy into your own document.
 \end{abstract}
 \tableofcontents
 \listoffigures
 \listoftables
 
 %------------------------------------------------------------------------------
-% HOW TO USE THIS FILE
+% INTRODUCTION
 %------------------------------------------------------------------------------
-\section{How to use this file}
-Copy the whole kit folder. Write your document in \texttt{main.tex}, the blank starter, and
-build it with \verb|latexmk -lualatex main.tex|. Every example in this file is under a
-banner comment (\texttt{\%----}) that names it: search \texttt{example.tex} for the one you
-need and copy the block, with its \verb|\usepackage| line from the PACKAGES block if it has
-one. Then:
+\section{Introduction}
+A tagged PDF has a structure tree alongside the printed page. The tree tells a
+screen reader what each part of the page is, such as a heading, a table cell or
+a formula, and the order to read it in. LaTeX writes this tree itself once
+tagging is on. The \texttt{clemson} package adds what Clemson's standards ask
+for and stops the build if tagging is off.
+
+To use this file, copy the kit folder and write your document in
+\texttt{main.tex}, the blank starter. Every example in the source is under a
+banner comment (\texttt{\%----}), so search \texttt{example.tex} for the one
+you need and copy it along with any \verb|\usepackage| line it relies on.
+Beyond plain LaTeX, an author has four jobs:
 
 \begin{enumerate}
-  \item Keep \texttt{\% !TEX program = lualatex} on the first line and the
-    \verb|\DocumentMetadata| block above \verb|\documentclass|. Together they pick the
-    engine, turn tagging on and name the standard.
-  \item Load your packages, then \verb|\usepackage{clemson}| after them (cleveref, which
-    must follow hyperref, goes after it). Write \verb|\title|, \verb|\author| and the text.
-    Use \verb|\section|, \verb|\subsection| and \verb|\subsubsection| in order and never
-    skip a level: the title is the only H1, and the sections are H2, H3 and H4.
   \item Give every picture alt text: \verb|\includegraphics[alt={...}]{file}|.
-  \item Declare the header cells of every table before its \verb|\begin{tabular}|;
-    \autoref{sec:tables} shows the layouts and the \verb|\tagpdfsetup| keys each one needs.
-  \item Build, then check with \verb|verapdf --flavour ua2 --format text main.pdf| and the
-    log. A script cannot judge everything, so finish with Clemson's checks by hand in
-    Acrobat Pro: read every alt text back, then look at the tags, the reading order, the
-    links and the use of color.
+  \item Declare the header cells of every table before \verb|\begin{tabular}|
+    (\autoref{sec:tables}).
+  \item Use \verb|\section|, \verb|\subsection| and \verb|\subsubsection| in
+    order, without skipping a level.
+  \item Leave placement options such as \texttt{[htbp]} off figures and tables;
+    the package prints each one where it is written.
 \end{enumerate}
 
-The package sets the text ragged right, as Clemson's text guidance asks;
-\verb|\usepackage[justified]{clemson}| keeps the justified look some journals require.
+Build with \verb|latexmk -lualatex main.tex|, then finish with
+\href{https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/manual-checks.html}{Clemson's
+manual checks} in Acrobat Pro. The package sets text ragged right, as Clemson's
+guidance asks; \verb|\usepackage[justified]{clemson}| keeps justified text
+where a journal requires it.
 
 %------------------------------------------------------------------------------
 % TEXT EXAMPLES
 %------------------------------------------------------------------------------
 \section{Text}
 \label{sec:text}
-This section shows the text that has its own tags: emphasis, notes, links,
-citations, cross-references, lists, quotations, special characters and code.
+Ordinary paragraphs need nothing extra. The features in this section each have
+their own tags.
 
 %---- Emphasis, footnote, endnote ---------------------------------------------
-Ordinary paragraphs need nothing. Use \verb|\emph| for \emph{emphasis} and \verb|\strong| for
-\strong{important text}; both are tagged, while \verb|\textbf| and \verb|\underline| only change
-how letters look; a screen reader does not report them.\footnote{A footnote is at the foot
-of its page. It is tagged as a note (FENote); its mark links to the note, and the tag tree
-cross-references mark and note (Ref) so a PDF/UA-2 reader can return.} Long asides go in
-an endnote instead.\endnote{An endnote is collected and printed with the others near the end
-of the document, after the appendices and before the works cited.}
+Use \verb|\emph| for \emph{emphasis} and \verb|\strong| for \strong{important
+text}. Both are tagged, while \verb|\textbf| and \verb|\underline| only change
+the look of the letters, so a screen reader never announces them.\footnote{A
+footnote prints at the foot of its page. It is tagged as a note, and its mark
+links to it.} Longer asides go in an endnote.\endnote{Endnotes are collected and
+printed together near the end of the document, after the appendices and before
+the references.}
 %---- Links, citations --------------------------------------------------------
 \subsection{Links}
-A link has its own text, so name the destination rather than writing ``click here'' or
-``more''. The package underlines every link in the text itself, so every viewer shows the
-underline and no link depends on color. Two kinds stay plain: contents entries, which are
-lines of the contents, and note marks, which are superscripts. \verb|\href| prints words instead of an
-address: \href{https://latex3.github.io/tagging-project/}{the LaTeX tagging project}.
-\verb|\url| prints the address itself, \url{https://www.clemson.edu/accessibility/}; avoid a
-raw address as the only link text, because a screen reader may spell it out. Name the file
-type when a link opens a document, as in
-\href{https://mirrors.ctan.org/macros/latex/contrib/tagpdf/tagpdf.pdf}{the tagpdf package
-manual (PDF)}. Write an email address with \verb|\email|, which the package defines:
-\email{first.last@clemson.edu}. Citations are links too~\cite{knuth1984,lamport1994}.
+Link text should name the destination. Screen reader users often move through a
+list of links, where ``click here'' tells them nothing. \verb|\href| prints
+words in place of an address:
+\href{https://latex3.github.io/tagging-project/}{the LaTeX tagging project}.
+\verb|\url| prints the address itself, \url{https://www.clemson.edu/accessibility/},
+which a screen reader may spell out, so keep it for addresses a reader needs to
+see. When a link opens a document, name the file type, as in
+\href{https://mirrors.ctan.org/macros/latex/contrib/tagpdf/tagpdf.pdf}{the
+tagpdf manual (PDF)}. The package defines \verb|\email| for addresses,
+\email{first.last@clemson.edu}, and citations are links as
+well~\cite{knuth1984,lamport1994}. Every link is underlined in the text itself,
+except contents entries and note marks, so no link depends on color.
 %---- Cross-references --------------------------------------------------------
 \subsection{Cross-references}
-Write \verb|\autoref{sec:math}| rather than ``the section above'': the whole phrase becomes
-one link, so a screen reader reads ``section 3'' and not a bare ``3'', and it stays
-correct when the text moves. Label anything to point at: see \autoref{sec:math} on
-page~\pageref{sec:math}, \autoref{sec:notation}, \autoref{fig:lab} on page~\pageref{fig:lab},
-\autoref{tab:headerrow}, Equation~\eqref{eq:gauss}, \autoref{alg:max}, \autoref{app:example},
-and a citation with a page number~\cite[p.~3]{knuth1984lp}. Theorem-like blocks work the
-same way, since the package names each environment for \verb|\autoref|:
-\autoref{lem:title}. Equations keep \verb|\eqref| for the parentheses; \verb|\pageref| links
-the page number alone.
+Write \verb|\autoref{sec:math}| rather than ``the section above''. The whole
+phrase becomes one link, so a screen reader says ``section 3'' instead of a
+bare ``3'', and the reference stays right when the text moves. It works the
+same for sections, figures, tables, equations, algorithms, appendices and
+theorem-like blocks: \autoref{sec:math} on page~\pageref{sec:math},
+\autoref{sec:notation}, \autoref{fig:lab}, \autoref{tab:headerrow},
+Equation~\eqref{eq:gauss}, \autoref{alg:max}, \autoref{app:example} and
+\autoref{lem:title}. Equations keep \verb|\eqref| for the parentheses, and a
+citation can give a page number~\cite[p.~3]{knuth1984lp}.
 %---- Lists -------------------------------------------------------------------
 \subsection{Lists}
-Bulleted, numbered and description lists are tagged as lists, with a label and a body
-for every item. Keep nesting shallow; two levels is usually enough.
+Bulleted, numbered and description lists are tagged as lists, with a label and
+a body for each item. Two levels of nesting is usually enough.
 \begin{itemize}
   \item A bulleted list holds items of equal weight.
-  \item Nest a list only when the inner items belong to the outer one:
+  \item Nest a list only when its items belong to the one above:
     \begin{itemize} \item a nested item, \item a second nested item. \end{itemize}
 \end{itemize}
 \begin{enumerate}
   \item A numbered list holds steps that happen in order.
   \item Its numbers are tagged as labels, so they are read aloud.
 \end{enumerate}
-% label= is a kernel key; enumitem cannot be loaded under tagging.
+% label= is LaTeX's own key. Don't load enumitem, it doesn't work with tagging.
 \begin{enumerate}[label=(\alph*)]
-  \item Lettered items come from \verb|[label=(\alph*)]|, a kernel key.
-  \item The letters are labels, not typed-in text.
+  \item Lettered items come from \verb|[label=(\alph*)]|.
+  \item The letters are real labels, not typed-in text.
 \end{enumerate}
 \begin{description}
-  \item[Alt text] What a picture shows and why it is there, in one or two sentences.
+  \item[Alt text] What a picture shows and why it is there, in a sentence or two.
   \item[Header cell] A cell that names the row or the column it belongs to.
 \end{description}
 %---- Quotations --------------------------------------------------------------
 \subsection{Quotations}
-A quotation longer than a line goes in the \texttt{quote} environment, which is tagged
-BlockQuote so a screen reader can tell where the quotation starts and ends:
+A quotation longer than a line goes in \texttt{quote}. It is tagged as a block
+quotation, so a screen reader can tell where it starts and ends.
 \begin{quote}
-  Tagging writes down what each part of a document is, so that a reader who
-  never sees the page still gets the same structure.
+  Tagging writes down what each part of a document is, so a reader who never
+  sees the page still gets its structure.
 \end{quote}
 %---- Special characters, text styles -----------------------------------------
 \subsection{Special characters and text styles}
-Type the characters LaTeX reserves with a backslash: 100\%, R\&D, \#1. Write an en dash between
-numbers (pages 10--20), an em dash for a break in a sentence---like this one---and quotation
-marks as ``paired'' quotes. A tie, \verb|Figure~1|, keeps a number with its word. The
-``th'' in ``the 4\textsuperscript{th} of May'' is tagged with TextPosition Sup,
-\texttt{typewriter text} marks a file name and \textsc{small caps} an initialism. Color
-has no meaning here: the text is black throughout, the chart uses one shade of gray, and
-colored ink would still need a contrast of 4.5:1 for text and 3:1 for a graphic.
+Reserved characters take a backslash: 100\%, R\&D, \#1. Use an en dash for a
+range (pages 10--20), an em dash for a break in a sentence---like this one---and
+paired quotation marks, ``like these''. A tie in \verb|Figure~1| keeps the
+number with its word. The ``th'' in ``the 4\textsuperscript{th} of May'' is
+tagged as a superscript, \texttt{typewriter text} marks a file name, and
+\textsc{small caps} suit an initialism. Color has no meaning in this document;
+colored text would need a contrast of 4.5:1 with its background, and a graphic
+3:1.
 %---- Code --------------------------------------------------------------------
 \subsection{Code}
 A command inside a sentence goes in \verb|\verb|, as it does throughout this
-file. A block of code goes in \texttt{verbatim}, which is tagged as code. Each line of a
-verbatim block is tagged as a code line; a screen reader with symbol pronunciation set to
-``all'' reads the punctuation.
+document. A block of code goes in \texttt{verbatim}, which is tagged as code,
+one code line per line:
 \begin{verbatim}
-verapdf --flavour ua2 --format text main.pdf
+latexmk -lualatex main.tex
 \end{verbatim}
 
 %------------------------------------------------------------------------------
@@ -185,24 +187,24 @@ verapdf --flavour ua2 --format text main.pdf
 %------------------------------------------------------------------------------
 \section{Mathematics}
 \label{sec:math}
-Mathematics is written into the PDF as MathML, so a screen reader with MathML support reads
-the real structure of a formula. LaTeX writes the MathML itself and tags every formula as a Formula;
-the package puts the MathML in the tag tree, the form the tagging project and the PDF
-Association's Math BPG recommend and the one Acrobat hands to a screen reader.
+LaTeX writes every formula into the PDF as MathML and tags it as a Formula, so
+a screen reader with MathML support reads its structure instead of a string of
+symbols. Nothing beyond ordinary LaTeX is needed.
 
 %---- Inline and display math -------------------------------------------------
-Inline mathematics is part of the sentence: $e^{i\pi} + 1 = 0$. A displayed equation takes
-a \verb|\label| so that it can be cited:
+Inline mathematics sits in the sentence: $e^{i\pi} + 1 = 0$. A displayed
+equation takes a \verb|\label| so it can be cited:
 \begin{equation}\label{eq:gauss}
   \int_{-\infty}^{\infty} e^{-x^2}\,dx = \sqrt{\pi}
 \end{equation}
-Equation~\eqref{eq:gauss} is cited by number, and the number is a link. Aligned steps
-use \texttt{align}:
+Equation~\eqref{eq:gauss} is cited by its number, and the number is a link.
+Aligned steps use \texttt{align}:
 \begin{align}
   (a+b)^2 &= a^2 + 2ab + b^2 \\
           &= a^2 + b^2 + 2ab
 \end{align}
-Matrices, cases, sums and fractions come from \texttt{amsmath}, which the package loads:
+Matrices, cases, sums and fractions come from \texttt{amsmath}, which the
+package loads:
 \begin{equation}
   A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}, \qquad
   f(x) = \begin{cases} x^2 & x \ge 0 \\ -x & x < 0 \end{cases}, \qquad
@@ -210,32 +212,30 @@ Matrices, cases, sums and fractions come from \texttt{amsmath}, which the packag
 \end{equation}
 %---- Equation groups ---------------------------------------------------------
 \subsection{Groups of equations}
-\texttt{subequations} numbers a group with a letter after the number, as in
-\eqref{eq:group-a} and~\eqref{eq:group-b} below; \texttt{gather} centers lines that do
-not align; \verb|\text{}| puts words inside a formula. Every one of them is a Formula
-with its own MathML, and \verb|\eqref| links to the number.
+\texttt{subequations} numbers a group with letters, as in \eqref{eq:group-a}
+and~\eqref{eq:group-b}. \texttt{gather} centers lines that do not align, and
+\verb|\text| puts words inside a formula.
 \begin{subequations}\label{eq:group}\begin{align}
     a &= b            \label{eq:group-a} \\
     c &= d \quad \text{for all } d \label{eq:group-b}
 \end{align}\end{subequations}
-Equations~\eqref{eq:group-a} and~\eqref{eq:group-b} are the two members of the group.
 \begin{gather} x = 1 \\ y = 2 \end{gather}
 %---- Long formula (multline) -------------------------------------------------
-% multline*: the numbered form warns on every run.
-A formula too long for one line goes in \texttt{multline}, which sets its first part at
-the left margin and the rest at the right:
+% Use multline* for now, the numbered form warns on every run.
+A formula too long for one line goes in \texttt{multline}, which sets the first
+part at the left margin and the rest at the right:
 \begin{multline*}
   a_1 + a_2 + a_3 + a_4 + a_5 + a_6 + a_7 + a_8 + a_9 + a_{10} \\
   + b_1 + b_2 + b_3 + b_4 + b_5 + b_6 + b_7 + b_8 + b_9 + b_{10} = s
 \end{multline*}
 %---- MathML intent -----------------------------------------------------------
-% \MathMLintent names what a formula means (Math BPG 1.0, intent). Keep the
-% double braces around the argument.
+% \MathMLintent gives a formula its meaning. Keep the double braces around the
+% second argument, or the meaning gets dropped.
 \subsection{What a formula means}
-MathML records how a formula looks, not what it means: an $x$ with a bar over it is
-``x bar'' whether it is a mean or a complex conjugate. \verb|\MathMLintent| adds the
-meaning and \verb|\MathMLarg| names the part it applies to, so a reader says ``mean of x''
-for
+MathML records how a formula looks, not what it means. An $x$ with a bar over
+it reads as ``x bar'' whether it is a mean or a complex conjugate.
+\verb|\MathMLintent| adds the meaning and \verb|\MathMLarg| marks the part it
+applies to, so a screen reader says ``mean of x'' for
 \begin{equation}
   \MathMLintent{mean($x)}{{\overline{\MathMLarg{x}{x}}}}
   = \frac{1}{n} \sum_{i=1}^{n} x_i
@@ -248,33 +248,34 @@ and ``complex conjugate of x'' for
 %---- Chemistry, units, bra-ket -----------------------------------------------
 \subsection{Chemistry, units and other notation}
 \label{sec:notation}
-Write chemistry with \verb|\ce| from \texttt{mhchem}, numbers and units with \verb|\qty| and
-\verb|\num| from \texttt{siunitx}, and quantum states with \verb|\braket| and \verb|\ket| from
-\texttt{braket}. Each one becomes a Formula with MathML, exactly like ordinary
-mathematics: a screen reader gets a value and its unit as structure.
-% \ce{^{14}C} warns under tagging, so carbon-14 is written in words; \qtyrange
-% loses its numbers, so a range is two quantities.
-Water is $\ce{H2O}$ and the sulfate ion is $\ce{SO4^2-}$; carbon-14 is written out in
-words. Standard gravity is \qty{9.81}{\metre\per\second\squared}, room temperature is
-\qty{25}{\celsius}, and \num{12345.678} is grouped by \verb|\num| rather than by hand. A
-state is $\ket{0}$ and an inner product is $\braket{\psi|\phi}$. Write a range as two
-quantities, \qty{10}{\celsius} to \qty{20}{\celsius}.
+Chemistry comes from \verb|\ce| in \texttt{mhchem}, numbers and units from
+\verb|\qty| and \verb|\num| in \texttt{siunitx}, and quantum states from
+\verb|\ket| and \verb|\braket| in \texttt{braket}. Each one becomes a Formula
+with MathML, like any other mathematics.
+% \ce{^{14}C} warns under tagging and \qtyrange loses its numbers, so for now
+% carbon-14 is in words and a range is two \qty's.
+Water is $\ce{H2O}$ and the sulfate ion is $\ce{SO4^2-}$. Standard gravity is
+\qty{9.81}{\metre\per\second\squared}, room temperature is \qty{25}{\celsius},
+and \verb|\num| groups the digits of \num{12345.678} for you. A state is
+$\ket{0}$ and an inner product is $\braket{\psi|\phi}$. Write a range as two
+quantities, \qty{10}{\celsius} to \qty{20}{\celsius}, and carbon-14 in words.
 \begin{equation}\label{eq:burn} \ce{CH4 + 2O2 -> CO2 + 2H2O} \end{equation}
 %---- Theorems and algorithm --------------------------------------------------
 \subsection{Theorems, proofs and algorithms}
-The package defines theorem, lemma, proposition, corollary, definition, example, remark
-and algorithm, unless the document defines them itself; \verb|\newtheorem| adds any other
-name. LaTeX tags each block as theorem-like, with its head as a caption:
+The package defines theorem, lemma, proposition, corollary, definition,
+example, remark and algorithm, unless your preamble already does;
+\verb|\newtheorem| adds any others. Each block is tagged with its heading as a
+caption.
 \begin{theorem}\label{thm:one} Every heading in a tagged PDF has a level. \end{theorem}
-\begin{lemma}\label{lem:title} The printed title is the only H1 in this file. \end{lemma}
+\begin{lemma}\label{lem:title} The printed title is the only H1 in this document. \end{lemma}
 \begin{corollary} The first \verb|\section| of this article is therefore an H2. \end{corollary}
 \begin{proof} The package moves every heading one level down, so \verb|\section| is H2. \end{proof}
 \begin{definition} A \emph{header cell} names the row or the column it belongs to. \end{definition}
-\begin{example} A table of results has one header row; its first row is tagged TH. \end{example}
-\begin{remark} The proof above ends with the word QED on its own; a screen reader reads
-it, while LaTeX's open square is drawn with rules and is not read. \end{remark}
-% algorithm is a theorem-like block from the package; the algorithm package
-% cannot be loaded under tagging.
+\begin{example} A table of results has one header row, and its first row is tagged TH. \end{example}
+\begin{remark} The proof above ends with the word QED, which a screen reader
+reads. LaTeX's open square is drawn with lines and is not read. \end{remark}
+% algorithm comes from the package, the algorithm package doesn't work with
+% tagging.
 \begin{algorithm}[Find the largest value]\label{alg:max}
 Input: the values $a_1,\dots,a_n$. Output: the largest of them.
 \begin{algorithmic}[1]
@@ -287,55 +288,56 @@ Input: the values $a_1,\dots,a_n$. Output: the largest of them.
 % FIGURE EXAMPLES
 %------------------------------------------------------------------------------
 \section{Figures and images}
-Four cases cover almost every picture in a document: a picture that gives
-information, a picture made of several panels, a picture of words, and decoration.
-Complex pictures follow in \autoref{sec:longdesc}.
+Most pictures fall into one of four cases: a picture that gives information, a
+figure with several panels, a picture of words, and decoration. Charts and
+other complex images are covered in \autoref{sec:longdesc}.
 
 %---- Picture with alt text ---------------------------------------------------
-Every informative picture needs \verb|alt={...}|. Write what the picture shows and why it is
-in the document, in one or two sentences, as if describing it to a friend. Do not describe
-the file, and do not repeat the caption, which the reader gets anyway. Clemson's pattern for
-people is ``[name] and [name] [action] [location]'', as in ``Dr.~Ellis and two students test
-a screen reader in Cooper Library''; no picture in this kit shows people.
+Every informative picture needs \verb|alt={...}|. Say what the picture shows
+and why it is there, in a sentence or two. Don't name the file or repeat the
+caption. For photos of people, Clemson's pattern is ``[name] and [name]
+[action] [location]'', as in ``Dr.~Ellis and two students test a screen reader
+in Cooper Library''.
 
-% \caption goes above the picture: LaTeX writes the Caption tag first.
+% The caption goes above the picture, since LaTeX tags the caption first.
 \begin{figure}\centering
   \caption{An informative picture with alt text}\label{fig:lab}
   \includegraphics[width=0.5\linewidth,alt={Coiled gray network cables with blue connectors, hung in even rows on a beige pegboard wall.}]{cables}
 \end{figure}
 
 %---- Two panels --------------------------------------------------------------
-A figure can hold several pictures. Give each one its own \verb|\includegraphics| and its own
-alt text, and write one caption that names the panels. \texttt{subcaption} and \texttt{subfig}
-are not compatible with tagging, so lay the panels out with \verb|\hfill|, as here.
-\autoref{fig:panels} uses \verb|trim| and \verb|clip| to show two halves of the picture above.
+A figure can hold several pictures. Give each one its own
+\verb|\includegraphics| and alt text, and write one caption that names the
+panels. \texttt{subcaption} and \texttt{subfig} do not work with tagging, so
+place the panels side by side yourself, as in \autoref{fig:panels}.
 
-% One alt text per panel, one caption.
+% One alt text per panel, one caption for the figure.
 \begin{figure}\centering
   \caption{Two panels: (a) the left half and (b) the right half of the wall}\label{fig:panels}
-  \includegraphics[width=0.33\linewidth,trim=0 0 160 0,clip,alt={Panel (a): the left half of the cable wall, four columns of coils.}]{cables}
-  \hfill
-  \includegraphics[width=0.33\linewidth,trim=160 0 0 0,clip,alt={Panel (b): the right half of the same wall, four more columns of coils.}]{cables}
+  \includegraphics[width=0.25\linewidth,trim=0 0 160 0,clip,alt={Panel (a): the left half of the cable wall, four columns of coils.}]{cables}
+  \quad
+  \includegraphics[width=0.25\linewidth,trim=160 0 0 0,clip,alt={Panel (b): the right half of the same wall, four more columns of coils.}]{cables}
 \end{figure}
 
 %---- Short caption -----------------------------------------------------------
-A caption that runs to three lines would fill the List of Figures. Give \verb|\caption| a short
-title in brackets: the long form is printed with the figure, and the short form goes into the list.
+A long caption crowds the List of Figures. Give \verb|\caption| a short title
+in brackets: the list shows the short form, and the page shows the full one.
 
-% \caption[short]{long}: the short form goes into the list.
+% \caption[short]{long}, the short form goes into the list.
 \begin{figure}\centering
   \caption[A short title for the List of Figures]{A caption long enough to be
-    worth shortening: the same cable wall printed at a smaller size, with the
-    short title in brackets standing in for this caption in the List of
+    worth shortening: the same cable wall at a smaller size, with the short
+    title in brackets standing in for this caption in the List of
     Figures}\label{fig:short}
   \includegraphics[width=0.35\linewidth,alt={Coiled gray network cables in even rows on a beige pegboard wall, the same photograph as above at a smaller size.}]{cables}
 \end{figure}
 
 %---- tikz drawing ------------------------------------------------------------
-A diagram drawn in the document is a picture too. \texttt{tikz} takes the same
-\verb|alt| key, so the drawing is tagged Figure with alt text and needs no export step.
+A drawing made with \texttt{tikz} takes the same \verb|alt| key, so it needs no
+export step.
 
-% tikzpicture takes the alt key; pgfplots does not tag, so export a plot.
+% tikzpicture takes alt. pgfplots doesn't tag its plots yet, so export a plot
+% as an image instead.
 \begin{figure}\centering
   \caption{A diagram drawn in the document with \texttt{tikz}}\label{fig:tikz}
   \begin{tikzpicture}[alt={Flow diagram: a box labeled LaTeX source, an arrow to the right, and a box labeled tagged PDF.}]
@@ -346,45 +348,42 @@ A diagram drawn in the document is a picture too. \texttt{tikz} takes the same
 \end{figure}
 
 %---- Image of text, decorative image -----------------------------------------
-A picture of words is not the same case. Real text is always better, so set words as text
-wherever the picture can be redrawn. WCAG allows an image of text only where the presentation
-is essential, which in practice means a logo or a scanned original; the picture below stands
-in for one. When the picture has to stay, give it \verb|actualtext={...}|, the words
-themselves, and a screen reader reads the words. A picture with no information at all gets
-\verb|artifact|, and is skipped.
+Real text is always better than a picture of words. WCAG allows an image of
+text only where the look is essential, such as a logo or a scanned original.
+When one has to stay, give it \verb|actualtext={...}| with the words
+themselves, and a screen reader reads them. A picture with no information at
+all gets \verb|artifact| and is skipped.
 
-% actualtext: the words in a picture of text. artifact: decoration, skipped.
+% actualtext gives the words in a picture of text. artifact is for decoration.
 {\centering\vspace{1ex}\includegraphics[height=0.8cm,actualtext={Clemson University}]{text-image}\par}
 {\centering\vspace{1ex}\includegraphics[width=0.35\linewidth,artifact]{ornament}\par}
 
-\noindent The first image above is a picture of words, so a screen reader says ``Clemson
-University'' instead of naming a file. The rule below it is decoration: it is marked as
-an artifact and is not in the tag tree at all.
+\noindent A screen reader says ``Clemson University'' for the first image above
+and skips the rule below it entirely.
 %---- Chart, description, data table ------------------------------------------
 \subsection{Complex images and long descriptions}
 \label{sec:longdesc}
-A chart, a map or a diagram needs more than one sentence. Give it a short
-\verb|alt| that states its point and says where the rest is, then write the full description
-into the document, where every reader can find it. Keep the description beside the figure
-when it runs to a few sentences; move it to an appendix when it is long or when many figures
-need one.
+A chart, map or diagram needs more than a sentence. Give it a short
+\verb|alt| that states its point and says where the rest is, then write the
+full description in the document, where every reader can find it. A short
+description can sit next to its figure; a long one goes in an appendix.
 
-% alt states the point and says where the description is. No width key:
-% scaling would shrink the chart's 9 pt labels.
+% No width key here, scaling the chart would shrink its 9 pt labels.
 \begin{figure}\centering
   \caption[Visitors to four South Carolina destinations]{Visitors to four South
     Carolina destinations, 2025. Described in the paragraph below}\label{fig:chart}
   \includegraphics[alt={Bar chart of visitors to four South Carolina destinations: Myrtle Beach draws the most and Aiken the fewest. Described in the paragraph and the table below.}]{chart}
 \end{figure}
 
-\noindent \strong{Description of \autoref{fig:chart}.} The horizontal axis names four
-destinations. The vertical axis is ``Visitors (thousands)'' and runs from 0 to 1500. Aiken had
-250 thousand visitors, Charleston 1200, Greenville 700 and Myrtle Beach 1500. The two coastal
-destinations drew more visitors than the two inland ones, and Myrtle Beach drew six times as
-many as Aiken. \autoref{tab:chartdata} lists the same numbers.
+\noindent \strong{Description of \autoref{fig:chart}.} The horizontal axis
+names four destinations. The vertical axis is ``Visitors (thousands)'' and runs
+from 0 to 1500. Aiken had 250 thousand visitors, Charleston 1200, Greenville 700
+and Myrtle Beach 1500. The two coastal destinations drew more visitors than the
+two inland ones, and Myrtle Beach drew six times as many as Aiken.
+\autoref{tab:chartdata} lists the same numbers.
 
-% The chart's numbers in a real table. No \ref in the short title: it would
-% be a link inside the list entry's link.
+% Keep \ref out of a short caption, it would put a link inside the list
+% entry's link.
 \begin{table}\centering
   \caption[The numbers behind the visitor chart]{The numbers behind
     \autoref{fig:chart}}\label{tab:chartdata}
@@ -398,41 +397,40 @@ many as Aiken. \autoref{tab:chartdata} lists the same numbers.
   \end{tabular}
 \end{table}
 %---- Long description in appendix --------------------------------------------
-% The caption names the appendix and the appendix names the figure. No \ref
-% in alt: alt is a plain string.
+% The caption points to the appendix and the appendix points back. Alt text is
+% plain text, so no \ref in it.
 \begin{figure}\centering
   \caption[The cable wall, described in an appendix]{The cable wall in the
     network store. Full description in \autoref{app:desc}}\label{fig:wall}
   \includegraphics[width=0.3\linewidth,alt={Photograph of the cable wall. Full description in the appendix Extended image descriptions.}]{cables}
 \end{figure}
 %---- Rule, language, abbreviation, color -------------------------------------
-\subsection{Decorative rules, other languages and abbreviations}
-Four small things that come up in any paper.
-% \rule is decoration. \foreignlanguage marks a phrase; the package tags its
-% language. A whole passage goes in otherlanguage, after this list.
+\subsection{Rules, languages and abbreviations}
+Four smaller cases come up in most papers.
+% \rule is decoration. \foreignlanguage marks a phrase and the package tags its
+% language.
 \begin{description}
-  \item[A decorative rule] \verb|\rule{2cm}{0.4pt}| draws a rule that only separates
-    words: \rule{2cm}{0.4pt} and the sentence goes on after it.
-  \item[A phrase in another language] \verb|\foreignlanguage{french}{tout de suite}|
-    gives \foreignlanguage{french}{tout de suite}, tagged as a Span whose language is
-    French. A whole passage in another language is a block, not a phrase; the paragraph
-    after this list shows one.
-  \item[An abbreviation] Write it out the first time it appears: Americans with
-    Disabilities Act (ADA). PDF has an \verb|/E| attribute for an expansion, but it is not
-    needed once the expansion is in the text, where every reader gets it.
-  \item[Color] Color is never the only signal. \autoref{fig:chart} draws every bar in one
-    shade and names each bar on the axis, so nothing depends on telling colors apart.
+  \item[Decorative rules] \verb|\rule{2cm}{0.4pt}| draws a rule that only
+    separates words: \rule{2cm}{0.4pt} and the sentence goes on.
+  \item[Other languages] \verb|\foreignlanguage{french}{tout de suite}| gives
+    \foreignlanguage{french}{tout de suite}, tagged with French as its
+    language. A whole passage goes in \texttt{otherlanguage}, as shown after
+    this list.
+  \item[Abbreviations] Spell one out the first time it appears: Americans with
+    Disabilities Act (ADA). Every reader then gets the expansion from the text.
+  \item[Color] Color is never the only signal. \autoref{fig:chart} draws every
+    bar in one shade and names each one on the axis.
 \end{description}
 
-% otherlanguage with a blank line before and after it, or it joins the
-% paragraph next to it and loses the tag.
-\noindent A whole paragraph in French, written as
-\verb|\begin{otherlanguage}{french} ... \end{otherlanguage}|:
+% Leave a blank line before and after otherlanguage, or it joins the paragraph
+% next to it and loses its language tag.
+\noindent A whole paragraph in French, written with
+\verb|\begin{otherlanguage}{french}|:
 
 \begin{otherlanguage}{french}
-Un document accessible porte, en plus de la page imprim\'ee, un arbre de balises que le
-lecteur d'\'ecran suit; chaque passage dans une autre langue y porte sa propre \'etiquette de
-langue.
+Un document accessible porte, en plus de la page imprim\'ee, un arbre de balises
+que le lecteur d'\'ecran suit; chaque passage dans une autre langue y porte sa
+propre \'etiquette de langue.
 \end{otherlanguage}
 
 %------------------------------------------------------------------------------
@@ -440,20 +438,17 @@ langue.
 %------------------------------------------------------------------------------
 \section{Tables}
 \label{sec:tables}
-A table is accessible when a reader can tell which cells are headers and what each header
-covers. Declare the header cells with \verb|\tagpdfsetup| before \verb|\begin{tabular}|, put the
-caption above the table, as above every figure in this file, and keep notes outside it. The
-layouts below cover the cases that come up in a thesis.
-
-% Layouts follow Clemson's tables guide:
-% https://www.clemson.edu/accessibility/digital/concepts/tables.html
-% Caption above; declare header rows and columns; notes outside; no empty
-% cells; never nest tables.
+A table is accessible when a reader can tell which cells are headers and what
+each header covers. Declare the header cells with \verb|\tagpdfsetup| right
+before \verb|\begin{tabular}|, put the caption above the table, and keep notes
+outside it. The layouts below follow
+\href{https://www.clemson.edu/accessibility/digital/concepts/tables.html}{Clemson's
+guidance on tables}.
 
 %---- Table: header row -------------------------------------------------------
-% 1. Header row: each cell in row 1 is a TH with Scope=Column.
+% 1. Header row: every cell in row 1 becomes a TH with column scope.
 \begin{table}\centering
-  \caption{Simple table: the first row is the header (column scope)}\label{tab:headerrow}
+  \caption{A header row}\label{tab:headerrow}
   \tagpdfsetup{table/header-rows={1}}
   \begin{tabular}{lrr}
     \toprule Item & Count & Share \\ \midrule
@@ -462,10 +457,10 @@ layouts below cover the cases that come up in a thesis.
   \end{tabular}
 \end{table}
 %---- Table: header column ----------------------------------------------------
-% 2. Header column: each cell in column 1 is a TH with Scope=Row.
+% 2. Header column: every cell in column 1 becomes a TH with row scope.
 \begin{table}\centering
-  \caption[Simple table: the first column is the header]{Simple table: the first
-    column is the header (row scope); the three data columns are trials 1 to 3}
+  \caption[A header column]{A header column; the three data columns are trials
+    1 to 3}
   \tagpdfsetup{table/header-columns={1}}
   \begin{tabular}{lrrr}
     \toprule
@@ -475,9 +470,9 @@ layouts below cover the cases that come up in a thesis.
   \end{tabular}
 \end{table}
 %---- Table: header row and column --------------------------------------------
-% 3. Header row and header column: the top-left cell gets Scope=Both.
+% 3. Header row and header column: the corner cell gets both scopes.
 \begin{table}\centering
-  \caption{Header row and header column (the corner cell has both scopes)}
+  \caption{A header row and a header column}
   \tagpdfsetup{table/header-rows={1}, table/header-columns={1}}
   \begin{tabular}{lrrr}
     \toprule Statistic  & Trial 1 & Trial 2 & Trial 3 \\ \midrule
@@ -486,10 +481,10 @@ layouts below cover the cases that come up in a thesis.
   \end{tabular}
 \end{table}
 %---- Table: two-level, merged headers ----------------------------------------
-% 4. Two header rows, both declared; header-columns={1} makes the row labels
-% headers; table/multirow=2 makes the corner cell span both rows.
+% 4. Two header rows, both declared. table/multirow=2 lets the corner cell
+% span both rows.
 \begin{table}\centering
-  \caption{Complex table: a two-level header with merged header cells}
+  \caption{A two-level header with merged cells}
   \tagpdfsetup{table/header-rows={1,2}, table/header-columns={1}}
   \begin{tabular}{lcccc}
     \toprule
@@ -502,10 +497,10 @@ layouts below cover the cases that come up in a thesis.
   \end{tabular}
 \end{table}
 %---- Table: merged cells -----------------------------------------------------
-% 5. Merged cells: table/multirow=2 before a cell spans rows; \multicolumn
-% spans columns. Both: put the key inside the \multicolumn text.
+% 5. table/multirow=2 at the start of a cell spans rows, \multicolumn spans
+% columns. For both at once, put the key inside the \multicolumn text.
 \begin{table}\centering
-  \caption{Complex table: merged cells have their row and column spans}
+  \caption{Merged cells}
   \tagpdfsetup{table/header-rows={1}, table/header-columns={1}}
   \begin{tabular}{llrr}
     \toprule Group & Sample & Before & After \\ \midrule
@@ -538,10 +533,10 @@ layouts below cover the cases that come up in a thesis.
   \end{tabular}
 \end{table}
 %---- Table: group rows -------------------------------------------------------
-% 7. Group rows: declare every header row (table/header-rows={1,2,5}); a
-% group row heads the rows below it up to the next one.
+% 7. Group rows: declare every header row, {1,2,5} here. A group row heads the
+% rows under it until the next one.
 \begin{table}\centering
-  \caption{Group rows: a header row in the middle of the table}
+  \caption{Group rows in the middle of a table}
   \tagpdfsetup{table/header-rows={1,2,5}, table/header-columns={1}}
   \begin{tabular}{lrr}
     \toprule Course   & Enrolled & Passed \\ \midrule
@@ -554,10 +549,9 @@ layouts below cover the cases that come up in a thesis.
   \end{tabular}
 \end{table}
 %---- Table: note outside, no empty cells -------------------------------------
-% 8. Notes outside the table; no empty cells ("n/a").
+% 8. Notes go outside the table. Don't leave a cell empty, write "n/a".
 \begin{table}\centering
-  \caption[A table with no empty cells]{A table with no empty cells; its note
-    follows as a paragraph}
+  \caption[No empty cells]{No empty cells; the note follows as a paragraph}
   \tagpdfsetup{table/header-rows={1}}
   \begin{tabular}{lrr}
     \toprule Site & 2024 & 2025 \\ \midrule
@@ -568,18 +562,19 @@ layouts below cover the cases that come up in a thesis.
 \noindent Note: the South site opened in 2025, so it has no 2024 value.
 
 %---- Long tables (caveat) ----------------------------------------------------
-% longtable keeps a long table one Table across pages but tags its \caption
-% as a cell: put the title in a paragraph before it.
+% longtable keeps a long table as one Table across pages, but it tags its
+% \caption as a cell. Put the title in a paragraph before the table instead.
 
 %---- Side by side, not a table -----------------------------------------------
-Two names side by side are not a table: they hold no data and no headers, and Clemson's
-tables guide keeps tables for data. A \texttt{tabular} used for layout is read row by row:
-``First Author Second Author Clemson University Clemson University''. Put each author in a
-\texttt{minipage} instead, as below; each one is read to its end, so every name is read with
-its own university.
+Two names side by side are not a table: they hold no data, and Clemson keeps
+tables for data. A \texttt{tabular} used for layout is read row by row,
+``First Author Second Author Clemson University Clemson University''. One
+\texttt{minipage} per author is read to its end, so each name stays with its
+university.
 
-% 9. Side by side: one minipage per column, read to its end. A layout tabular
-% needs {\tagpdfsetup{table/tagging=presentation} ...} and reads row by row.
+% 9. Side by side: one minipage per column, each read to its end. If you need
+% a layout tabular anyway, wrap it in
+% {\tagpdfsetup{table/tagging=presentation} ...}.
 \begin{center}
 \begin{minipage}[t]{0.4\linewidth}\centering
   First Author\\ Clemson University
@@ -588,24 +583,24 @@ its own university.
   Second Author\\ Clemson University
 \end{minipage}
 \end{center}
-\noindent Never nest a table inside a table; split it into two tables instead.
+\noindent Never put a table inside a table; split it into two instead.
 
 %------------------------------------------------------------------------------
 % FOOTNOTE AND ENDNOTE EXAMPLES
 %------------------------------------------------------------------------------
 \section{Footnotes and endnotes}
-A footnote goes at the foot of the page it is read on; an endnote is collected and printed
-with the others near the end. A footnote is tagged as a note with a two-way reference to its
-mark; an endnote is an item in a tagged list whose number links back to the mark, and the
-mark links to the note, so a reader can follow either and come straight back. Footnote marks
-are arabic and endnote marks roman, so the two series cannot be confused.
+A footnote prints at the foot of its page, and an endnote is collected with
+the others near the end. A footnote is tagged as a note linked to its mark; an
+endnote is an item in a tagged list, and its number and its mark link to each
+other. Footnote marks are arabic and endnote marks roman, so the two series
+cannot be confused.
 
-% Endnotes come from enotez: mark and note link to each other.
-Write a footnote where it is needed, with \verb|\footnote{...}|,\footnote{The second
-footnote in the file; its mark is the arabic 2.} and an endnote in the same place in the
-text, with \verb|\endnote{...}|.\endnote{The second endnote. Inside a note, write
-commands with \texttt{\textbackslash texttt}, because \texttt{\textbackslash verb} reads
-its own text and cannot sit inside the argument of another command.}
+% Endnotes come from enotez, which the package loads.
+Write a footnote where it belongs with \verb|\footnote{...}|,\footnote{The
+second footnote in this document, so its mark is 2.} and an endnote the same
+way with \verb|\endnote{...}|.\endnote{The second endnote. Inside a note, write
+commands with \texttt{\textbackslash texttt}, because \texttt{\textbackslash
+verb} cannot sit inside the argument of another command.}
 
 %------------------------------------------------------------------------------
 % APPENDIX EXAMPLES
@@ -614,10 +609,11 @@ its own text and cannot sit inside the argument of another command.}
 \appendix
 \section{An appendix}
 \label{app:example}
-An appendix holds material that supports the text but would interrupt it: survey instruments,
-long tables of results, proofs, source code. \verb|\appendix| letters the sections that
-follow, and they appear in the table of contents like any other section. Tables and figures
-in an appendix are tagged exactly as in the body.
+An appendix holds material that supports the text but would interrupt it, such
+as survey instruments, long tables, proofs or source code. \verb|\appendix|
+letters the sections after it, and they appear in the contents like any other
+section. Tables and figures in an appendix are tagged the same way as in the
+body.
 
 \begin{table}\centering
   \caption{A table in an appendix}
@@ -636,24 +632,24 @@ in an appendix are tagged exactly as in the body.
 %---- Appendix B: image descriptions ------------------------------------------
 \section{Extended image descriptions}
 \label{app:desc}
-This appendix holds the descriptions that are too long to sit beside their figures.
-Begin every entry with the figure it describes, so that the caption and the description
-link to each other in both directions.
+This appendix holds the descriptions that are too long to sit beside their
+figures. Start each entry with a link to its figure, so the caption and the
+description point to each other.
 
-\strong{\autoref{fig:wall}:} A color photograph of a storage wall in a network room. Gray
-patch cables are wound into loops about twenty centimeters across and hung on a beige
-pegboard in six rows of eight. A blue plastic clip holds each coil near the top, and the blue
-connectors at the ends of each cable hang below the coil. The rows are evenly spaced and the
-coils are of much the same size, so the wall reads as a store of unused cable rather than as
-equipment in service.
+\strong{\autoref{fig:wall}:} A color photograph of a storage wall in a network
+room. Gray patch cables are wound into loops about twenty centimeters across
+and hung on a beige pegboard in six rows of eight. A blue plastic clip holds
+each coil near the top, and the blue connectors at the ends of each cable hang
+below the coil. The rows are evenly spaced and the coils are much the same
+size, so the wall reads as a store of spare cable rather than equipment in use.
 
 %------------------------------------------------------------------------------
 % ENDNOTES AND BIBLIOGRAPHY
 %------------------------------------------------------------------------------
-% \printendnotes after the appendices, before the works cited.
+% \printendnotes goes after the appendices and before the references.
 \printendnotes
 
-% The package lists the bibliography in the contents and bookmarks it.
+% The package adds the references to the contents and the bookmarks.
 \bibliographystyle{plain}
 \bibliography{references}
 \end{document}

@@ -13,7 +13,6 @@
 *.xmpi
 *.ent
 *-luamml-mathml.html
-*-verapdf.html
 main.pdf
 example.pdf
 .DS_Store

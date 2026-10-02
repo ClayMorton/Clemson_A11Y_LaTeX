@@ -95,7 +95,7 @@
 %------------------------------------------------------------------------------
 % graphicx: LaTeX turns alt, actualtext and artifact into a Figure with Alt,
 % a Span with ActualText or an artifact. Without alt LaTeX uses the file
-% name and veraPDF passes, so alt text is the author's job.
+% name and the automatic checks still pass, so alt text is the author's job.
 % Meets: ISO 14289-2:2024 8.2.5.28.2; WCAG 2.1 SC 1.1.1.
 \RequirePackage{graphicx}
 
@@ -129,8 +129,8 @@
 %------------------------------------------------------------------------------
 % The title is the only H1 and every heading moves down one level (chapter
 % or section H2, down to H6). Acrobat's checker (PDF/UA-1 7.4.2) wants H1
-% first and no skipped level; veraPDF does not test heading order. The plug
-% puts the title of \maketitle in one H1, one Span per line.
+% first and no skipped level. The plug puts the title of \maketitle in one
+% H1, one Span per line.
 % REMOVE WHEN: tagging issue 1625 is fixed.
 % Meets: Clemson Digital Accessibility, Headings; ISO 14289-1:2014 7.4.2;
 % Tagged PDF BPG 1.0.1 4.2.2.2.
@@ -168,6 +168,29 @@
     \tagpdfsetup { role/new-tag = frametitle/H2 }
     \AddToHook { cmd/section/before } [ clemson ]
       { \tagpdfsetup { role/new-tag = frametitle/H3 } }
+  }
+  { }
+\ExplSyntaxOff
+% A11Y WORKAROUND. ltx-talk only bookmarks \section, so a deck has no
+% bookmarks at all; each frame title gets one here, on its tagged slide.
+% REMOVE WHEN: ltx-talk bookmarks its frame titles.
+% Meets: Acrobat checker, Bookmarks; WCAG 2.1 SC 2.4.5; Tagged PDF BPG 1.0.1
+% 7.2.
+\ExplSyntaxOn
+\IfClassLoadedTF { ltx-talk }
+  {
+    \int_new:N \g__clemson_frame_level_int
+    \int_gset:Nn \g__clemson_frame_level_int { 1 }
+    \AddToHook { cmd/section/before } [ clemson/bookmark ]
+      { \int_gset:Nn \g__clemson_frame_level_int { 2 } }
+    \AddToHook { cmd/frametitle/after } [ clemson/bookmark ]
+      {
+        \tag_if_active:T
+          {
+            \pdfbookmark [ \int_use:N \g__clemson_frame_level_int ]
+              { \g__talk_frame_title_tl } { clemson.frame.\theframe }
+          }
+      }
   }
   { }
 \ExplSyntaxOff
@@ -320,8 +343,8 @@
 % TABLE CELLS
 %------------------------------------------------------------------------------
 % A11Y WORKAROUND. LaTeX writes Scope, ColSpan and RowSpan as attribute
-% classes, which veraPDF reads but PAC and Acrobat's Table Editor ignore, so
-% every cell also gets them as a direct /A. Headers: LaTeX writes none.
+% classes, which PAC and Acrobat's Table Editor ignore, so every cell also
+% gets them as a direct /A. Headers: LaTeX writes none.
 % Meets: ISO 32000-2:2020 14.8.4.8.3 (TH, TD); 14.8.5.7 (Table 384).
 \ExplSyntaxOn
 % Headers holds row IDs then column IDs, nearest first (Table 384). The top

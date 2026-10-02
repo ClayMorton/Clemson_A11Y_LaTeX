@@ -45,8 +45,8 @@ and it should work properly as well.
    of text; `artifact` for decoration.
 2. `\tagpdfsetup{table/header-rows={1}}` or `table/header-columns={1}` on the line before
    `\begin{tabular}`; `\tagpdfsetup{table/multirow=2}` at the start of a cell that spans rows.
-3. `\section`, `\subsection`, `\subsubsection` in order; no `[htbp]` on floats.
-4. We're using default [H] settings on all figures and tables, please REMOVE any 
+3. `\section`, `\subsection`, `\subsubsection` in order.
+4. We're using default `[H]` settings on all figures and tables, please REMOVE any 
 other tags you may have on yours IF you're importing this into an existing project.
 
 See the code in `example.tex` for all of these things and more! Each example is under a `%----` 
