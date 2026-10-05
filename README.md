@@ -36,8 +36,14 @@ the first lines of the whole document, the magic comments will not work otherwis
 \author{First Author \and Second Author}
 ```
 
-Build: `latexmk -lualatex main.tex`. You can also use VSCode "save to build" settings,
-and it should work properly as well.
+Build using this command: `latexmk -lualatex main.tex`. If you're using a `.bib`
+file, add these two line after the magic comments  (`% !TEX...`) and before the
+document metadata tag.
+
+```latex
+% !BIB program = bibtex
+% !BIB TS-program = bibtex
+```
 
 ## What you need to write
 
