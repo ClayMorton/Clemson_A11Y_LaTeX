@@ -35,36 +35,19 @@
 %------------------------------------------------------------------------------
 % LOOK
 %------------------------------------------------------------------------------
-% Change the colors here if you like. Keep text at a 4.5:1 contrast or better
-% (white on this purple is 10.3:1, black on the callout is 14.3:1).
+% The look uses the class's own templates: a Clemson purple band with white
+% frame titles, and a footer with the title and the frame number. Change the
+% colors if you like, just keep the contrast (white on this purple is 10.3:1).
 \definecolor{clemsonpurple}{HTML}{522D80}
-\definecolor{codepanel}{HTML}{F4F0F8}
-\definecolor{callout}{HTML}{FFCD82}
-\definecolor{structure}{HTML}{FFFFFF}
-\pagecolor{clemsonpurple}
-\AtBeginDocument{\color{white}}
-
-% Frame titles are white and centered, with no band behind them. The footer
-% stays at \small, since Clemson asks for no text under 9 pt.
-\EditInstance{header}{std}{color = white, left-hspace = 10mm plus 1fil}
-\EditInstance{frametitle}{header}{font = \LARGE\bfseries}
-\EditInstance{footer}{std}{font = \small, color = white,
+\definecolor{structure}{HTML}{522D80}
+\EditInstance{header}{std}{background-color = clemsonpurple, color = white}
+\EditInstance{footer}{std}{font = \small, color = black,
   element-order = {title, framenumber}, separator = \hfill}
-\EditInstance{titlepage-element}{title}{font = \huge\bfseries}
-\EditInstance{titlepage-element}{subtitle}{font = \Large, before-skip = .5em}
-\EditInstance{titlepage-element}{author}{before-skip = 2.5em}
-\EditInstance{titlepage-element}{institute}{font = \normalsize}
-
-% code: a light panel for the LaTeX source, verbatim goes inside it.
-% \callout{...}: the one thing to remember from a frame.
-\newsavebox{\codebox}
-\newenvironment{code}
-  {\par\noindent\setlength{\fboxsep}{6pt}\begin{lrbox}{\codebox}%
-   \begin{minipage}[t]{\dimexpr\linewidth-2\fboxsep\relax}\color{black}\small}
-  {\end{minipage}\end{lrbox}\colorbox{codepanel}{\usebox{\codebox}}\par}
-\newcommand{\callout}[1]{\par\bigskip
-  {\centering\setlength{\fboxsep}{8pt}\colorbox{callout}{%
-   \parbox{.85\linewidth}{\centering\color{black}\bfseries #1}}\par}}
+\EditInstance{titlepage-element}{title}{font = \LARGE\bfseries}
+% Figures and tables sit centered in their column.
+\EditInstance{floatenv}{std}{horizontal-alignment = center}
+% Clemson asks for no text under 9 pt, so the institute line is \small.
+\EditInstance{titlepage-element}{institute}{font = \small}
 
 \title{Accessible LaTeX with the Clemson package}
 \subtitle{Plain LaTeX with one package creating a PDF/UA-2 file}
@@ -87,16 +70,16 @@
   % This block goes above \documentclass. The package loads hyperref, which
   % is why it comes after your other packages.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       \begin{itemize}
         \item \texttt{lang}: the language of the PDF
         \item \texttt{pdfstandard}: PDF/UA-2 and PDF/A-4f
-        \item \texttt{tagging}: on, or the build stops
+        \item \texttt{tagging}: This must be on, or the build will stop
         \item \texttt{check-tagging-status}: a package report in the log
       \end{itemize}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \DocumentMetadata{
   lang        = en-US,
@@ -109,27 +92,9 @@
 \usepackage{clemson}
 \graphicspath{{resources/}}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{Load \texttt{clemson} after your other packages.}
 \end{frame*}
-
-\begin{frame}
-  \frametitle{What the Package Does}
-  % The package only fills the gaps, everything else is LaTeX's own
-  % tagging.
-  \large
-  \begin{itemize}
-    \item Stops the build if tagging is off
-    \item Gives every formula its MathML
-    \item Tags the title as the only H1 and moves every heading down a level
-    \item Writes Scope and Headers on every table cell
-    \item Underlines every link except contents entries and note marks
-    \item Sets text ragged right and notes at 9 pt or larger
-  \end{itemize}
-  \callout{Everything else is plain LaTeX.}
-\end{frame}
 
 %------------------------------------------------------------------------------
 % TITLE AND HEADINGS
@@ -140,7 +105,7 @@
   % title is the only H1 and no level gets skipped. The package sets the
   % levels, you just use \section and \subsection in order.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       \begin{itemize}
         \item Title: H1
         \item \verb|\section|: H2
@@ -149,22 +114,20 @@
         \item \verb|\thanks|: a footnote, kept out of the metadata
       \end{itemize}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \title{Accessible LaTeX}
-\author{First Author\thanks{Corresponding
-  author.} \and Second Author}
+\author{First Author\thanks{A note.}
+  \and Second Author}
 \date{\today}
 \begin{document}
 \maketitle
 \section{Introduction}
 \subsection{Links}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{One H1, and never skip a level.}
 \end{frame*}
 
 %------------------------------------------------------------------------------
@@ -175,28 +138,46 @@
   % \emph and \strong are tagged, \textbf only changes how the letters look,
   % so a screen reader never mentions it. Footnotes are tagged as notes.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       \emph{Emphasis} and \strong{important text} are tagged, \verb|\textbf|
-      is not.\footnote{A footnote, tagged as a note.} Long asides go in an
-      endnote.
+      is not.
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \emph{Emphasis} and
 \strong{important text} are tagged.
+\end{verbatim}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      A footnote.\footnote{A note at the foot of the page.}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
 A footnote.\footnote{A note at
   the foot of the page.}
+\end{verbatim}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      Long asides go in an endnote, printed where \verb|\printendnotes| is.
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
 An aside.\endnote{Printed near
   the end.}
 ...
 \printendnotes
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{Use \texttt{\textbackslash emph} and \texttt{\textbackslash strong}
-    when the meaning matters.}
 \end{frame*}
 
 \begin{frame*}
@@ -205,28 +186,41 @@ An aside.\endnote{Printed near
   % link except contents entries and note marks, so color is never the only
   % signal.
   \begin{columns}
-    \begin{column}[t]{.38\textwidth}
-      \href{https://www.clemson.edu/accessibility/}{Clemson Digital
-      Accessibility}
-
-      \medskip
-      \url{https://www.clemson.edu/}
-
-      \medskip
-      \email{first.last@clemson.edu}
+    \begin{column}{.34\textwidth}
+      \href{https://www.clemson.edu/}{Clemson University}
     \end{column}
-    \begin{column}[t]{.59\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
-\href{https://www.clemson.edu/accessibility/}
-  {Clemson Digital Accessibility}
-\url{https://www.clemson.edu/}
-\email{first.last@clemson.edu}
+\href{https://www.clemson.edu/}
+  {Clemson University}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{Name the destination, never ``click here.''}
+
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      \url{https://ctan.org/}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+\url{https://ctan.org/}
+\end{verbatim}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      \email{first.last@clemson.edu}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+\email{first.last@clemson.edu}
+\end{verbatim}
+    \end{column}
+  \end{columns}
 \end{frame*}
 
 \begin{frame*}
@@ -234,22 +228,20 @@ An aside.\endnote{Printed near
   % \autoref turns the whole phrase into one link, so a screen reader says
   % "Theorem 1" and not just "1". It also stays right when things move.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       See \autoref{thm:one} on page~\pageref{thm:one}, \autoref{alg:max} and
       Equation~\eqref{eq:gauss}.
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 See \autoref{thm:one} on
 page~\pageref{thm:one},
 \autoref{alg:max} and
 Equation~\eqref{eq:gauss}.
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{\texttt{\textbackslash autoref} makes the whole phrase the link.}
 \end{frame*}
 
 \begin{frame*}
@@ -257,32 +249,40 @@ Equation~\eqref{eq:gauss}.
   % Every list item gets a label and a body. enumitem does not work with
   % tagging, so use LaTeX's own label key instead.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       \begin{enumerate}[label=(\alph*)]
         \item Lettered items come from a kernel key.
         \item The letters are real labels.
       \end{enumerate}
-      \begin{description}
-        \item[Alt text] What a picture shows and why it is there.
-      \end{description}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \begin{enumerate}[label=(\alph*)]
   \item Lettered items come from
     a kernel key.
   \item The letters are real labels.
 \end{enumerate}
+\end{verbatim}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      \begin{description}
+        \item[Alt text] What a picture shows and why it is there.
+      \end{description}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
 \begin{description}
   \item[Alt text] What a picture
     shows and why it is there.
 \end{description}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{Use \texttt{label=} for custom labels, not enumitem.}
 \end{frame*}
 
 \begin{frame*}
@@ -290,27 +290,45 @@ Equation~\eqref{eq:gauss}.
   % quote is tagged as a block quotation and verbatim is tagged as code,
   % one code line per line. LaTeX does all of this by itself.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       \begin{quote}
         Tagging writes down what each part of a document is.
       \end{quote}
-      Reserved characters: 100\%, R\&D. A command in a sentence:
-      \verb|\emph|.
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \begin{quote}
   Tagging writes down what each
   part of a document is.
 \end{quote}
-Reserved characters: 100\%, R\&D.
-A command in a sentence: \verb|\emph|.
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{LaTeX tags all of this by itself.}
+
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      Reserved: 100\%, R\&D.
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+Reserved: 100\%, R\&D.
+\end{verbatim}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      Inline code: \verb|\emph|.
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+Inline code: \verb|\emph|.
+\end{verbatim}
+    \end{column}
+  \end{columns}
 \end{frame*}
 
 %------------------------------------------------------------------------------
@@ -321,25 +339,33 @@ A command in a sentence: \verb|\emph|.
   % Every formula goes into the PDF as MathML, so a screen reader can read
   % its structure instead of a string of symbols. Nothing extra to write.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
-      Inline: $e^{i\pi} + 1 = 0$. Displayed, with a label:
+    \begin{column}{.34\textwidth}
+      Inline: $e^{i\pi} + 1 = 0$.
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+Inline: $e^{i\pi} + 1 = 0$.
+\end{verbatim}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \begin{column}{.34\textwidth}
       \begin{equation}\label{eq:gauss}
         \int_{-\infty}^{\infty} e^{-x^2}\,dx = \sqrt{\pi}
       \end{equation}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
-Inline: $e^{i\pi} + 1 = 0$.
 \begin{equation}\label{eq:gauss}
   \int_{-\infty}^{\infty}
     e^{-x^2}\,dx = \sqrt{\pi}
 \end{equation}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{Every formula is MathML, so a screen reader reads its structure.}
 \end{frame*}
 
 \begin{frame*}
@@ -347,33 +373,40 @@ Inline: $e^{i\pi} + 1 = 0$.
   % amsmath comes with the package and every line gets its own MathML. A
   % numbered multline warns on every run, so use multline* for now.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       \begin{align}
         (a+b)^2 &= a^2 + 2ab + b^2 \\
                 &= a^2 + b^2 + 2ab
       \end{align}
-      \begin{equation}
-        f(x) = \begin{cases} x^2 & x \ge 0 \\ -x & x < 0 \end{cases}
-      \end{equation}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \begin{align}
   (a+b)^2 &= a^2 + 2ab + b^2 \\
           &= a^2 + b^2 + 2ab
 \end{align}
+\end{verbatim}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      \begin{equation}
+        f(x) = \begin{cases} x^2 & x \ge 0 \\ -x & x < 0 \end{cases}
+      \end{equation}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
 \begin{equation}
   f(x) = \begin{cases}
     x^2 & x \ge 0 \\ -x & x < 0
   \end{cases}
 \end{equation}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{Plain amsmath. Use \texttt{multline*}, not a numbered
-    \texttt{multline}.}
 \end{frame*}
 
 \begin{frame*}
@@ -382,15 +415,15 @@ Inline: $e^{i\pi} + 1 = 0$.
   % is "x bar" whether it's a mean or a complex conjugate, so \MathMLintent
   % adds the meaning. Keep the double braces or the intent is dropped.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       Read as ``mean of x'', not ``x bar'':
       \begin{equation}
         \MathMLintent{mean($x)}{{\overline{\MathMLarg{x}{x}}}}
         = \frac{1}{n} \sum_{i=1}^{n} x_i
       \end{equation}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \begin{equation}
   \MathMLintent{mean($x)}
@@ -398,11 +431,8 @@ Inline: $e^{i\pi} + 1 = 0$.
   = \frac{1}{n} \sum_{i=1}^{n} x_i
 \end{equation}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{\texttt{\textbackslash MathMLintent} says what a formula means.
-    Keep the double braces.}
 \end{frame*}
 
 \begin{frame*}
@@ -410,31 +440,47 @@ Inline: $e^{i\pi} + 1 = 0$.
   % mhchem, siunitx and braket each turn into a Formula with MathML, just
   % like regular math. Don't load the physics package with them.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       Water is $\ce{H2O}$, sulfate is $\ce{SO4^2-}$.
-
-      \medskip
-      Standard gravity is \qty{9.81}{\metre\per\second\squared}.
-
-      \medskip
-      A state is $\ket{0}$.
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \usepackage[version=4]{mhchem}
-\usepackage{siunitx}
-\usepackage{braket}
 ...
 Water is $\ce{H2O}$,
 sulfate is $\ce{SO4^2-}$.
-\qty{9.81}{\metre\per\second\squared}
-A state is $\ket{0}$.
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{These packages tag by themselves. Leave out physics.}
+
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      Standard gravity is \qty{9.81}{\metre\per\second\squared}.
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+\usepackage{siunitx}
+...
+\qty{9.81}{\metre\per\second\squared}
+\end{verbatim}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      A state is $\ket{0}$.
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+\usepackage{braket}
+...
+A state is $\ket{0}$.
+\end{verbatim}
+    \end{column}
+  \end{columns}
 \end{frame*}
 
 \begin{frame*}
@@ -443,31 +489,38 @@ A state is $\ket{0}$.
   % example, remark and algorithm. A proof ends with the word QED, which a
   % screen reader reads, the open square is not read at all.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.40\textwidth}
       \begin{theorem}\label{thm:one}
         Every heading in a tagged PDF has a level.
       \end{theorem}
-      \begin{proof}
-        The package moves every heading one level down.
-      \end{proof}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \begin{theorem}\label{thm:one}
   Every heading in a tagged PDF
   has a level.
 \end{theorem}
+\end{verbatim}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \begin{column}{.40\textwidth}
+      \begin{proof}
+        The package moves every heading one level down.
+      \end{proof}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
 \begin{proof}
   The package moves every heading
   one level down.
 \end{proof}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{No \texttt{\textbackslash newtheorem} needed. Proofs end with
-    QED.}
 \end{frame*}
 
 \begin{frame*}
@@ -475,7 +528,7 @@ A state is $\ket{0}$.
   % The algorithm package does not work with tagging, so algorithm here is
   % a theorem-like block from the package. algpseudocode numbers the steps.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.40\textwidth}
       \begin{algorithm}[Find the largest value]\label{alg:max}
         Input: $a_1,\dots,a_n$. Output: the largest of them.
         \begin{algorithmic}[1]
@@ -487,8 +540,8 @@ A state is $\ket{0}$.
         \end{algorithmic}
       \end{algorithm}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \begin{algorithm}[Find the largest
   value]\label{alg:max}
@@ -504,10 +557,8 @@ A state is $\ket{0}$.
   \end{algorithmic}
 \end{algorithm}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{\texttt{algorithm} is a block from the package, not a float.}
 \end{frame*}
 
 %------------------------------------------------------------------------------
@@ -519,27 +570,26 @@ A state is $\ket{0}$.
   % name. Say what it shows and why it's there. The caption goes first,
   % since LaTeX tags the caption first.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       \begin{figure}
         \caption{Cables in the store}\label{fig:cables}
         \includegraphics[width=.75\linewidth,alt={Coiled gray cables on a beige pegboard wall.}]{cables}
       \end{figure}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \begin{figure}
   \caption{Cables in the store}
   \label{fig:cables}
-  \includegraphics[width=.75\linewidth,
+  \includegraphics[
+    width=.75\linewidth,
     alt={Coiled gray cables on a
       beige pegboard wall.}]{cables}
 \end{figure}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{Say what the picture shows and why it's there. Caption first.}
 \end{frame*}
 
 \begin{frame*}
@@ -547,7 +597,7 @@ A state is $\ket{0}$.
   % One caption names the panels and each panel gets its own alt text.
   % subcaption and subfig don't work with tagging, so \hfill places them.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       \begin{figure}
         \caption{Two halves of the wall}\label{fig:panels}
         \includegraphics[width=.45\linewidth,trim=0 0 160 0,clip,alt={Panel (a): the left half of the cable wall.}]{cables}
@@ -555,26 +605,26 @@ A state is $\ket{0}$.
         \includegraphics[width=.45\linewidth,trim=160 0 0 0,clip,alt={Panel (b): the right half of the same wall.}]{cables}
       \end{figure}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \begin{figure}
   \caption{Two halves of the wall}
-  \includegraphics[width=.45\linewidth,
+  \includegraphics[
+    width=.45\linewidth,
     trim=0 0 160 0, clip,
     alt={Panel (a): the left half
       of the cable wall.}]{cables}
   \hfill
-  \includegraphics[width=.45\linewidth,
+  \includegraphics[
+    width=.45\linewidth,
     trim=160 0 0 0, clip,
     alt={Panel (b): the right half
       of the same wall.}]{cables}
 \end{figure}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{One alt text per panel. Skip subcaption and subfig.}
 \end{frame*}
 
 \begin{frame*}
@@ -582,35 +632,32 @@ A state is $\ket{0}$.
   % tikzpicture takes the same alt key, so a drawing needs no export step.
   % pgfplots doesn't tag yet, so export a plot as an image instead.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       \begin{figure}
         \caption{From source to tagged PDF}\label{fig:tikz}
-        \begin{tikzpicture}[alt={Flow diagram: a box labeled LaTeX source, an arrow, and a box labeled tagged PDF.}]
-          \draw (0,0) rectangle (2.6,1) node[midway]{LaTeX source};
-          \draw[->] (2.7,0.5) -- (3.7,0.5);
-          \draw (3.8,0) rectangle (6.2,1) node[midway]{tagged PDF};
+        \begin{tikzpicture}[alt={Flow diagram: a box labeled LaTeX source with an arrow pointing to a box labeled tagged PDF.}]
+          \draw (0,0) rectangle (2.3,1) node[midway]{LaTeX source};
+          \draw[->] (2.4,0.5) -- (2.9,0.5);
+          \draw (3.0,0) rectangle (5.2,1) node[midway]{tagged PDF};
         \end{tikzpicture}
       \end{figure}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \begin{tikzpicture}[alt={Flow diagram:
-  a box labeled LaTeX source, an
-  arrow, and a box labeled tagged
-  PDF.}]
-  \draw (0,0) rectangle (2.6,1)
+   a box labeled LaTeX source with an
+    arrow pointing to a box labeled 
+    tagged PDF.}]
+  \draw (0,0) rectangle (2.3,1)
     node[midway]{LaTeX source};
-  \draw[->] (2.7,0.5) -- (3.7,0.5);
-  \draw (3.8,0) rectangle (6.2,1)
+  \draw[->] (2.4,0.5) -- (2.9,0.5);
+  \draw (3.0,0) rectangle (5.2,1)
     node[midway]{tagged PDF};
 \end{tikzpicture}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{\texttt{tikzpicture} takes \texttt{alt} too. Export plots as
-    images.}
 \end{frame*}
 
 \begin{frame*}
@@ -619,54 +666,57 @@ A state is $\ket{0}$.
   % actualtext so a screen reader reads the words. Decoration is an
   % artifact and gets skipped.
   \begin{columns}
-    \begin{column}{.42\textwidth}
-      \colorbox{white}{\color{black}\includegraphics[height=0.8cm,actualtext={Clemson University}]{text-image}}
-
-      \bigskip
-      \colorbox{white}{\color{black}\includegraphics[width=.6\linewidth,artifact]{ornament}}
+    \begin{column}{.34\textwidth}
+      \centering
+      \includegraphics[height=0.7cm,actualtext={Clemson University}]{text-image}
     \end{column}
-    \begin{column}{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
-\includegraphics[height=0.8cm,
+\includegraphics[height=0.7cm,
   actualtext={Clemson University}]
   {text-image}
+\end{verbatim}
+    \end{column}
+  \end{columns}
 
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      \centering
+      \includegraphics[width=.6\linewidth,artifact]{ornament}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
 \includegraphics[width=.6\linewidth,
   artifact]{ornament}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{\texttt{actualtext} gives the words. \texttt{artifact} skips
-    decoration.}
 \end{frame*}
 
 \begin{frame*}
   \frametitle{Charts}
   % A chart needs more than one sentence. The alt text gives the point and
   % says where the rest is, then the full description and the numbers go in
-  % the text where everyone can find them.
+  % the text where everyone can find them. Keep the chart at its natural size
+  % so its 9 pt labels don't shrink.
+  {\centering\includegraphics[alt={Bar chart of visitors to four destinations: Myrtle Beach most, Aiken fewest. Described below.}]{chart}\par}
   \begin{columns}
-    \begin{column}{.42\textwidth}
-      \colorbox{white}{\color{black}\includegraphics[width=.9\linewidth,alt={Bar chart of visitors to four destinations: Myrtle Beach most, Aiken fewest. Described below.}]{chart}}
+    \begin{column}{.34\textwidth}
+      \strong{Description.} Aiken had 250 thousand visitors, Charleston
+      1200, Greenville 700 and Myrtle Beach 1500.
     \end{column}
-    \begin{column}{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \includegraphics[alt={Bar chart of
   visitors to four destinations:
   Myrtle Beach most, Aiken fewest.
   Described below.}]{chart}
 \end{verbatim}
-\end{code}
-
-      \medskip
-      Aiken had 250 thousand visitors, Charleston 1200, Greenville 700
-      and Myrtle Beach 1500.
     \end{column}
   \end{columns}
-  \callout{Short alt text, full description in the text.}
 \end{frame*}
 
 %------------------------------------------------------------------------------
@@ -678,31 +728,38 @@ A state is $\ket{0}$.
   % Add one \babelprovide line per language after the package. A passage
   % needs a blank line before and after it.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       ``Right away'': \foreignlanguage{french}{tout de suite}.
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+\babelprovide[import]{french}
+...
+\foreignlanguage{french}
+  {tout de suite}
+\end{verbatim}
+    \end{column}
+  \end{columns}
 
+  \begin{columns}
+    \begin{column}{.34\textwidth}
       \begin{otherlanguage}{french}
       Un document accessible porte un arbre de balises que le lecteur
       d'\'ecran suit.
       \end{otherlanguage}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
-\babelprovide[import]{french}
-...
-\foreignlanguage{french}{tout de suite}
-
 \begin{otherlanguage}{french}
 Un document accessible porte un
 arbre de balises que le lecteur
 d'\'ecran suit.
 \end{otherlanguage}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{Mark the language and the screen reader switches voices.}
 \end{frame*}
 
 %------------------------------------------------------------------------------
@@ -714,7 +771,7 @@ d'\'ecran suit.
   % row 1 becomes a TH with column scope, and the package writes Scope and
   % Headers on every cell so Acrobat and PAC can read them.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       \begin{table}
         \caption{Header row}\label{tab:headerrow}
         \tagpdfsetup{table/header-rows={1}}
@@ -725,8 +782,8 @@ d'\'ecran suit.
         \end{tabular}
       \end{table}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \begin{table}
   \caption{Header row}
@@ -739,10 +796,8 @@ d'\'ecran suit.
   \end{tabular}
 \end{table}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{Declare the header cells. The package does the rest.}
 \end{frame*}
 
 \begin{frame*}
@@ -750,7 +805,7 @@ d'\'ecran suit.
   % Every cell in column 1 becomes a TH with row scope. When a table has
   % both, give both keys and the corner cell gets both scopes.
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}{.34\textwidth}
       \begin{table}
         \caption{Header column}\label{tab:headercol}
         \tagpdfsetup{table/header-columns={1}}
@@ -761,21 +816,21 @@ d'\'ecran suit.
         \end{tabular}
       \end{table}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \caption{Header column}
-\tagpdfsetup{table/header-columns={1}}
+\tagpdfsetup{
+  table/header-columns={1}}
 \begin{tabular}{lrrr}
   \toprule
   Mean   & 4.1 & 4.4 & 4.0 \\
-  Median & 4.0 & 4.5 & 3.9 \\ \bottomrule
+  Median & 4.0 & 4.5 & 3.9 \\
+  \bottomrule
 \end{tabular}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{A table with both gets both keys.}
 \end{frame*}
 
 \begin{frame*}
@@ -784,7 +839,7 @@ d'\'ecran suit.
   % their own, and table/multirow=2 lets the corner cell span both rows so
   % there's no empty header under it.
   \begin{columns}
-    \begin{column}[t]{.44\textwidth}
+    \begin{column}{.43\textwidth}
       \begin{table}
         \caption{Two-level header}\label{tab:complex}
         \tagpdfsetup{table/header-rows={1,2}, table/header-columns={1}}
@@ -794,33 +849,31 @@ d'\'ecran suit.
           Method & \multicolumn{2}{c}{Training} & \multicolumn{2}{c}{Test} \\
                  & Prec. & Rec. & Prec. & Rec. \\
           \midrule
-          Baseline & 0.74 & 0.68 & 0.71 & 0.64 \\
-          Proposed & 0.91 & 0.86 & 0.88 & 0.81 \\ \bottomrule
+          Baseline & .74 & .68 & .71 & .64 \\
+          Proposed & .91 & .86 & .88 & .81 \\ \bottomrule
         \end{tabular}
       \end{table}
     \end{column}
-    \begin{column}[t]{.53\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \tagpdfsetup{table/header-rows={1,2},
   table/header-columns={1}}
 \begin{tabular}{lcccc}
   \toprule
   \tagpdfsetup{table/multirow=2}%
-  Method & \multicolumn{2}{c}{Training}
-         & \multicolumn{2}{c}{Test} \\
-         & Prec. & Rec. & Prec. & Rec. \\
+  Method
+    & \multicolumn{2}{c}{Training}
+    & \multicolumn{2}{c}{Test} \\
+    & Prec. & Rec. & Prec. & Rec. \\
   \midrule
-  Baseline & 0.74 & 0.68 & 0.71 & 0.64 \\
-  Proposed & 0.91 & 0.86 & 0.88 & 0.81 \\
+  Baseline & .74 & .68 & .71 & .64 \\
+  Proposed & .91 & .86 & .88 & .81 \\
   \bottomrule
 \end{tabular}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{Declare both header rows. \texttt{multirow=2} spans the corner
-    cell.}
 \end{frame*}
 
 \begin{frame*}
@@ -829,7 +882,7 @@ d'\'ecran suit.
   % Author Clemson University Clemson University". A minipage per author is
   % read to its end, so each name stays with its school.
   \begin{columns}
-    \begin{column}[t]{.45\textwidth}
+    \begin{column}{.42\textwidth}
       \begin{minipage}[t]{0.48\linewidth}\centering
         First Author\\ Clemson University
       \end{minipage}\hfill
@@ -837,8 +890,8 @@ d'\'ecran suit.
         Second Author\\ Clemson University
       \end{minipage}
     \end{column}
-    \begin{column}[t]{.52\textwidth}
-\begin{code}
+    \begin{column}{.44\textwidth}
+\small
 \begin{verbatim}
 \begin{minipage}[t]{0.48\linewidth}
   \centering
@@ -849,10 +902,8 @@ d'\'ecran suit.
   Second Author\\ Clemson University
 \end{minipage}
 \end{verbatim}
-\end{code}
     \end{column}
   \end{columns}
-  \callout{Tables are for data. Use a minipage for layout.}
 \end{frame*}
 
 %------------------------------------------------------------------------------
@@ -868,18 +919,18 @@ d'\'ecran suit.
 
   \medskip
   \begin{columns}
-    \begin{column}[t]{.42\textwidth}
+    \begin{column}[t]{.40\textwidth}
       Build it:
 
       \medskip
-\begin{code}
+\small
 \begin{verbatim}
 latexmk -lualatex main.tex
 \end{verbatim}
-\end{code}
     \end{column}
-    \begin{column}[t]{.55\textwidth}
-      Then check by hand:
+    \begin{column}[t]{.49\textwidth}
+      Then run \href{https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/manual-checks.html}{Clemson's
+      manual checks}:
       \begin{enumerate}
         \item Alt text says what and why
         \item One H1 and no skipped levels
@@ -889,9 +940,6 @@ latexmk -lualatex main.tex
       \end{enumerate}
     \end{column}
   \end{columns}
-  \callout{Then run
-    \href{https://www.clemson.edu/accessibility/digital/guides/pdf/check-accessibility/manual-checks.html}{Clemson's
-    manual checks} in Acrobat Pro.}
 \end{frame*}
 
 %------------------------------------------------------------------------------
@@ -901,22 +949,26 @@ latexmk -lualatex main.tex
   \frametitle{Getting Started}
   % main.tex is the blank starter and example.tex is the worked example.
   \large
-  \begin{enumerate}
+  \begin{enumerate}\setlength{\itemsep}{.5em}
     \item Put \verb|\DocumentMetadata| above \verb|\documentclass|, then your
       packages, then \verb|\usepackage{clemson}|
-    \item Write plain LaTeX: \verb|\section| in order, \verb|\autoref|,
+    \item Write your LaTeX! \verb|\section| in order, \verb|\autoref|,
       \verb|\emph| and \verb|\strong|
     \item Give every picture \texttt{alt} text and every table its header
       cells
+    \item Run \verb|sudo tlmgr update --self --all| to get the latest package updates
     \item Build with latexmk, then run the checks by hand
   \end{enumerate}
-  \callout{\url{https://github.com/ClayMorton/Clemson_A11Y_LaTeX}}
+
+  \bigskip
+
+  \url{https://github.com/ClayMorton/Clemson_A11Y_LaTeX}
 \end{frame*}
 
 \begin{frame}
   \frametitle{Resources}
   \large
-  \begin{itemize}
+  \begin{itemize}\setlength{\itemsep}{.5em}
     \item \href{https://www.clemson.edu/accessibility/}{Clemson Digital
       Accessibility}
     \item \href{https://latex3.github.io/tagging-project/}{The LaTeX tagging
