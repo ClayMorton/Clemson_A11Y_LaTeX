@@ -1,16 +1,16 @@
 # The Clemson LaTeX Package
 
-The Clemson package `clemson.sty` makes LuaLaTeX write an accessible PDF,
+The Clemson package `clemson.sty` helps ensure LuaLaTeX can output an accessible PDF,
 provided you follow the set of rules that the package enforces, and meet the
 requirements laid out in [Clemson's digital accessibility concepts](https://www.clemson.edu/accessibility/digital/concepts/).
 
 ## Files provided
 
 - `main.tex` is a good starting place for your accessible document.
-- `example.tex` is a worked version of commonly used tools and layouts that you can
+- `example.tex` is a sample of commonly used tools and layouts that you can
 compile into an accessible PDF and see the source code for, so you can replicate
 things as needed.
-- `Clemson_LaTeX_Accessibility_Talk.tex` is a worked presentation file that has
+- `Clemson_LaTeX_Accessibility_Talk.tex` is a sample presentation file that has
 almost all the `example.tex` examples, but in presentation form. This is a good
 starting place for your own accessible presentation.
 
@@ -30,7 +30,7 @@ presentation to fit your needs.
 
 1. Copy the folder and write your `main.tex`, or you can copy `clemson.sty` into an
 existing project.
-2. Use `sudo tlmgr update --self --all` to update your packages. Lots of
+2. Use `sudo tlmgr update --self --all` or the GUI to update your packages. Lots of
 packages are being updated to support tagging, so this keeps you up to date.
 3. **MAKE SURE** these are the first lines of your document. The magic comments
 should be on line 1 of your document:
