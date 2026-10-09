@@ -370,8 +370,7 @@ Inline: $e^{i\pi} + 1 = 0$.
 
 \begin{frame*}
   \frametitle{Aligned Steps and Cases}
-  % amsmath comes with the package and every line gets its own MathML. A
-  % numbered multline warns on every run, so use multline* for now.
+  % amsmath comes with the package and every line gets its own MathML.
   \begin{columns}
     \begin{column}{.34\textwidth}
       \begin{align}
@@ -410,6 +409,29 @@ Inline: $e^{i\pi} + 1 = 0$.
 \end{frame*}
 
 \begin{frame*}
+  \frametitle{Long Formulas}
+  % multline sets the first line at the left and the last line at the right.
+  % Use multline* for now, the numbered form warns on every run.
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      \begin{multline*}
+        a_1 + a_2 + a_3 + a_4 + a_5 \\
+        + b_1 + b_2 + b_3 = s
+      \end{multline*}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+\begin{multline*}
+  a_1 + a_2 + a_3 + a_4 + a_5 \\
+  + b_1 + b_2 + b_3 = s
+\end{multline*}
+\end{verbatim}
+    \end{column}
+  \end{columns}
+\end{frame*}
+
+\begin{frame*}
   \frametitle{What a Formula Means}
   % MathML records how a formula looks, not what it means. An x with a bar
   % is "x bar" whether it's a mean or a complex conjugate, so \MathMLintent
@@ -429,6 +451,27 @@ Inline: $e^{i\pi} + 1 = 0$.
   \MathMLintent{mean($x)}
     {{\overline{\MathMLarg{x}{x}}}}
   = \frac{1}{n} \sum_{i=1}^{n} x_i
+\end{equation}
+\end{verbatim}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      The same bar, read as ``complex conjugate of x'' when $x = a + bi$:
+      \begin{equation}
+        \MathMLintent{complex-conjugate($x)}{{\overline{\MathMLarg{x}{x}}}}
+        = a - bi
+      \end{equation}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+\begin{equation}
+  \MathMLintent
+    {complex-conjugate($x)}
+    {{\overline{\MathMLarg{x}{x}}}}
+  = a - bi
 \end{equation}
 \end{verbatim}
     \end{column}
@@ -628,6 +671,35 @@ A state is $\ket{0}$.
 \end{frame*}
 
 \begin{frame*}
+  \frametitle{Short Captions}
+  % A long caption crowds the List of Figures. Put a short title in brackets,
+  % the list shows that one and the page shows the full caption.
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      \begin{figure}
+        \caption[The cable wall]{Coiled cables on the wall of the network
+          store, in six rows}\label{fig:short}
+        \includegraphics[width=.6\linewidth,alt={Coiled gray cables on a beige pegboard wall.}]{cables}
+      \end{figure}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+\begin{figure}
+  \caption[The cable wall]{Coiled
+    cables on the wall of the network
+    store, in six rows}
+  \includegraphics[
+    width=.6\linewidth,
+    alt={Coiled gray cables on a
+      beige pegboard wall.}]{cables}
+\end{figure}
+\end{verbatim}
+    \end{column}
+  \end{columns}
+\end{frame*}
+
+\begin{frame*}
   \frametitle{Drawings in the Document}
   % tikzpicture takes the same alt key, so a drawing needs no export step.
   % pgfplots doesn't tag yet, so export a plot as an image instead.
@@ -714,6 +786,41 @@ A state is $\ket{0}$.
   visitors to four destinations:
   Myrtle Beach most, Aiken fewest.
   Described below.}]{chart}
+\end{verbatim}
+    \end{column}
+  \end{columns}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Long Descriptions}
+  % When a description is too long to sit next to its figure, put it in an
+  % appendix. The caption links to it and it links back to the figure.
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      \begin{itemize}
+        \item The alt text says where the description is
+        \item The caption links to the appendix
+        \item The appendix links back to the figure
+        \item Alt text is plain text, so no \verb|\ref| in it
+      \end{itemize}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+\begin{figure}
+  \caption{The cable wall, described
+    in \autoref{app:desc}}
+  \label{fig:wall}
+  \includegraphics[alt={Photograph of
+    the cable wall. Full description
+    in the appendix.}]{cables}
+\end{figure}
+...
+\appendix
+\section{Extended image descriptions}
+\label{app:desc}
+\strong{\autoref{fig:wall}:} A color
+photograph of a storage wall ...
 \end{verbatim}
     \end{column}
   \end{columns}
@@ -877,6 +984,127 @@ d'\'ecran suit.
 \end{frame*}
 
 \begin{frame*}
+  \frametitle{Merged Cells}
+  % Put table/multirow=2 at the start of a cell to span two rows, and use
+  % \multicolumn to span columns. Each one is tagged as a single cell.
+  \begin{columns}
+    \begin{column}{.43\textwidth}
+      \begin{table}
+        \caption{Merged cells}\label{tab:merged}
+        \tagpdfsetup{table/header-rows={1}, table/header-columns={1}}
+        \begin{tabular}{llrr}
+          \toprule Group & Sample & Before & After \\ \midrule
+          \tagpdfsetup{table/multirow=2}%
+          Control   & S1 & 10 & 11 \\
+                    & S2 & 12 & 12 \\
+          \tagpdfsetup{table/multirow=2}%
+          Treatment & S3 & 10 & 15 \\
+                    & S4 & \multicolumn{2}{c}{not measured} \\ \bottomrule
+        \end{tabular}
+      \end{table}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+\tagpdfsetup{table/header-rows={1},
+  table/header-columns={1}}
+\begin{tabular}{llrr}
+  \toprule
+  Group & Sample & Before & After \\
+  \midrule
+  \tagpdfsetup{table/multirow=2}%
+  Control   & S1 & 10 & 11 \\
+            & S2 & 12 & 12 \\
+  \tagpdfsetup{table/multirow=2}%
+  Treatment & S3 & 10 & 15 \\
+            & S4 & \multicolumn{2}{c}
+                   {not measured} \\
+  \bottomrule
+\end{tabular}
+\end{verbatim}
+    \end{column}
+  \end{columns}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Group Rows}
+  % A row that names a group heads the rows under it, up to the next group.
+  % Declare it as a header row along with row 1, so {1,2,5} here.
+  \begin{columns}
+    \begin{column}{.40\textwidth}
+      \begin{table}
+        \caption{Group rows}\label{tab:grouprows}
+        \tagpdfsetup{table/header-rows={1,2,5}, table/header-columns={1}}
+        \begin{tabular}{lrr}
+          \toprule Course & Enrolled & Passed \\ \midrule
+          \multicolumn{3}{l}{Fall} \\
+          MATH 101 & 120 & 108 \\
+          MATH 102 & 95  & 90  \\
+          \multicolumn{3}{l}{Spring} \\
+          MATH 101 & 130 & 121 \\
+          MATH 102 & 88  & 80  \\ \bottomrule
+        \end{tabular}
+      \end{table}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+\tagpdfsetup{
+  table/header-rows={1,2,5},
+  table/header-columns={1}}
+\begin{tabular}{lrr}
+  \toprule
+  Course & Enrolled & Passed \\
+  \midrule
+  \multicolumn{3}{l}{Fall} \\
+  MATH 101 & 120 & 108 \\
+  MATH 102 & 95  & 90  \\
+  \multicolumn{3}{l}{Spring} \\
+  MATH 101 & 130 & 121 \\
+  MATH 102 & 88  & 80  \\ \bottomrule
+\end{tabular}
+\end{verbatim}
+    \end{column}
+  \end{columns}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{No Empty Cells}
+  % Write n/a instead of leaving a cell empty, and put notes in a paragraph
+  % after the table, not inside it.
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      \begin{table}
+        \caption{No empty cells}\label{tab:noempty}
+        \tagpdfsetup{table/header-rows={1}}
+        \begin{tabular}{lrr}
+          \toprule Site & 2024 & 2025 \\ \midrule
+          North & 41  & 45 \\
+          South & n/a & 39 \\ \bottomrule
+        \end{tabular}
+      \end{table}
+      Note: the South site opened in 2025.
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+\begin{table}
+  \caption{No empty cells}
+  \tagpdfsetup{table/header-rows={1}}
+  \begin{tabular}{lrr}
+    \toprule Site & 2024 & 2025 \\
+    \midrule
+    North & 41  & 45 \\
+    South & n/a & 39 \\ \bottomrule
+  \end{tabular}
+\end{table}
+Note: the South site opened in 2025.
+\end{verbatim}
+    \end{column}
+  \end{columns}
+\end{frame*}
+
+\begin{frame*}
   \frametitle{Side by Side Is Not a Table}
   % A tabular used for layout is read row by row: "First Author Second
   % Author Clemson University Clemson University". A minipage per author is
@@ -901,6 +1129,39 @@ d'\'ecran suit.
   \centering
   Second Author\\ Clemson University
 \end{minipage}
+\end{verbatim}
+    \end{column}
+  \end{columns}
+\end{frame*}
+
+%------------------------------------------------------------------------------
+% BACK MATTER
+%------------------------------------------------------------------------------
+\begin{frame*}
+  \frametitle{Appendices and References}
+  % Endnotes print after the appendices and before the references. The
+  % package adds the references to the contents and the bookmarks.
+  \begin{columns}
+    \begin{column}{.34\textwidth}
+      \begin{itemize}
+        \item \verb|\cite|: a link to its entry
+        \item \verb|\appendix|: the sections after it are lettered
+        \item \verb|\printendnotes|: after the appendices
+        \item \verb|\bibliography|: last, and listed in the contents
+      \end{itemize}
+    \end{column}
+    \begin{column}{.44\textwidth}
+\small
+\begin{verbatim}
+As shown by Knuth~\cite{knuth1984}.
+...
+\appendix
+\section{Survey questions}
+...
+\printendnotes
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}
 \end{verbatim}
     \end{column}
   \end{columns}
