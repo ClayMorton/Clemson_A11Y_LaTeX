@@ -20,7 +20,7 @@ presentation to fit your needs.
 
 ## Requirements
 
-- [TeX Live 2026](https://www.tug.org/texlive/) for windows/linux or 
+- [TeX Live](https://www.tug.org/texlive/) for windows/linux or 
 [MacTex](https://www.tug.org/mactex/mactex-download.html) if you're on MacOS.
 - Adobe Acrobat Pro for hand checking your document after PDF conversion.
 
